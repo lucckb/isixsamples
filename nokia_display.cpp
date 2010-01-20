@@ -20,7 +20,7 @@
 #include <isix.h>
 /* ------------------------------------------------------------------ */
 //Application namespace
-namespace app
+namespace drv
 {
 /* ------------------------------------------------------------------ */
 //Unnamed namespace

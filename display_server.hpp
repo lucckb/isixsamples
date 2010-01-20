@@ -36,7 +36,7 @@ protected:
 	virtual void main();
 private:
 	//The display object
-	nokia_display display;
+	drv::nokia_display display;
 	static const unsigned STACK_SIZE = 256;
 	static const unsigned TASK_PRIO = 3;
 	static const unsigned QUEUE_CAPACITY = 10;

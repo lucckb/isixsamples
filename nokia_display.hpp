@@ -17,7 +17,7 @@ namespace images
 
 /* ------------------------------------------------------------------ */
 //Application namespace
-namespace app
+namespace drv
 {
 /* ------------------------------------------------------------------ */
 //Nokia display class
