@@ -8,7 +8,7 @@ FORMAT	= hex
 
 #Optimalization [0,1,2,3,s]
 # 0 - none optimalization, s - size optimalization 3 - most optimized
-OPT 	?= 2
+OPT 	?= 0
 
 
 #Common flags 

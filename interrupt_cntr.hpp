@@ -26,9 +26,7 @@ public:
 class interrupt_cntr
 {
 public:
-	enum irql {	irql_timer,		//Timer interrupt
-				irql_usart1, 	//Usart0 interrupt
-				irql_usart2, 	//Usart1 interrupt
+	enum irql {	irql_i2c1,		//Timer interrupt
 				irql_last
 			   };
 

@@ -14,7 +14,7 @@ namespace dev
 interrupt* interrupt_cntr::vector_tab[irql_last];
 
 const IRQn_Type interrupt_cntr::nvic_irq[] = {
-		SysTick_IRQn, USART1_IRQn, USART2_IRQn
+		 I2C1_EV_IRQn
 };
 
 interrupt_cntr::errno interrupt_cntr::register_int(
@@ -31,17 +31,13 @@ interrupt_cntr::errno interrupt_cntr::register_int(
 extern "C"
 {
 
-void usart1_isr_vector(void) __attribute__ ((interrupt));
-void usart1_isr_vector(void)
+void i2c1_ev_isr_vector(void) __attribute__ ((interrupt));
+void i2c1_ev_isr_vector(void)
 {
-	interrupt_cntr::call_handler(interrupt_cntr::irql_usart1);
+	interrupt_cntr::call_handler(interrupt_cntr::irql_i2c1);
 }
 
-void usart2_isr_vector(void) __attribute__ ((interrupt));
-void usart2_isr_vector(void)
-{
-	interrupt_cntr::call_handler(interrupt_cntr::irql_usart2);
-}
+/* ------------------------------------------------------------------ */
 
 }
 

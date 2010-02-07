@@ -11,6 +11,7 @@
 #include "the_application.hpp"
 #include <usart_simple.h>
 #include <tiny_printf.h>
+#include "config.hpp"
 
 namespace {
 /* ------------------------------------------------------------------ */
@@ -80,7 +81,7 @@ void uc_periph_setup()
 //Setup the systick timer at ISIX_HZ (default 1000HZ)
 void timer_setup()
 {
-	SysTick->LOAD = (1000000/isix::ISIX_HZ) * (HCLK_HZ/(8*MHZ));
+	SysTick->LOAD = (1000000/isix::ISIX_HZ) * (config::HCLK_HZ/(8*MHZ));
 	SysTick->CTRL |= CTRL_TICKINT_Set;
 	//System counter enable
 	SysTick->CTRL |= SysTick_Counter_Enable;

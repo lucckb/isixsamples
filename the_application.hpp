@@ -11,6 +11,7 @@
 #include "blinker.hpp"
 #include "display_server.hpp"
 #include "graph_key.hpp"
+#include "rtc_reader.hpp"
 /* ------------------------------------------------------------------ */
 //Application namespace
 namespace app
@@ -29,6 +30,8 @@ private:
 	display_server dsrv;
 	//The keyboard task
 	graph_key keys;
+	//The rtc reader
+	rtc_reader rtcr;
 };
 
 /* ------------------------------------------------------------------ */
