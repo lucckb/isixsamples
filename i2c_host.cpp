@@ -262,7 +262,7 @@ void i2c_interrupt::isr()
 	break;
 	//Master mode selected
 	case I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED:	//EV7
-	//	break;
+		break;
 	case I2C_EVENT_MASTER_BYTE_RECEIVED:
 
 		logsys("<%d>\r\n",owner.rx_bytes);
@@ -275,10 +275,10 @@ void i2c_interrupt::isr()
 		{
 			logsys(">ACK\r\n");
 			owner.ack_on(false);
+			owner.generate_stop();
 	    }
 		else if(owner.rx_bytes==0)
 		{
-			owner.generate_stop();
 			logsys(">STO\r\n");
 			owner.sem_lock.signal_isr();
 		}
