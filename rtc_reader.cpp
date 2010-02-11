@@ -8,6 +8,7 @@
 /* ------------------------------------------------------------------ */
 #include "rtc_reader.hpp"
 #include <stm32f10x_lib.h>
+#include <tiny_printf.h>
 /* ------------------------------------------------------------------ */
 namespace app
 {
@@ -30,21 +31,26 @@ void rtc_reader::main()
 {
 	static const uint8_t pgm_regs[] =
 	{
-		0x00,		//Address
 		0x00,		//Sekundy
-		0x34,		//Minuty
-		0x14,		//Godziny
-		0x01,		//Dzien tyg
-		0x12,		//Dzien
-		0x03,		//Miesiac
-		0x07		//Rok
+		0x00,		//Minuty
+		0x00,		//Godziny
+		0x00,		//Dzien tyg
+		0x00,		//Dzien
+		0x00,		//Miesiac
+		0x00,		//Rok
+		0x00		//Konfiguracja
 	};
 
-	i2c_bus.i2c_write_7bit( I2C_RTC_ADDR, pgm_regs, sizeof(pgm_regs) );
+	static const uint8_t sw_addr = 0;
+	static uint8_t buf[12];
 
+	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
+	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
 	for(;;)
 	{
-		isix::isix_wait(10000);
+		i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
+		tiny_printf("%02x:%02x:%02x\r\n",buf[2],buf[1],buf[0]);
+		isix::isix_wait(1300);
 	}
 }
 

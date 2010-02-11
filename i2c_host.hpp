@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <isix.h>
 #include "interrupt_cntr.hpp"
+#include <tiny_printf.h>
 /* ------------------------------------------------------------------ */
 namespace dev
 {
@@ -37,6 +38,7 @@ private:
 	static const unsigned IRQ_SUB = 7;
 };
 
+
 /* ------------------------------------------------------------------ */
 class i2c_host
 {
@@ -48,10 +50,8 @@ public:
 	};
 public:
 	i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed=100000);
-	int i2c_write_7bit(uint8_t addr, const void *buffer, unsigned short size, bool stop=true );
-	int i2c_read_7bit(uint8_t addr, void *buffer, unsigned short size);
+	int i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize);
 private:
-
 
 	static const unsigned CR1_ACK_BIT = 0x0400;
 	static const unsigned CR1_START_BIT = 0x0100;
@@ -68,17 +68,20 @@ private:
 
 	void send_7bit_addr(uint8_t addr)
 	{
-
 		i2c->DR = addr;
 	}
 
 	void send_data(uint8_t data)
 	{
+		tiny_printf("S.%02x\r\n",data);
 		i2c->DR = data;
 	}
+
 	uint8_t receive_data()
 	{
-		return i2c->DR;
+		uint8_t d = i2c->DR;
+		tiny_printf("R.%02x\r\n",d);
+		return d;
 	}
 
 	void cr1_reg(unsigned bit, bool en)
@@ -102,20 +105,28 @@ private:
 		cr1_reg( CR1_STOP_BIT, en );
 	}
 
+	void clear_flags()
+	{
+		static_cast<void>(static_cast<volatile uint16_t>(i2c->SR1));
+		static_cast<void>(static_cast<volatile uint16_t>(i2c->DR));
+	}
+
 	void set_speed(unsigned speed);
 
 private:
+
 	I2C_TypeDef *i2c;
-	union
-	{
-		const uint8_t *ro_buf;
-		uint8_t *rw_buf;
-	};
+
+	const uint8_t *tx_buf;
+	uint8_t *rx_buf;
+
 	isix::semaphore sem_lock;
 	volatile uint8_t bus_addr;
-	volatile bool stop_required;
-	volatile unsigned short remaining_bytes;
-	volatile unsigned short buf_pos;
+
+	volatile short tx_bytes;
+	volatile short rx_bytes;
+	volatile short buf_pos;
+
 	i2c_interrupt interrupt;
 };
 /* ------------------------------------------------------------------ */

@@ -11,6 +11,11 @@
 #include <system.h>
 #include "interrupt_cntr.hpp"
 #include <cstring>
+#include <tiny_printf.h>
+/* ------------------------------------------------------------------ */
+#define logsys tiny_printf
+//#define logsys(...)
+
 /* ------------------------------------------------------------------ */
 namespace dev
 {
@@ -24,7 +29,6 @@ namespace {
 	const unsigned I2C1_GPIO_ENR = RCC_APB2Periph_GPIOB;
 	const unsigned  I2C1_ENR     = RCC_APB1Periph_I2C1;
 
-	const uint16_t CR1_PE_SET = 0x0001;
 	const uint16_t CR1_PE_RESET = 0xFFFE;
 	const uint16_t CR2_FREQ_RESET = 0xFFC0;
 	const uint16_t CCR_CCR_SET = 0x0FFF;
@@ -35,7 +39,6 @@ namespace {
 	const uint16_t I2C_MODE_I2C = 0x0000;
 	const uint16_t I2C_ACK_ENABLE = 0x0400;
 	const uint16_t I2C_AcknowledgedAddress_7bit = 0x4000;
-
 	const uint8_t I2C_BUS_RW_BIT = 0x01;
 	//I2c status
 	enum {
@@ -57,7 +60,7 @@ namespace {
 		I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED = 0x00070082,  /* BUSY, MSL, ADDR, TXE and TRA flags */
 		I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED =  0x00030002,   /* BUSY, MSL and ADDR flags */
 		//EV7
-		I2C_EVENT_MASTER_BYTE_RECEIVED = 0x00030040,  /* BUSY, MSL and RXNE flags */
+		I2C_EVENT_MASTER_BYTE_RECEIVED = 0x00030044,  /* BUSY, MSL and RXNE flags */
 		I2C_EVENT_MASTER_BYTE_TRANSMITTING =  0x00070080, /* TRA, BUSY, MSL, TXE flags */
 		//EV8_2
 		I2C_EVENT_MASTER_BYTE_TRANSMITTED =   0x00070084,  /* TRA, BUSY, MSL, TXE and BTF flags */
@@ -70,6 +73,7 @@ namespace {
 	const uint16_t I2C_IT_BUF = 0x0400;
 	const uint16_t I2C_IT_EVT = 0x0200;
 	const uint16_t I2C_IT_ERR = 0x0100;
+	const uint16_t CR1_PE_SET = 0x0001;
 }
 
 /* ------------------------------------------------------------------ */
@@ -131,7 +135,8 @@ i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 
 	 i2c->SR1 = 0; i2c->SR2 = 0;
 	 /* Enable I2C interrupt */
-	 i2c->CR2 |= I2C_IT_BUF | I2C_IT_EVT;
+	 i2c->CR2 |=  I2C_IT_EVT | I2C_IT_ERR;
+
 	 /* Enable interrupt controller */
 	 interrupt_cntr::enable_int(interrupt_cntr::irql_i2c1);
 }
@@ -186,88 +191,102 @@ void i2c_host::set_speed(unsigned speed)
 }
 
 /* ------------------------------------------------------------------ */
-//Write 7bit to the i2c interface
-int i2c_host::i2c_write_7bit(uint8_t addr, const void* buffer, unsigned short size ,bool stop)
+int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
-
+	logsys("i2c_transfer_7bit\r\n");
 	if( (ret=sem_lock.wait(isix::ISIX_TIME_INFINITE))<0 )
-		return ret;
-	bus_addr = addr & ~I2C_BUS_RW_BIT;
-	stop_required = stop;
-	remaining_bytes = size;
+			return ret;
+	logsys("transfer_wakeup\r\n");
+	if(wbuffer && wsize>0)
+	{
+		bus_addr = addr & ~I2C_BUS_RW_BIT;
+	}
+	else if(rbuffer && rsize>0)
+	{
+		bus_addr = addr | I2C_BUS_RW_BIT;
+	}
+	tx_buf =  static_cast<const uint8_t*>(wbuffer);
+	rx_buf =  static_cast<uint8_t*>(rbuffer);
+	tx_bytes = wsize;
+	rx_bytes = rsize;
 	buf_pos = 0;
-	ro_buf =  static_cast<const uint8_t*>(buffer) ;
 	//ACK config
-	ack_on(size<2?false:true);
+	ack_on(true);
 	//Send the start
 	generate_start();
 	return ERR_OK;
 }
 
-/* ------------------------------------------------------------------ */
-//Read 7 bit data from the i2c interface
-int i2c_host::i2c_read_7bit(uint8_t addr, void* buffer, unsigned short size)
-{
-	int ret;
-	if( (ret=sem_lock.wait(isix::ISIX_TIME_INFINITE))<0 )
-		return ret;
-	bus_addr = addr | I2C_BUS_RW_BIT;
-	remaining_bytes = size;
-	buf_pos = 0;
-	rw_buf = static_cast<uint8_t*>(buffer);
-	//Send start
-	generate_start();
-	if( (ret=sem_lock.wait(isix::ISIX_TIME_INFINITE))<0 )
-		return ret;
-	return ERR_OK;
-}
 
 /* ------------------------------------------------------------------ */
 //I2c interrupt handler
 void i2c_interrupt::isr()
 {
-	switch(owner.get_last_event())
+	uint32_t event = owner.get_last_event();
+	switch( event )
 	{
 	//Send address
 	case I2C_EVENT_MASTER_MODE_SELECT:		//EV5
+		logsys("AS>>%02x\r\n",owner.bus_addr);
 		owner.send_7bit_addr(owner.bus_addr);
 	break;
-	//Send the first byte in transmission
+
+	//Send bytes in tx mode
 	case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:	//EV6
-		if(--owner.remaining_bytes>0)
-		{
-			owner.send_data(owner.ro_buf[owner.buf_pos++]);
-		}
-	break;
-	//Send next bytes
 	case I2C_EVENT_MASTER_BYTE_TRANSMITTED:	//EV8
-		if(--owner.remaining_bytes>0)
+		logsys("[%d]\r\n",owner.tx_bytes);
+		if(owner.tx_bytes>0)
 		{
-			owner.send_data(owner.ro_buf[owner.buf_pos++]);
+			owner.send_data(owner.tx_buf[owner.buf_pos++]);
+			owner.tx_bytes--;
 		}
-		else
+		if(owner.tx_bytes==0)
 		{
-			if(owner.stop_required)
+			if(owner.rx_buf && owner.rx_bytes>0)
+			{
+				logsys("STA>*\r\n");
+				//Change address to read only
+				owner.bus_addr |= I2C_BUS_RW_BIT;
+				owner.ack_on(true);
+				owner.generate_start();
+				owner.buf_pos = 0;
+			}
+			else
+			{
+				logsys(">STO\r\n");
 				owner.generate_stop();
+			}
 			owner.sem_lock.signal_isr();
 		}
 	break;
 	//Master mode selected
 	case I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED:	//EV7
+	//	break;
 	case I2C_EVENT_MASTER_BYTE_RECEIVED:
-		if(--owner.remaining_bytes>0)
+
+		logsys("<%d>\r\n",owner.rx_bytes);
+		if(owner.rx_bytes>0)
 		{
-			owner.rw_buf[owner.buf_pos++] = owner.receive_data();
+			owner.rx_buf[owner.buf_pos++] = owner.receive_data();
+			owner.rx_bytes--;
 		}
-		else
+		if(owner.rx_bytes==1)
 		{
+			logsys(">ACK\r\n");
+			owner.ack_on(false);
+	    }
+		else if(owner.rx_bytes==0)
+		{
+			owner.generate_stop();
+			logsys(">STO\r\n");
 			owner.sem_lock.signal_isr();
 		}
-		if(owner.remaining_bytes==1)
-		{
-			owner.ack_on(false);
-		}
+	break;
+	//Stop generated event
+	default:
+		logsys("!!!0x%08x!!!\r\n",event);
+		owner.clear_flags();
 	break;
 	}
 }

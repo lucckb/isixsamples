@@ -112,11 +112,11 @@ void __external_startup(void)
 	nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Debug console output
-	/*
+
 	usartsimple_init(115200);
 	register_printf_putc_handler(usartsimple_putc,NULL);
 	tiny_printf("Hello world for all\r\n");
-	*/
+
 	//Initialize isix
 	isix::isix_init(ISIX_NUM_PRIORITIES);
 
