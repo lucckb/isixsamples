@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <isix.h>
 #include "interrupt_cntr.hpp"
-#include <tiny_printf.h>
+
 /* ------------------------------------------------------------------ */
 namespace dev
 {
@@ -73,15 +73,12 @@ private:
 
 	void send_data(uint8_t data)
 	{
-		tiny_printf("S.%02x\r\n",data);
 		i2c->DR = data;
 	}
 
 	uint8_t receive_data()
 	{
-		uint8_t d = i2c->DR;
-		tiny_printf("R.%02x\r\n",d);
-		return d;
+		return i2c->DR;
 	}
 
 	void cr1_reg(unsigned bit, bool en)
@@ -120,13 +117,13 @@ private:
 	const uint8_t *tx_buf;
 	uint8_t *rx_buf;
 
-	isix::semaphore sem_lock;
+	isix::semaphore sem_busy;
+	isix::semaphore sem_read;
 	volatile uint8_t bus_addr;
 
 	volatile short tx_bytes;
 	volatile short rx_bytes;
 	volatile short buf_pos;
-
 	i2c_interrupt interrupt;
 };
 /* ------------------------------------------------------------------ */

@@ -31,20 +31,22 @@ void rtc_reader::main()
 {
 	static const uint8_t pgm_regs[] =
 	{
-		0x00,		//Sekundy
-		0x00,		//Minuty
-		0x00,		//Godziny
-		0x00,		//Dzien tyg
-		0x00,		//Dzien
-		0x00,		//Miesiac
-		0x00,		//Rok
+		0x01,		//Sekundy
+		0x02,		//Minuty
+		0x03,		//Godziny
+		0x04,		//Dzien tyg
+		0x05,		//Dzien
+		0x06,		//Miesiac
+		0x07,		//Rok
 		0x00		//Konfiguracja
 	};
 
 	static const uint8_t sw_addr = 0;
 	static uint8_t buf[12];
 
-	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
+	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
+	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
+	//isix::isix_wait(100);
 	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
 	for(;;)
 	{

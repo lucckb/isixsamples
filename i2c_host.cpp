@@ -13,8 +13,8 @@
 #include <cstring>
 #include <tiny_printf.h>
 /* ------------------------------------------------------------------ */
-#define logsys tiny_printf
-//#define logsys(...)
+//#define logsys tiny_printf
+#define logsys(...)
 
 /* ------------------------------------------------------------------ */
 namespace dev
@@ -88,7 +88,7 @@ i2c_interrupt::i2c_interrupt(i2c_host &_owner):owner(_owner)
 
 /* ------------------------------------------------------------------ */
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
-		i2c(_i2c), sem_lock(1), interrupt(*this)
+		i2c(_i2c), sem_busy(1),sem_read(1), interrupt(*this)
 {
 	// TODO Auto-generated constructor stub
 	if(_i2c==I2C1)
@@ -181,7 +181,12 @@ void i2c_host::set_speed(unsigned speed)
 	    /* Set speed value and set F/S bit for fast mode */
 	    tmpreg = static_cast<uint16_t>(result | CCR_FS_SET);
 	    /* Set Maximum Rise Time for fast mode */
-	    i2c->TRISE = (uint16_t)(((static_cast<uint16_t>(config::PCLK1_HZ/1000000) * (uint16_t)300) / (uint16_t)1000) + (uint16_t)1);
+	    i2c->TRISE = static_cast<uint16_t>(((
+	    	    static_cast<uint16_t>(config::PCLK1_HZ/1000000) *
+	    		static_cast<uint16_t>(300)) /
+	    		static_cast<uint16_t>(1000)) +
+	    		static_cast<uint16_t>(1)
+	     );
 	  }
 	  /* Write to I2Cx CCR */
 	  i2c->CCR = tmpreg;
@@ -194,15 +199,15 @@ void i2c_host::set_speed(unsigned speed)
 int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
-	logsys("i2c_transfer_7bit\r\n");
-	if( (ret=sem_lock.wait(isix::ISIX_TIME_INFINITE))<0 )
+
+	if( (ret=sem_busy.wait(isix::ISIX_TIME_INFINITE))<0 )
 			return ret;
-	logsys("transfer_wakeup\r\n");
-	if(wbuffer && wsize>0)
+
+	if(wbuffer)
 	{
 		bus_addr = addr & ~I2C_BUS_RW_BIT;
 	}
-	else if(rbuffer && rsize>0)
+	else if(rbuffer)
 	{
 		bus_addr = addr | I2C_BUS_RW_BIT;
 	}
@@ -215,6 +220,13 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	ack_on(true);
 	//Send the start
 	generate_start();
+
+	//Sem read lock
+	if(rbuffer)
+	{
+		if( (ret=sem_read.wait(isix::ISIX_TIME_INFINITE))<0 )
+			return ret;
+	}
 	return ERR_OK;
 }
 
@@ -226,6 +238,7 @@ void i2c_interrupt::isr()
 	uint32_t event = owner.get_last_event();
 	switch( event )
 	{
+
 	//Send address
 	case I2C_EVENT_MASTER_MODE_SELECT:		//EV5
 		logsys("AS>>%02x\r\n",owner.bus_addr);
@@ -243,7 +256,7 @@ void i2c_interrupt::isr()
 		}
 		if(owner.tx_bytes==0)
 		{
-			if(owner.rx_buf && owner.rx_bytes>0)
+			if(owner.rx_buf)
 			{
 				logsys("STA>*\r\n");
 				//Change address to read only
@@ -256,15 +269,27 @@ void i2c_interrupt::isr()
 			{
 				logsys(">STO\r\n");
 				owner.generate_stop();
+				if(owner.sem_busy.getval()==0)
+				{
+					//tiny_printf("+");
+					owner.sem_busy.signal_isr();
+				}
 			}
-			owner.sem_lock.signal_isr();
+
 		}
 	break;
+
 	//Master mode selected
 	case I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED:	//EV7
-		break;
+		if(owner.rx_bytes==1)
+		{
+			logsys(">>ACK\r\n");
+			owner.ack_on(false);
+			owner.generate_stop();
+		}
+	break;
+	//Master byte rcv
 	case I2C_EVENT_MASTER_BYTE_RECEIVED:
-
 		logsys("<%d>\r\n",owner.rx_bytes);
 		if(owner.rx_bytes>0)
 		{
@@ -279,13 +304,23 @@ void i2c_interrupt::isr()
 	    }
 		else if(owner.rx_bytes==0)
 		{
-			logsys(">STO\r\n");
-			owner.sem_lock.signal_isr();
+
+			if(owner.sem_read.getval()==0)
+			{
+				//tiny_printf("*");
+				owner.sem_read.signal_isr();
+			}
+			if(owner.sem_busy.getval()==0)
+			{
+				//tiny_printf("+");
+				owner.sem_busy.signal_isr();
+			}
 		}
 	break;
+
 	//Stop generated event
 	default:
-		logsys("!!!0x%08x!!!\r\n",event);
+		//tiny_printf("!!!0x%08x!!!\r\n",event);
 		owner.clear_flags();
 	break;
 	}
