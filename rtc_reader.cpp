@@ -45,12 +45,12 @@ void rtc_reader::main()
 	static uint8_t buf[12];
 
 	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
-	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
-	//isix::isix_wait(100);
-	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
+	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
+
+	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
 	for(;;)
 	{
-		i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
+		i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,2);
 		tiny_printf("%02x:%02x:%02x\r\n",buf[2],buf[1],buf[0]);
 		isix::isix_wait(1300);
 	}

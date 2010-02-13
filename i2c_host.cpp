@@ -88,7 +88,7 @@ i2c_interrupt::i2c_interrupt(i2c_host &_owner):owner(_owner)
 
 /* ------------------------------------------------------------------ */
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
-		i2c(_i2c), sem_busy(1),sem_read(1), interrupt(*this)
+		i2c(_i2c), sem_busy(1),sem_read(0), interrupt(*this)
 {
 	// TODO Auto-generated constructor stub
 	if(_i2c==I2C1)
@@ -199,10 +199,10 @@ void i2c_host::set_speed(unsigned speed)
 int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
-
+	//tiny_printf("A");
 	if( (ret=sem_busy.wait(isix::ISIX_TIME_INFINITE))<0 )
 			return ret;
-
+	//tiny_printf("B");
 	if(wbuffer)
 	{
 		bus_addr = addr & ~I2C_BUS_RW_BIT;
@@ -224,8 +224,10 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	//Sem read lock
 	if(rbuffer)
 	{
+		//tiny_printf("C");
 		if( (ret=sem_read.wait(isix::ISIX_TIME_INFINITE))<0 )
 			return ret;
+		//tiny_printf("D");
 	}
 	return ERR_OK;
 }
@@ -283,14 +285,14 @@ void i2c_interrupt::isr()
 	case I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED:	//EV7
 		if(owner.rx_bytes==1)
 		{
-			logsys(">>ACK\r\n");
 			owner.ack_on(false);
 			owner.generate_stop();
+			//tiny_printf(",");
 		}
 	break;
 	//Master byte rcv
 	case I2C_EVENT_MASTER_BYTE_RECEIVED:
-		logsys("<%d>\r\n",owner.rx_bytes);
+		//tiny_printf("<%d>\r\n",owner.rx_bytes);
 		if(owner.rx_bytes>0)
 		{
 			owner.rx_buf[owner.buf_pos++] = owner.receive_data();
@@ -298,13 +300,12 @@ void i2c_interrupt::isr()
 		}
 		if(owner.rx_bytes==1)
 		{
-			logsys(">ACK\r\n");
 			owner.ack_on(false);
 			owner.generate_stop();
+			//tiny_printf(".");
 	    }
 		else if(owner.rx_bytes==0)
 		{
-
 			if(owner.sem_read.getval()==0)
 			{
 				//tiny_printf("*");
