@@ -50,7 +50,7 @@ void rtc_reader::main()
 	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
 	for(;;)
 	{
-		i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,2);
+		i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,3);
 		tiny_printf("%02x:%02x:%02x\r\n",buf[2],buf[1],buf[0]);
 		isix::isix_wait(1300);
 	}

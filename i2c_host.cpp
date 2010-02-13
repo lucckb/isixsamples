@@ -70,10 +70,7 @@ namespace {
 		I2C_EVENT_SLAVE_ACK_FAILURE  = 0x00000400  /* AF flag */
 	};
 
-	const uint16_t I2C_IT_BUF = 0x0400;
-	const uint16_t I2C_IT_EVT = 0x0200;
-	const uint16_t I2C_IT_ERR = 0x0100;
-	const uint16_t CR1_PE_SET = 0x0001;
+
 }
 
 /* ------------------------------------------------------------------ */
@@ -135,7 +132,7 @@ i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 
 	 i2c->SR1 = 0; i2c->SR2 = 0;
 	 /* Enable I2C interrupt */
-	 i2c->CR2 |=  I2C_IT_EVT | I2C_IT_ERR;
+	 devirq_on();
 
 	 /* Enable interrupt controller */
 	 interrupt_cntr::enable_int(interrupt_cntr::irql_i2c1);
@@ -203,6 +200,8 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	if( (ret=sem_busy.wait(isix::ISIX_TIME_INFINITE))<0 )
 			return ret;
 	//tiny_printf("B");
+	//Disable I2C irq
+	devirq_on(false);
 	if(wbuffer)
 	{
 		bus_addr = addr & ~I2C_BUS_RW_BIT;
@@ -218,6 +217,8 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	buf_pos = 0;
 	//ACK config
 	ack_on(true);
+	//Enable I2C irq
+	devirq_on();
 	//Send the start
 	generate_start();
 
@@ -286,13 +287,13 @@ void i2c_interrupt::isr()
 		if(owner.rx_bytes==1)
 		{
 			owner.ack_on(false);
-			owner.generate_stop();
+			//owner.generate_stop();
 			//tiny_printf(",");
 		}
 	break;
 	//Master byte rcv
 	case I2C_EVENT_MASTER_BYTE_RECEIVED:
-		//tiny_printf("<%d>\r\n",owner.rx_bytes);
+		logsys("<%d>\r\n",owner.rx_bytes);
 		if(owner.rx_bytes>0)
 		{
 			owner.rx_buf[owner.buf_pos++] = owner.receive_data();
@@ -302,18 +303,16 @@ void i2c_interrupt::isr()
 		{
 			owner.ack_on(false);
 			owner.generate_stop();
-			//tiny_printf(".");
 	    }
 		else if(owner.rx_bytes==0)
 		{
+			owner.generate_stop();
 			if(owner.sem_read.getval()==0)
 			{
-				//tiny_printf("*");
 				owner.sem_read.signal_isr();
 			}
 			if(owner.sem_busy.getval()==0)
 			{
-				//tiny_printf("+");
 				owner.sem_busy.signal_isr();
 			}
 		}

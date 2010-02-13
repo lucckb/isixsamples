@@ -56,7 +56,10 @@ private:
 	static const unsigned CR1_ACK_BIT = 0x0400;
 	static const unsigned CR1_START_BIT = 0x0100;
 	static const unsigned CR1_STOP_BIT = 0x0200;
-
+	static const uint16_t I2C_IT_BUF = 0x0400;
+	static const uint16_t I2C_IT_EVT = 0x0200;
+	static const uint16_t I2C_IT_ERR = 0x0100;
+	static const uint16_t CR1_PE_SET = 0x0001;
 
 	uint32_t get_last_event()
 	{
@@ -106,6 +109,16 @@ private:
 	{
 		static_cast<void>(static_cast<volatile uint16_t>(i2c->SR1));
 		static_cast<void>(static_cast<volatile uint16_t>(i2c->DR));
+	}
+
+	void devirq_on(bool en=true)
+	{
+		if(en)
+			/* Enable I2C interrupt */
+			i2c->CR2 |=  I2C_IT_EVT | I2C_IT_ERR;
+		else
+			/* diasable I2C interrupt */
+			 i2c->CR2 &=  ~(I2C_IT_EVT | I2C_IT_ERR);
 	}
 
 	void set_speed(unsigned speed);
