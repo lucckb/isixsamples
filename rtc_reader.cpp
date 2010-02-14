@@ -43,15 +43,18 @@ void rtc_reader::main()
 
 	static const uint8_t sw_addr = 0;
 	static uint8_t buf[12];
-
-	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
+	int status;
+	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
 	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
 
-	//i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
+	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
 	for(;;)
 	{
-		i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,3);
-		tiny_printf("%02x:%02x:%02x\r\n",buf[2],buf[1],buf[0]);
+		status = i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,3);
+		if(status==isix::ISIX_EOK)
+			tiny_printf("%02x:%02x:%02x\r\n",buf[2],buf[1],buf[0]);
+		else
+			tiny_printf("ERROR=%d\r\n",status);
 		isix::isix_wait(1300);
 	}
 }

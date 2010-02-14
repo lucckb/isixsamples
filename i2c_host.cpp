@@ -69,8 +69,8 @@ namespace {
 		//EV3_2
 		I2C_EVENT_SLAVE_ACK_FAILURE  = 0x00000400  /* AF flag */
 	};
-
-
+	//Event error mask
+	const unsigned EVENT_ERROR_MASK = 0xff00;
 }
 
 /* ------------------------------------------------------------------ */
@@ -196,10 +196,12 @@ void i2c_host::set_speed(unsigned speed)
 int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
-	//tiny_printf("A");
-	if( (ret=sem_busy.wait(isix::ISIX_TIME_INFINITE))<0 )
-			return ret;
-	//tiny_printf("B");
+	if( (ret=sem_busy.wait(TRANSFER_TIMEOUT))<0 )
+	{
+		if(ret==isix::ISIX_ETIMEOUT)
+			sem_busy.signal();
+		return ret;
+	}
 	//Disable I2C irq
 	devirq_on(false);
 	if(wbuffer)
@@ -215,6 +217,7 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	tx_bytes = wsize;
 	rx_bytes = rsize;
 	buf_pos = 0;
+	err_flag = 0;
 	//ACK config
 	ack_on(true);
 	//Enable I2C irq
@@ -225,10 +228,12 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	//Sem read lock
 	if(rbuffer)
 	{
-		//tiny_printf("C");
-		if( (ret=sem_read.wait(isix::ISIX_TIME_INFINITE))<0 )
+		if( (ret=sem_read.wait(TRANSFER_TIMEOUT))<0 )
+		{
+			if(ret==isix::ISIX_ETIMEOUT)
+				sem_read.signal();
 			return ret;
-		//tiny_printf("D");
+		}
 	}
 	return ERR_OK;
 }
@@ -320,8 +325,16 @@ void i2c_interrupt::isr()
 
 	//Stop generated event
 	default:
-		//tiny_printf("!!!0x%08x!!!\r\n",event);
-		owner.clear_flags();
+		tiny_printf("!!!0x%08x!!!\r\n",event);
+		if(event & EVENT_ERROR_MASK)
+		{
+			owner.err_flag = event >> 8;
+			owner.i2c->SR1 &= ~EVENT_ERROR_MASK;
+		}
+		else
+		{
+			owner.clear_flags();
+		}
 	break;
 	}
 }

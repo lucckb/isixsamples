@@ -53,6 +53,7 @@ public:
 	int i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize);
 private:
 
+	static const unsigned TRANSFER_TIMEOUT = 1000;
 	static const unsigned CR1_ACK_BIT = 0x0400;
 	static const unsigned CR1_START_BIT = 0x0100;
 	static const unsigned CR1_STOP_BIT = 0x0200;
@@ -133,7 +134,7 @@ private:
 	isix::semaphore sem_busy;
 	isix::semaphore sem_read;
 	volatile uint8_t bus_addr;
-
+	volatile uint8_t err_flag;
 	volatile short tx_bytes;
 	volatile short rx_bytes;
 	volatile short buf_pos;
