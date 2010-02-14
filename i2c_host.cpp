@@ -79,7 +79,7 @@ namespace {
 
 /* ------------------------------------------------------------------ */
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
-		i2c(_i2c), sem_lock(1),sem_irq(0),err_flag(0)
+		i2c(_i2c), sem_lock(1,1),sem_irq(0,1),err_flag(0)
 {
 	// TODO Add configuration for i2c2 device support
 	if(_i2c==I2C1)
@@ -281,10 +281,7 @@ void i2c_host::isr()
 			else
 			{
 				generate_stop();
-				if(sem_irq.getval()==0)
-				{
-					sem_irq.signal_isr();
-				}
+				sem_irq.signal_isr();
 			}
 		}
 	break;
@@ -310,10 +307,8 @@ void i2c_host::isr()
 	    }
 		else if(rx_bytes==0)
 		{
-			if(sem_irq.getval()==0)
-			{
-				sem_irq.signal_isr();
-			}
+			generate_stop();
+			sem_irq.signal_isr();
 		}
 	break;
 
@@ -323,10 +318,7 @@ void i2c_host::isr()
 		{
 			err_flag = event >> 8;
 			i2c->SR1 &= ~EVENT_ERROR_MASK;
-			if(sem_irq.getval()==0)
-			{
-				sem_irq.signal_isr();
-			}
+			sem_irq.signal_isr();
 		}
 		else
 		{

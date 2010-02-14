@@ -45,7 +45,7 @@ void rtc_reader::main()
 
 	//Software address
 	static const uint8_t sw_addr = 0;
-	static uint8_t buf[8];
+	static uint8_t buf[3];
 	static time_msg tmsg( 3,2 );
 	int status;
 	//Send configuration registgers
@@ -54,9 +54,9 @@ void rtc_reader::main()
 	for(;;)
 	{
 		//Send configuration registgers
-		status = i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,3 );
+		status = i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf, sizeof(buf) );
 
-		if(status>0)
+		if(status>=0)
 		{
 			//If no error display hours
 			tmsg.set_time( buf[2]&0x3f, buf[1]&0x7f, buf[0]&0x7f );
