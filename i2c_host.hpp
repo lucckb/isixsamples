@@ -14,8 +14,7 @@
 #include <stdint.h>
 #include <cstddef>
 #include <isix.h>
-#warning remove it
-#include <tiny_printf.h>
+
 /* ------------------------------------------------------------------ */
 namespace dev
 {
@@ -119,15 +118,16 @@ private:
 	{
 		if(en)
 			/* Enable I2C interrupt */
-			i2c->CR2 |=  I2C_IT_EVT; //| I2C_IT_ERR;
+			i2c->CR2 |=  I2C_IT_EVT| I2C_IT_ERR;
 		else
 			/* diasable I2C interrupt */
-			 i2c->CR2 &=  ~(I2C_IT_EVT); //| I2C_IT_ERR);
+			 i2c->CR2 &=  ~(I2C_IT_EVT | I2C_IT_ERR);
 	}
 	//Set bus speed
 	void set_speed(unsigned speed);
 	//Translate error to the error code
 	int get_hwerror();
+
 
 private:	//Data
 	//I2c device number

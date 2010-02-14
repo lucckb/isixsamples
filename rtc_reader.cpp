@@ -8,7 +8,6 @@
 /* ------------------------------------------------------------------ */
 #include "rtc_reader.hpp"
 #include <stm32f10x_lib.h>
-#include <tiny_printf.h>
 #include "display_server.hpp"
 #include <cstring>
 /* ------------------------------------------------------------------ */
@@ -34,38 +33,43 @@ void rtc_reader::main()
 {
 	static const uint8_t pgm_regs[] =
 	{
-		0x01,		//Sekundy
-		0x02,		//Minuty
-		0x03,		//Godziny
-		0x04,		//Dzien tyg
-		0x05,		//Dzien
-		0x06,		//Miesiac
-		0x07,		//Rok
-		0x00		//Konfiguracja
+		0x01,		//Sec
+		0x02,		//Min
+		0x03,		//Hour
+		0x04,		//Day num
+		0x05,		//day
+		0x06,		//Month
+		0x07,		//Year
+		0x00		//Config
 	};
 
+	//Software address
 	static const uint8_t sw_addr = 0;
 	static uint8_t buf[8];
 	static time_msg tmsg( 3,2 );
 	int status;
-
+	//Send configuration registgers
 	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
-
+	//Main task loop
 	for(;;)
 	{
-		status = i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,2 );
-		if(status==isix::ISIX_EOK)
+		//Send configuration registgers
+		status = i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,3 );
+
+		if(status>0)
 		{
+			//If no error display hours
 			tmsg.set_time( buf[2]&0x3f, buf[1]&0x7f, buf[0]&0x7f );
-			tiny_printf("O%d\r\n",buf[0]);
 		}
 		else
 		{
+			//If error display on screen
 			tmsg.set_text("I2C ERR");
-			tiny_printf("E%d\r\n",status);
 		}
+		//Send message to the i2c device
 		disp_srv.send_message(tmsg);
-		isix::isix_wait(1000);
+		//Refresh screen ratio
+		isix::isix_wait(200);
 	}
 }
 

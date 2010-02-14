@@ -79,7 +79,7 @@ namespace {
 
 /* ------------------------------------------------------------------ */
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
-		i2c(_i2c), sem_lock(1),sem_irq(0) /*, interrupt(*this) */
+		i2c(_i2c), sem_lock(1),sem_irq(0),err_flag(0)
 {
 	// TODO Add configuration for i2c2 device support
 	if(_i2c==I2C1)
@@ -199,7 +199,6 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	{
 		return ret;
 	}
-
 	//Disable I2C irq
 	devirq_on(false);
 	if(wbuffer)
@@ -210,7 +209,6 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	{
 		bus_addr = addr | I2C_BUS_RW_BIT;
 	}
-	err_flag = 0;
 	tx_buf =  static_cast<const uint8_t*>(wbuffer);
 	rx_buf =  static_cast<uint8_t*>(rbuffer);
 	tx_bytes = wsize;
@@ -223,19 +221,26 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	//Send the start
 	generate_start();
 	//Sem read lock
-	if( (ret=sem_irq.wait(TRANSFER_TIMEOUT))<0 )
+	if( (ret=sem_irq.wait(TRANSFER_TIMEOUT)) <0  )
 	{
 		if(ret==isix::ISIX_ETIMEOUT)
 		{
 			sem_irq.signal();
 			sem_lock.signal();
-			return get_hwerror();
+			return ERR_TIMEOUT;
 		}
 		else
 		{
+			sem_irq.signal();
 			sem_lock.signal();
 			return ret;
 		}
+	}
+	if( (ret=get_hwerror())  )
+	{
+		err_flag = 0;
+		sem_lock.signal();
+		return ret;
 	}
 	sem_lock.signal();
 	return ERR_OK;
@@ -305,7 +310,6 @@ void i2c_host::isr()
 	    }
 		else if(rx_bytes==0)
 		{
-			generate_stop();
 			if(sem_irq.getval()==0)
 			{
 				sem_irq.signal_isr();
@@ -315,11 +319,14 @@ void i2c_host::isr()
 
 	//Stop generated event
 	default:
-		//tiny_printf("<%08x>\r\n",event);
 		if(event & EVENT_ERROR_MASK)
 		{
 			err_flag = event >> 8;
 			i2c->SR1 &= ~EVENT_ERROR_MASK;
+			if(sem_irq.getval()==0)
+			{
+				sem_irq.signal_isr();
+			}
 		}
 		else
 		{
@@ -349,7 +356,7 @@ int i2c_host::get_hwerror()
 			return err_tbl[i];
 	}
 
-	return ERR_TIMEOUT;
+	return 0;
 }
 
 /* ------------------------------------------------------------------ */

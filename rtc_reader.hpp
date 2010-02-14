@@ -25,7 +25,7 @@ protected:
 	//Thread/task method
 	virtual void main();
 private:
-	static const unsigned STACK_SIZE = 256;
+	static const unsigned STACK_SIZE = 512;
 	static const unsigned TASK_PRIO = 3;
 	dev::i2c_host i2c_bus;
 	display_server &disp_srv;
