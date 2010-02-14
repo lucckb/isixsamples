@@ -14,17 +14,18 @@
 #include <stdint.h>
 #include <cstddef>
 #include <isix.h>
-#include "interrupt_cntr.hpp"
+
 
 /* ------------------------------------------------------------------ */
 namespace dev
 {
 /* ------------------------------------------------------------------ */
 
-class i2c_host;
+//class i2c_host;
 
 /* ------------------------------------------------------------------ */
 //Interrupt handling class
+/*
 class i2c_interrupt : public interrupt
 {
 public:
@@ -39,13 +40,19 @@ private:
 	static const unsigned IRQ_SUB = 7;
 };
 
+*/
+/* ------------------------------------------------------------------ */
+//ISR funcs decls
+extern "C" {
+void i2c1_ev_isr_vector(void) __attribute__ ((interrupt));
+}
 
 /* ------------------------------------------------------------------ */
 //I2c host class
 class i2c_host
 {
 	//Friend interrupt class
-	friend class i2c_interrupt;
+	friend void i2c1_ev_isr_vector(void);
 public:
 	enum errno
 	{
@@ -58,14 +65,18 @@ public:
 		ERR_BUS_TIMEOUT = -5005, 		//Bus timeout
 		ERR_UNKNOWN = - 5006			//Unknown error
 	};
-public:
 	//Default constructor
 	i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed=100000);
 	//I2c transfer main function
 	int i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize);
 private:
+	//Interrupt service routine
+	void isr();
 	//Configuration data
 	static const unsigned TRANSFER_TIMEOUT = 1000;
+	static const unsigned IRQ_PRIO = 1;
+	static const unsigned IRQ_SUB = 7;
+	//Rest of the data
 	static const unsigned CR1_ACK_BIT = 0x0400;
 	static const unsigned CR1_START_BIT = 0x0100;
 	static const unsigned CR1_STOP_BIT = 0x0200;
@@ -160,7 +171,7 @@ private:	//Data
 	//Position in the buffer
 	volatile short buf_pos;
 	//Interrupt assigned to the perhiph
-	i2c_interrupt interrupt;
+	//i2c_interrupt interrupt;
 private:	//Noncopyable
 	i2c_host(i2c_host &);
 	i2c_host& operator=(const i2c_host&);

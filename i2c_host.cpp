@@ -9,13 +9,19 @@
 #include "config.hpp"
 #include "i2c_host.hpp"
 #include <system.h>
-#include "interrupt_cntr.hpp"
 #include <cstring>
 
 /* ------------------------------------------------------------------ */
 namespace dev
 {
 /* ------------------------------------------------------------------ */
+//Global private data. Irqs handlers are always global C linkage fun
+namespace
+{
+	i2c_host *i2c1_obj;
+}
+
+//Constants
 namespace {
 
 	//I2C PINS
@@ -71,6 +77,7 @@ namespace {
 }
 
 /* ------------------------------------------------------------------ */
+/*
 //Interrupt controller device
 i2c_interrupt::i2c_interrupt(i2c_host &_owner):owner(_owner)
 {
@@ -79,10 +86,10 @@ i2c_interrupt::i2c_interrupt(i2c_host &_owner):owner(_owner)
 		interrupt_cntr::register_int(interrupt_cntr::irql_i2c1,IRQ_PRIO,IRQ_SUB,this);
 	}
 }
-
+*/
 /* ------------------------------------------------------------------ */
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
-		i2c(_i2c), sem_busy(1),sem_read(0), interrupt(*this)
+		i2c(_i2c), sem_busy(1),sem_read(0) /*, interrupt(*this) */
 {
 	// TODO Add configuration for i2c2 device support
 	if(_i2c==I2C1)
@@ -130,9 +137,14 @@ i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 	 i2c->SR1 = 0; i2c->SR2 = 0;
 	 /* Enable I2C interrupt */
 	 devirq_on();
-
+	 //Assign as the global object
+	 if(_i2c==I2C1)
+	 {
+		 i2c1_obj = this;
+	 }
 	 /* Enable interrupt controller */
-	 interrupt_cntr::enable_int(interrupt_cntr::irql_i2c1);
+	 nvic_set_priority( I2C1_EV_IRQn, IRQ_PRIO, IRQ_SUB);
+	 nvic_irq_enable(I2C1_EV_IRQn,true);
 }
 
 /* ------------------------------------------------------------------ */
@@ -249,41 +261,41 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 
 /* ------------------------------------------------------------------ */
 //I2c interrupt handler
-void i2c_interrupt::isr()
+void i2c_host::isr()
 {
-	uint32_t event = owner.get_last_event();
+	uint32_t event = get_last_event();
 	switch( event )
 	{
 
 	//Send address
 	case I2C_EVENT_MASTER_MODE_SELECT:		//EV5
-		owner.send_7bit_addr(owner.bus_addr);
+		send_7bit_addr(bus_addr);
 	break;
 
 	//Send bytes in tx mode
 	case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:	//EV6
 	case I2C_EVENT_MASTER_BYTE_TRANSMITTED:	//EV8
-		if(owner.tx_bytes>0)
+		if(tx_bytes>0)
 		{
-			owner.send_data(owner.tx_buf[owner.buf_pos++]);
-			owner.tx_bytes--;
+			send_data(tx_buf[buf_pos++]);
+			tx_bytes--;
 		}
-		if(owner.tx_bytes==0)
+		if(tx_bytes==0)
 		{
-			if(owner.rx_buf)
+			if(rx_buf)
 			{
 				//Change address to read only
-				owner.bus_addr |= I2C_BUS_RW_BIT;
-				owner.ack_on(true);
-				owner.generate_start();
-				owner.buf_pos = 0;
+				bus_addr |= I2C_BUS_RW_BIT;
+				ack_on(true);
+				generate_start();
+				buf_pos = 0;
 			}
 			else
 			{
-				owner.generate_stop();
-				if(owner.sem_busy.getval()==0)
+				generate_stop();
+				if(sem_busy.getval()==0)
 				{
-					owner.sem_busy.signal_isr();
+					sem_busy.signal_isr();
 				}
 			}
 
@@ -292,35 +304,33 @@ void i2c_interrupt::isr()
 
 	//Master mode selected
 	case I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED:	//EV7
-		if(owner.rx_bytes==1)
+		if(rx_bytes==1)
 		{
-			owner.ack_on(false);
-			//owner.generate_stop();
-			//tiny_printf(",");
+			ack_on(false);
 		}
 	break;
 	//Master byte rcv
 	case I2C_EVENT_MASTER_BYTE_RECEIVED:
-		if(owner.rx_bytes>0)
+		if(rx_bytes>0)
 		{
-			owner.rx_buf[owner.buf_pos++] = owner.receive_data();
-			owner.rx_bytes--;
+			rx_buf[buf_pos++] = receive_data();
+			rx_bytes--;
 		}
-		if(owner.rx_bytes==1)
+		if(rx_bytes==1)
 		{
-			owner.ack_on(false);
-			owner.generate_stop();
+			ack_on(false);
+			generate_stop();
 	    }
-		else if(owner.rx_bytes==0)
+		else if(rx_bytes==0)
 		{
-			owner.generate_stop();
-			if(owner.sem_read.getval()==0)
+			generate_stop();
+			if(sem_read.getval()==0)
 			{
-				owner.sem_read.signal_isr();
+				sem_read.signal_isr();
 			}
-			if(owner.sem_busy.getval()==0)
+			if(sem_busy.getval()==0)
 			{
-				owner.sem_busy.signal_isr();
+				sem_busy.signal_isr();
 			}
 		}
 	break;
@@ -329,12 +339,12 @@ void i2c_interrupt::isr()
 	default:
 		if(event & EVENT_ERROR_MASK)
 		{
-			owner.err_flag = event >> 8;
-			owner.i2c->SR1 &= ~EVENT_ERROR_MASK;
+			err_flag = event >> 8;
+			i2c->SR1 &= ~EVENT_ERROR_MASK;
 		}
 		else
 		{
-			owner.clear_flags();
+			clear_flags();
 		}
 	break;
 	}
@@ -362,5 +372,17 @@ int i2c_host::get_hwerror()
 }
 /* ------------------------------------------------------------------ */
 
+//Call to the global c function
+extern "C"
+{
+
+void i2c1_ev_isr_vector(void) __attribute__ ((interrupt));
+void i2c1_ev_isr_vector(void)
+{
+	if(i2c1_obj) i2c1_obj->isr();
+}
+
+}
+/* ------------------------------------------------------------------ */
 }
 /* ------------------------------------------------------------------ */
