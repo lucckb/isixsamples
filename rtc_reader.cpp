@@ -9,6 +9,8 @@
 #include "rtc_reader.hpp"
 #include <stm32f10x_lib.h>
 #include <tiny_printf.h>
+#include "display_server.hpp"
+#include <cstring>
 /* ------------------------------------------------------------------ */
 namespace app
 {
@@ -43,20 +45,27 @@ void rtc_reader::main()
 	};
 
 	static const uint8_t sw_addr = 0;
-	static uint8_t buf[12];
+	static uint8_t buf[8];
+	static time_msg tmsg( 3,2 );
 	int status;
-	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
-	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
 
-	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,8);
+	i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,pgm_regs,sizeof(pgm_regs),NULL,0);
+
 	for(;;)
 	{
-		status = i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,3);
+		status = i2c_bus.i2c_transfer_7bit(I2C_RTC_ADDR,&sw_addr,sizeof(sw_addr),buf,2 );
 		if(status==isix::ISIX_EOK)
-			tiny_printf("%02x:%02x:%02x\r\n",buf[2],buf[1],buf[0]);
+		{
+			tmsg.set_time( buf[2]&0x3f, buf[1]&0x7f, buf[0]&0x7f );
+			tiny_printf("O%d\r\n",buf[0]);
+		}
 		else
-			tiny_printf("!ERROR=%d\r\n",status);
-		isix::isix_wait(1300);
+		{
+			tmsg.set_text("I2C ERR");
+			tiny_printf("E%d\r\n",status);
+		}
+		disp_srv.send_message(tmsg);
+		isix::isix_wait(1000);
 	}
 }
 

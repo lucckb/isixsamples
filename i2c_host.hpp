@@ -14,8 +14,8 @@
 #include <stdint.h>
 #include <cstddef>
 #include <isix.h>
-
-
+#warning remove it
+#include <tiny_printf.h>
 /* ------------------------------------------------------------------ */
 namespace dev
 {
@@ -42,7 +42,8 @@ public:
 		ERR_OVERRUN = - 5003,
 		ERR_PEC = - 5004,				//Parity check error
 		ERR_BUS_TIMEOUT = -5005, 		//Bus timeout
-		ERR_UNKNOWN = - 5006			//Unknown error
+		ERR_TIMEOUT = - 5006,			//timeout error
+		ERR_UNKNOWN = - 5007
 	};
 	//Default constructor
 	i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed=100000);
@@ -118,10 +119,10 @@ private:
 	{
 		if(en)
 			/* Enable I2C interrupt */
-			i2c->CR2 |=  I2C_IT_EVT | I2C_IT_ERR;
+			i2c->CR2 |=  I2C_IT_EVT; //| I2C_IT_ERR;
 		else
 			/* diasable I2C interrupt */
-			 i2c->CR2 &=  ~(I2C_IT_EVT | I2C_IT_ERR);
+			 i2c->CR2 &=  ~(I2C_IT_EVT); //| I2C_IT_ERR);
 	}
 	//Set bus speed
 	void set_speed(unsigned speed);
@@ -136,9 +137,9 @@ private:	//Data
 	//Rx buffer pointer
 	uint8_t *rx_buf;
 	//Busy semaphore
-	isix::semaphore sem_busy;
+	isix::semaphore sem_lock;
 	//Read semaphore
-	isix::semaphore sem_read;
+	isix::semaphore sem_irq;
 	//Bus address
 	volatile uint8_t bus_addr;
 	//Bus error flags
@@ -149,8 +150,7 @@ private:	//Data
 	volatile short rx_bytes;
 	//Position in the buffer
 	volatile short buf_pos;
-	//Interrupt assigned to the perhiph
-	//i2c_interrupt interrupt;
+
 private:	//Noncopyable
 	i2c_host(i2c_host &);
 	i2c_host& operator=(const i2c_host&);

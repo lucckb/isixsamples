@@ -47,7 +47,7 @@ class text_msg : public display_msg
 public:
 
 	//Constructor
-	text_msg(const char *_txt=NULL,short _xpos=0,short _ypos=0)
+	text_msg(const char *_txt=0, short _xpos=0,short _ypos=0)
 	: display_msg(display_msg::MSG_TEXT),
 	  txt(_txt),xpos(_xpos),ypos(_ypos)
 	{
@@ -55,11 +55,16 @@ public:
 	}
 
 	//Set text
-	void set_text(const char *_txt, short _xpos=0, short _ypos=0)
+	void set_text(const char *_txt, short _xpos, short _ypos)
 	{
 		txt = _txt;
 		xpos = _xpos;
 		ypos = _ypos;
+	}
+	//Set text
+	void set_text(const char *_txt)
+	{
+		txt = _txt;
 	}
 
 	//Get text
@@ -91,7 +96,7 @@ class graph_msg : public display_msg
 {
 public:
 	//Constructor
-	graph_msg(const images::img_def *_img=NULL)
+	graph_msg(const images::img_def *_img=0)
 		: display_msg(display_msg::MSG_GRAPHICS),img(_img) {}
 
 	//Set image
@@ -102,6 +107,34 @@ public:
 
 private:
 	const images::img_def *img;
+};
+
+/* ------------------------------------------------------------------ */
+class time_msg : public text_msg
+{
+public:
+	time_msg(short xpos=0,short ypos=0)
+	 :text_msg("",xpos,ypos)
+	 {
+
+	 }
+	//Set text
+	void set_time(short h, short m, short s)
+	{
+		conv_hex(sbuf,h,2);
+		sbuf[2] = ':';
+		conv_hex(&sbuf[3],m,2);
+		sbuf[5] = ':';
+		conv_hex(&sbuf[6],s,2);
+		set_text(sbuf);
+	}
+
+private:
+	void strrev(char *str, int len);
+	const char* conv_hex(char *txt, unsigned value,int zeros);
+
+private:
+	char sbuf[9];
 };
 
 /* ------------------------------------------------------------------ */

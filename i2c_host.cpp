@@ -76,20 +76,10 @@ namespace {
 
 }
 
-/* ------------------------------------------------------------------ */
-/*
-//Interrupt controller device
-i2c_interrupt::i2c_interrupt(i2c_host &_owner):owner(_owner)
-{
-	if(owner.i2c==I2C1)
-	{
-		interrupt_cntr::register_int(interrupt_cntr::irql_i2c1,IRQ_PRIO,IRQ_SUB,this);
-	}
-}
-*/
+
 /* ------------------------------------------------------------------ */
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
-		i2c(_i2c), sem_busy(1),sem_read(0) /*, interrupt(*this) */
+		i2c(_i2c), sem_lock(1),sem_irq(0) /*, interrupt(*this) */
 {
 	// TODO Add configuration for i2c2 device support
 	if(_i2c==I2C1)
@@ -205,18 +195,11 @@ void i2c_host::set_speed(unsigned speed)
 int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
-	if( (ret=sem_busy.wait(TRANSFER_TIMEOUT))<0 )
+	if( (ret=sem_lock.wait(isix::ISIX_TIME_INFINITE))<0 )
 	{
-		if(ret==isix::ISIX_ETIMEOUT)
-		{
-			sem_busy.signal();
-			return get_hwerror();
-		}
-		else
-		{
-			return ret;
-		}
+		return ret;
 	}
+
 	//Disable I2C irq
 	devirq_on(false);
 	if(wbuffer)
@@ -227,12 +210,12 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	{
 		bus_addr = addr | I2C_BUS_RW_BIT;
 	}
+	err_flag = 0;
 	tx_buf =  static_cast<const uint8_t*>(wbuffer);
 	rx_buf =  static_cast<uint8_t*>(rbuffer);
 	tx_bytes = wsize;
 	rx_bytes = rsize;
 	buf_pos = 0;
-	err_flag = 0;
 	//ACK config
 	ack_on(true);
 	//Enable I2C irq
@@ -240,21 +223,21 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	//Send the start
 	generate_start();
 	//Sem read lock
-	if(rbuffer)
+	if( (ret=sem_irq.wait(TRANSFER_TIMEOUT))<0 )
 	{
-		if( (ret=sem_read.wait(TRANSFER_TIMEOUT))<0 )
+		if(ret==isix::ISIX_ETIMEOUT)
 		{
-			if(ret==isix::ISIX_ETIMEOUT)
-			{
-				sem_read.signal();
-				return get_hwerror();
-			}
-			else
-			{
-				return ret;
-			}
+			sem_irq.signal();
+			sem_lock.signal();
+			return get_hwerror();
+		}
+		else
+		{
+			sem_lock.signal();
+			return ret;
 		}
 	}
+	sem_lock.signal();
 	return ERR_OK;
 }
 
@@ -293,12 +276,11 @@ void i2c_host::isr()
 			else
 			{
 				generate_stop();
-				if(sem_busy.getval()==0)
+				if(sem_irq.getval()==0)
 				{
-					sem_busy.signal_isr();
+					sem_irq.signal_isr();
 				}
 			}
-
 		}
 	break;
 
@@ -324,19 +306,16 @@ void i2c_host::isr()
 		else if(rx_bytes==0)
 		{
 			generate_stop();
-			if(sem_read.getval()==0)
+			if(sem_irq.getval()==0)
 			{
-				sem_read.signal_isr();
-			}
-			if(sem_busy.getval()==0)
-			{
-				sem_busy.signal_isr();
+				sem_irq.signal_isr();
 			}
 		}
 	break;
 
 	//Stop generated event
 	default:
+		//tiny_printf("<%08x>\r\n",event);
 		if(event & EVENT_ERROR_MASK)
 		{
 			err_flag = event >> 8;
@@ -361,15 +340,18 @@ int i2c_host::get_hwerror()
 		ERR_OVERRUN,
 		ERR_PEC,
 		ERR_UNKNOWN,
-		ERR_BUS_TIMEOUT
+		ERR_BUS_TIMEOUT,
 	};
+
 	for(int i=0; i<7; i++)
 	{
 		if(err_flag & (1<<i))
 			return err_tbl[i];
 	}
-	return ERR_UNKNOWN;
+
+	return ERR_TIMEOUT;
 }
+
 /* ------------------------------------------------------------------ */
 
 //Call to the global c function
