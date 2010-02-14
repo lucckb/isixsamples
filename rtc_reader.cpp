@@ -54,7 +54,7 @@ void rtc_reader::main()
 		if(status==isix::ISIX_EOK)
 			tiny_printf("%02x:%02x:%02x\r\n",buf[2],buf[1],buf[0]);
 		else
-			tiny_printf("ERROR=%d\r\n",status);
+			tiny_printf("!ERROR=%d\r\n",status);
 		isix::isix_wait(1300);
 	}
 }
