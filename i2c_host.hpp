@@ -46,7 +46,14 @@ class i2c_host
 public:
 	enum errno
 	{
-		ERR_OK = 0
+		ERR_OK = 0,			//All is ok
+		ERR_BUS = -5000,	//Bus error
+		ERR_ARBITRATION_LOST = -5001,
+		ERR_ACK_FAILURE = -5002,
+		ERR_OVERRUN = - 5003,
+		ERR_PEC = - 5004,	//Parity check error
+		ERR_BUS_TIMEOUT = -5005, //Bus timeout
+		ERR_UNKNOWN = - 5006,	//Unknown error
 	};
 public:
 	i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed=100000);
@@ -123,6 +130,7 @@ private:
 	}
 
 	void set_speed(unsigned speed);
+	int get_hwerror();
 
 private:
 

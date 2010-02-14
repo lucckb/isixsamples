@@ -71,6 +71,7 @@ namespace {
 	};
 	//Event error mask
 	const unsigned EVENT_ERROR_MASK = 0xff00;
+
 }
 
 /* ------------------------------------------------------------------ */
@@ -199,8 +200,14 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	if( (ret=sem_busy.wait(TRANSFER_TIMEOUT))<0 )
 	{
 		if(ret==isix::ISIX_ETIMEOUT)
+		{
 			sem_busy.signal();
-		return ret;
+			return get_hwerror();
+		}
+		else
+		{
+			return ret;
+		}
 	}
 	//Disable I2C irq
 	devirq_on(false);
@@ -224,15 +231,20 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	devirq_on();
 	//Send the start
 	generate_start();
-
 	//Sem read lock
 	if(rbuffer)
 	{
 		if( (ret=sem_read.wait(TRANSFER_TIMEOUT))<0 )
 		{
 			if(ret==isix::ISIX_ETIMEOUT)
+			{
 				sem_read.signal();
-			return ret;
+				return get_hwerror();
+			}
+			else
+			{
+				return ret;
+			}
 		}
 	}
 	return ERR_OK;
@@ -338,7 +350,27 @@ void i2c_interrupt::isr()
 	break;
 	}
 }
-
+/* ------------------------------------------------------------------ */
+//Translate hardware error to the error code
+int i2c_host::get_hwerror()
+{
+	static const int err_tbl[] =
+	{
+		ERR_BUS,
+		ERR_ARBITRATION_LOST,
+		ERR_ACK_FAILURE,
+		ERR_OVERRUN,
+		ERR_PEC,
+		ERR_UNKNOWN,
+		ERR_BUS_TIMEOUT
+	};
+	for(int i=0; i<7; i++)
+	{
+		if(err_flag & (1<<i))
+			return err_tbl[i];
+	}
+	return ERR_UNKNOWN;
+}
 /* ------------------------------------------------------------------ */
 
 }
