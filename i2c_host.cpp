@@ -11,10 +11,6 @@
 #include <system.h>
 #include "interrupt_cntr.hpp"
 #include <cstring>
-#include <tiny_printf.h>
-/* ------------------------------------------------------------------ */
-//#define logsys tiny_printf
-#define logsys(...)
 
 /* ------------------------------------------------------------------ */
 namespace dev
@@ -88,7 +84,7 @@ i2c_interrupt::i2c_interrupt(i2c_host &_owner):owner(_owner)
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 		i2c(_i2c), sem_busy(1),sem_read(0), interrupt(*this)
 {
-	// TODO Auto-generated constructor stub
+	// TODO Add configuration for i2c2 device support
 	if(_i2c==I2C1)
 	{
 		//GPIO configuration
@@ -261,14 +257,12 @@ void i2c_interrupt::isr()
 
 	//Send address
 	case I2C_EVENT_MASTER_MODE_SELECT:		//EV5
-		logsys("AS>>%02x\r\n",owner.bus_addr);
 		owner.send_7bit_addr(owner.bus_addr);
 	break;
 
 	//Send bytes in tx mode
 	case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:	//EV6
 	case I2C_EVENT_MASTER_BYTE_TRANSMITTED:	//EV8
-		logsys("[%d]\r\n",owner.tx_bytes);
 		if(owner.tx_bytes>0)
 		{
 			owner.send_data(owner.tx_buf[owner.buf_pos++]);
@@ -278,7 +272,6 @@ void i2c_interrupt::isr()
 		{
 			if(owner.rx_buf)
 			{
-				logsys("STA>*\r\n");
 				//Change address to read only
 				owner.bus_addr |= I2C_BUS_RW_BIT;
 				owner.ack_on(true);
@@ -287,11 +280,9 @@ void i2c_interrupt::isr()
 			}
 			else
 			{
-				logsys(">STO\r\n");
 				owner.generate_stop();
 				if(owner.sem_busy.getval()==0)
 				{
-					//tiny_printf("+");
 					owner.sem_busy.signal_isr();
 				}
 			}
@@ -310,7 +301,6 @@ void i2c_interrupt::isr()
 	break;
 	//Master byte rcv
 	case I2C_EVENT_MASTER_BYTE_RECEIVED:
-		logsys("<%d>\r\n",owner.rx_bytes);
 		if(owner.rx_bytes>0)
 		{
 			owner.rx_buf[owner.buf_pos++] = owner.receive_data();
@@ -337,7 +327,6 @@ void i2c_interrupt::isr()
 
 	//Stop generated event
 	default:
-		tiny_printf("!!!0x%08x!!!\r\n",event);
 		if(event & EVENT_ERROR_MASK)
 		{
 			owner.err_flag = event >> 8;
