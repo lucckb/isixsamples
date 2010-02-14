@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------ */
 /*
  * i2c_host.hpp
- *
+ *	This is the class provides i2c support into the isix environment
  *  Created on: 2010-01-20
  *      Author: lucck
  */
@@ -21,27 +21,6 @@ namespace dev
 {
 /* ------------------------------------------------------------------ */
 
-//class i2c_host;
-
-/* ------------------------------------------------------------------ */
-//Interrupt handling class
-/*
-class i2c_interrupt : public interrupt
-{
-public:
-	i2c_interrupt(i2c_host &_owner);
-	virtual void isr();
-	void irq_mask() { ::irq_mask(IRQ_PRIO, IRQ_SUB); }
-	void irq_umask() { ::irq_umask(); }
-
-private:
-	i2c_host &owner;
-	static const unsigned IRQ_PRIO = 1;
-	static const unsigned IRQ_SUB = 7;
-};
-
-*/
-/* ------------------------------------------------------------------ */
 //ISR funcs decls
 extern "C" {
 void i2c1_ev_isr_vector(void) __attribute__ ((interrupt));

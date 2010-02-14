@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------ */
 /*
  * i2c_host.cpp
- *
+ * This is the class provides i2c support into the isix environment
  *  Created on: 2010-01-20
  *      Author: lucck
  */

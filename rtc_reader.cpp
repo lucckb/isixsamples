@@ -20,9 +20,10 @@ namespace
 }
 
 /* ------------------------------------------------------------------ */
-rtc_reader::rtc_reader(): task_base(STACK_SIZE, TASK_PRIO), i2c_bus(I2C1)
+rtc_reader::rtc_reader(display_server &disp_srv_):
+		task_base(STACK_SIZE, TASK_PRIO),
+	    i2c_bus(I2C1), disp_srv(disp_srv_)
 {
-	// TODO Auto-generated constructor stub
 
 }
 /* ------------------------------------------------------------------ */
