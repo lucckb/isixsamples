@@ -161,6 +161,9 @@ private:	//Data
 	volatile short buf_pos;
 	//Interrupt assigned to the perhiph
 	i2c_interrupt interrupt;
+private:	//Noncopyable
+	i2c_host(i2c_host &);
+	i2c_host& operator=(const i2c_host&);
 };
 /* ------------------------------------------------------------------ */
 }
