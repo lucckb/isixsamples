@@ -1,7 +1,6 @@
 #include <isix.h>
 #include <stm32f10x_lib.h>
-#include "blinker.hpp"
-#include "ledkey.hpp"
+#include "the_serialapp.hpp"
 
 
 namespace {
@@ -119,11 +118,8 @@ void __external_startup(void)
 //App main entry point
 int main()
 {
-	//The blinker class
-	static app::ledblink led_blinker;
-	//The ledkey class
-	static app::ledkey led_key;
-
+	//The application object
+	static app::the_serialapp app;
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }

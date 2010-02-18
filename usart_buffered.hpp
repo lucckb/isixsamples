@@ -78,15 +78,17 @@ private:
 	void isr();
 	void irq_mask() { ::irq_mask(IRQ_PRIO, IRQ_SUB); }
 	void irq_umask() { ::irq_umask(); }
-
+	void periphcfg_usart1(bool is_alternate);
+	void periphcfg_usart2(bool is_alternate);
 private:
 	USART_TypeDef *usart;
-
 	isix::fifo<unsigned char> tx_queue;
-
 	isix::fifo<unsigned char> rx_queue;
-
 	volatile bool tx_en;
+
+private: 	//Noncopyable
+	usart_buffered(usart_buffered &);
+	usart_buffered& operator=(const usart_buffered&);
 };
 
 /*----------------------------------------------------------*/

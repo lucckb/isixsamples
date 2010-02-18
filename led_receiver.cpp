@@ -1,12 +1,13 @@
 /* ------------------------------------------------------------------ */
 /*
  * blinker.cpp
- * The blinker class (Blink LED1 on the STM32 butterfly)
+ * The Led receiver class (Blink LED1 on the STM32 butterfly)
  *  Created on: 2010-01-02
  *      Author: lucck
  */
 /* ------------------------------------------------------------------ */
-#include "blinker.hpp"
+#include "led_receiver.hpp"
+#include "usart_buffered.hpp"
 #include <stm32f10x_lib.h>
 #include <isix.h>
 /* ------------------------------------------------------------------ */
@@ -23,7 +24,8 @@ namespace
 
 /* ------------------------------------------------------------------ */
 //Default constructor, construct base object
-ledblink::ledblink():task_base(STACK_SIZE,TASK_PRIO)
+led_receiver::led_receiver(dev::usart_buffered &_serial)
+	:task_base(STACK_SIZE,TASK_PRIO),serial(_serial)
 {
 	//Enable PE in APB2
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
@@ -33,8 +35,9 @@ ledblink::ledblink():task_base(STACK_SIZE,TASK_PRIO)
 
 /* ------------------------------------------------------------------ */
 //Main task/thread function
-void ledblink::main()
+void led_receiver::main()
 {
+	serial.puts("Ala ma kota a kot ma ale\r\n");
 	while(true)
 	{
 		//Enable LED
@@ -45,6 +48,7 @@ void ledblink::main()
 		io_set( LED_PORT, LED_PIN );
 		//Wait time
 		isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+		serial.puts("Kupa dupa\r\n");
 	}
 }
 /* ------------------------------------------------------------------ */

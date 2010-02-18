@@ -1,32 +1,38 @@
-/* ------------------------------------------------------------------ */
 /*
- * blinker.hpp
- *
- *  Created on: 2010-01-02
+ * the_application.hpp
+ * The Application class header
+ *  Created on: 2010-01-03
  *      Author: lucck
  */
 /* ------------------------------------------------------------------ */
-#ifndef BLINKER_HPP_
-#define BLINKER_HPP_
+#ifndef THE_APPLICATION_HPP_
+#define THE_APPLICATION_HPP_
 /* ------------------------------------------------------------------ */
-#include <isix.h>
-
+#include "led_receiver.hpp"
+#include "usart_buffered.hpp"
 /* ------------------------------------------------------------------ */
+//Application namespace
 namespace app
 {
 
-class ledblink: public isix::task_base
+//The application class
+class the_serialapp
 {
 public:
-	ledblink();
-protected:
-	virtual void main();
+	//Constructor
+	the_serialapp(): usart(USART2),ledrcv(usart)
+	{}
 private:
-	static const unsigned STACK_SIZE = 256;
-	static const unsigned TASK_PRIO = 3;
+	//Serial device
+	dev::usart_buffered usart;
+
+	//The blinker class
+	led_receiver ledrcv;
+
 };
+
 /* ------------------------------------------------------------------ */
 }
 /* ------------------------------------------------------------------ */
-#endif /* BLINKER_HPP_ */
+#endif /* THE_APPLICATION_HPP_ */
 /* ------------------------------------------------------------------ */

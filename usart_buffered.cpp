@@ -8,18 +8,36 @@
 /*----------------------------------------------------------*/
 #include "usart_buffered.hpp"
 #include <system.h>
-#include "config.h"
+#include "config.hpp"
+
 /*----------------------------------------------------------*/
 namespace dev
 {
+/*----------------------------------------------------------*/
+namespace	//Object pointers in interrupt
+{
+	usart_buffered *usart1_obj;
+	usart_buffered *usart2_obj;
+}
 
 /*----------------------------------------------------------*/
 namespace
 {
+	//USART1 port
 	const unsigned USART1_TX_BIT = 9;
 	const unsigned USART1_RX_BIT = 10;
+	GPIO_TypeDef * const USART1_PORT = GPIOA;
+	//USART2 port
 	const unsigned USART2_TX_BIT = 2;
 	const unsigned USART2_RX_BIT = 3;
+	GPIO_TypeDef * const USART2_PORT = GPIOA;
+
+	//Alternate usart2
+	const unsigned USART2_ALT_TX_BIT = 5;
+	const unsigned USART2_ALT_RX_BIT = 6;
+	GPIO_TypeDef * const USART2_ALT_PORT = GPIOD;
+
+
 	const unsigned CR1_UE_SET = 0x2000;
 	const unsigned CCR_ENABLE_SET = 0x00000001;
 	const unsigned USART1_DR_BASE = 0x40013804;
@@ -37,23 +55,40 @@ namespace
 }
 
 /*----------------------------------------------------------*/
-#if 0
-//Usart interrupt constructor
-usart_interrupt::usart_interrupt(usart_buffered &_owner):owner(_owner)
+void usart_buffered::periphcfg_usart1(bool is_alternate)
 {
-	interrupt_cntr::irql irq_no = interrupt_cntr::irql_last;
-	if(owner.usart == USART1)
+	if(!is_alternate)
 	{
-		irq_no = interrupt_cntr::irql_usart1;
+		RCC->APB2ENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_USART1;
+		//Configure GPIO port TxD and RxD
+		io_config(USART1_PORT,USART1_TX_BIT,GPIO_MODE_10MHZ,GPIO_CNF_ALT_PP);
+		io_config(USART1_PORT,USART1_RX_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
 	}
-	else if(owner.usart == USART2)
+	else
 	{
-		irq_no = interrupt_cntr::irql_usart2;
+		//TODO: Alternative remap reimpl
 	}
-	interrupt_cntr::register_int(irq_no,IRQ_PRIO, IRQ_SUB, this );
 }
-#endif
-
+/*----------------------------------------------------------*/
+void usart_buffered::periphcfg_usart2(bool is_alternate)
+{
+	if(!is_alternate)
+	{
+		RCC->APB2ENR |= RCC_APB2Periph_GPIOA;
+		RCC->APB1ENR |= RCC_APB1Periph_USART2;
+		//Configure GPIO port TxD and RxD
+		io_config(USART2_PORT,USART2_TX_BIT,GPIO_MODE_10MHZ,GPIO_CNF_ALT_PP);
+		io_config(USART2_PORT,USART2_RX_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+	}
+	else
+	{
+		 RCC->APB2ENR |= RCC_APB2ENR_AFIOEN |RCC_APB2Periph_GPIOD;
+		 RCC->APB1ENR |= RCC_APB1Periph_USART2;
+		 io_config(USART2_ALT_PORT,USART2_ALT_TX_BIT,GPIO_MODE_10MHZ,GPIO_CNF_ALT_PP);
+		 io_config(USART2_ALT_PORT,USART2_ALT_RX_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+		 AFIO->MAPR |= AFIO_MAPR_USART2_REMAP;
+	}
+}
 /*----------------------------------------------------------*/
 //! Constructor called for usart buffered
 usart_buffered::usart_buffered(USART_TypeDef *_usart, unsigned cbaudrate,
@@ -63,18 +98,11 @@ usart_buffered::usart_buffered(USART_TypeDef *_usart, unsigned cbaudrate,
 {
 	if(_usart == USART1)
 	{
-		RCC->APB2ENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_USART1;
-		//Configure GPIO port TxD and RxD
-		io_config(GPIOA,USART1_TX_BIT,GPIO_MODE_10MHZ,GPIO_CNF_ALT_PP);
-		io_config(GPIOA,USART1_RX_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+		periphcfg_usart1(false);
 	}
 	else if(_usart == USART2)
 	{
-		RCC->APB2ENR |= RCC_APB2Periph_GPIOA;
-		RCC->APB1ENR |= RCC_APB1Periph_USART2;
-		//Configure GPIO port TxD and RxD
-		io_config(GPIOA,USART2_TX_BIT,GPIO_MODE_10MHZ,GPIO_CNF_ALT_PP);
-		io_config(GPIOA,USART2_RX_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+		periphcfg_usart2(true);
 	}
 	//Enable UART
 	usart->CR1 = CR1_UE_SET;
@@ -90,13 +118,17 @@ usart_buffered::usart_buffered(USART_TypeDef *_usart, unsigned cbaudrate,
 
 	if( _usart == USART1 )
 	{
+		usart1_obj = this;
 		//Enable usart IRQ with lower priority
-		interrupt_cntr::enable_int( interrupt_cntr::irql_usart1 );
+		nvic_set_priority( USART1_IRQn,IRQ_PRIO, IRQ_SUB );
+		nvic_irq_enable( USART1_IRQn, true );
 	}
 	else if( _usart == USART2 )
 	{
-	   //Enable usart IRQ with lower priority
-	   interrupt_cntr::enable_int( interrupt_cntr::irql_usart2 );
+		usart2_obj = this;
+		//Enable usart IRQ with lower priority
+		nvic_set_priority( USART2_IRQn,IRQ_PRIO, IRQ_SUB );
+		nvic_irq_enable(  USART2_IRQn, true );
 	}
 }
 
@@ -105,7 +137,7 @@ void usart_buffered::set_baudrate(unsigned new_baudrate)
 {
 	while(!(usart->SR & USART_TC));
 	//Calculate baud rate
-	uint32_t int_part = ((0x19 * PCLK2_HZ) / (0x04 * new_baudrate));
+	uint32_t int_part = ((0x19 * config::PCLK2_HZ) / (0x04 * new_baudrate));
 	uint32_t tmp = (int_part / 0x64) << 0x04;
 	uint32_t fract_part = int_part - (0x64 * (tmp >> 0x04));
 	tmp |= ((((fract_part * 0x10) + 0x32) / 0x64)) & ((u8)0x0F);
@@ -141,38 +173,38 @@ void usart_buffered::set_parity(parity new_parity)
 //! Usart start transmision called by usb endpoint
 void usart_buffered::start_tx()
 {
-	irq.irq_mask();
+	irq_mask();
 	if(!tx_en)
 	{
     	tx_en = true;
 		usart->CR1 |= USART_TXEIE;
 	}
-	irq.irq_umask();
+	irq_umask();
 }
 
 /*----------------------------------------------------------*/
 //! Usart interrupt handler
 void usart_buffered::isr()
 {
-	uint16_t usart_sr = owner.usart->SR;
+	uint16_t usart_sr = usart->SR;
 	if( usart_sr & USART_RXNE  )
 	{
 		//Received data interrupt
-		unsigned char ch = owner.usart->DR;
+		unsigned char ch = usart->DR;
 		//fifo_put(&hwnd->rx_fifo,ch);
-		owner.rx_queue.push_isr(ch);
+		rx_queue.push_isr(ch);
 	}
-	if(owner.tx_en && (usart_sr&USART_TXE) )
+	if(tx_en && (usart_sr&USART_TXE) )
 	{
 		unsigned char ch;
-		if( owner.tx_queue.pop_isr(ch) == isix::ISIX_EOK )
+		if( tx_queue.pop_isr(ch) == isix::ISIX_EOK )
 		{
-			owner.usart->DR = ch;
+			usart->DR = ch;
 		}
 		else
 		{
-			owner.usart->CR1 &= ~USART_TXEIE;
-			owner.tx_en = false;
+			usart->CR1 &= ~USART_TXEIE;
+			tx_en = false;
 		}
 	}
 }
@@ -189,12 +221,6 @@ int usart_buffered::puts(const char *str)
 	return r;
 }
 
-/*----------------------------------------------------------*/
-//get string
-int usart_buffered::gets(char *str, std::size_t max_len, int timeout)
-{
-
-}
 
 /*----------------------------------------------------------*/
 extern "C"
@@ -202,13 +228,13 @@ extern "C"
 	void usart1_isr_vector(void) __attribute__ ((interrupt));
 	void usart1_isr_vector(void)
 	{
-
+		if(usart1_obj) usart1_obj->isr();
 	}
 
 	void usart2_isr_vector(void) __attribute__ ((interrupt));
 	void usart2_isr_vector(void)
 	{
-
+		if(usart2_obj) usart2_obj->isr();
 	}
 
 }
