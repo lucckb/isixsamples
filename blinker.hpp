@@ -15,10 +15,10 @@
 namespace app
 {
 
-class blinker: public isix::task_base
+class ledblink: public isix::task_base
 {
 public:
-	blinker();
+	ledblink();
 protected:
 	virtual void main();
 private:

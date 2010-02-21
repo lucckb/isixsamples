@@ -24,7 +24,7 @@ public:
 	the_application();
 private:
 	//The blinker class
-	blinker led_blinker;
+	ledblink led_blinker;
 	//The display server class
 	display_server dsrv;
 	//The rtc reader
