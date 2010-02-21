@@ -1,35 +1,38 @@
 /* ------------------------------------------------------------------ */
 /*
- * led_receiver.hpp
- *
- *  Created on: 2010-01-02
+ * key_transmitter.hpp
+ * The serial key transmitter demo
+ *  Created on: 2010-02-21
  *      Author: lucck
  */
 /* ------------------------------------------------------------------ */
-#ifndef LED_RECEIVER_HPP_
-#define LED_RECEIVER_HPP_
+#ifndef KEY_TRANSMITTER_HPP_
+#define KEY_TRANSMITTER_HPP_
 /* ------------------------------------------------------------------ */
 #include <isix.h>
 /* ------------------------------------------------------------------ */
-//Fwd class decl
+//Forward decl.
 namespace dev
 {
 	class usart_buffered;
 }
+
 /* ------------------------------------------------------------------ */
 namespace app
 {
-//Serial receiver task class
-class led_receiver: public isix::task_base
+
+/* ------------------------------------------------------------------ */
+//Key tp serial transmitter class
+class key_transmitter: public isix::task_base
 {
 public:
 	//Constructor
-	led_receiver(dev::usart_buffered &_serial);
+	key_transmitter(dev::usart_buffered &_serial);
 protected:
 	//Main thread method
 	virtual void main();
 private:
-	//Stack configuration
+	//Stack and prio cfgs
 	static const unsigned STACK_SIZE = 256;
 	static const unsigned TASK_PRIO = 3;
 	//The usart obj ref
@@ -38,5 +41,5 @@ private:
 /* ------------------------------------------------------------------ */
 }
 /* ------------------------------------------------------------------ */
-#endif /* BLINKER_HPP_ */
+#endif /* KEY_TRANSMITTER_HPP_ */
 /* ------------------------------------------------------------------ */

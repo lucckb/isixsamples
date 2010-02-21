@@ -1,7 +1,7 @@
 #include <isix.h>
 #include <stm32f10x_lib.h>
 #include "the_serialapp.hpp"
-
+#include "config.hpp"
 
 namespace {
 /* ------------------------------------------------------------------ */
@@ -19,8 +19,6 @@ const unsigned MHZ = 1000000;
 const unsigned CTRL_TICKINT_Set = 2;
 const unsigned SysTick_Counter_Enable = 1;
 
-//HCLK system speed
-const unsigned HCLK_HZ = 72000000;
 
 /* ------------------------------------------------------------------ */
 /** Cortex stm32 System setup
@@ -47,7 +45,7 @@ void uc_periph_setup()
      */
     RCC->CFGR = RCC_CFGR_ADCPRE_8  | RCC_CFGR_PPRE1_DIV2 | RCC_PLLMul_9 |
     		RCC_CFGR_PPRE2_DIV1 | RCC_CFGR_PLLSRC;
-
+    RCC->CFGR2 = RCC_CFGR2_PREDIV1_DIV3;
 
     // At end disable HSI oscilator for power reduction
     RCC->CR &= ~RCC_CR_HSI_ON;
@@ -72,7 +70,7 @@ void uc_periph_setup()
 //Setup the systick timer at ISIX_HZ (default 1000HZ)
 void timer_setup()
 {
-	SysTick->LOAD = isix::ISIX_HZ * (HCLK_HZ/(8*MHZ));
+	SysTick->LOAD = isix::ISIX_HZ * (config::HCLK_HZ/(8*MHZ));
 	SysTick->CTRL |= CTRL_TICKINT_Set;
 	//System counter enable
 	SysTick->CTRL |= SysTick_Counter_Enable;

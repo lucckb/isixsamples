@@ -14,7 +14,7 @@
 namespace dev
 {
 /*----------------------------------------------------------*/
-namespace	//Object pointers in interrupt
+namespace	//Object pointers for interrupt
 {
 	usart_buffered *usart1_obj;
 	usart_buffered *usart2_obj;
@@ -135,9 +135,10 @@ usart_buffered::usart_buffered(USART_TypeDef *_usart, unsigned cbaudrate,
 /*----------------------------------------------------------*/
 void usart_buffered::set_baudrate(unsigned new_baudrate)
 {
+	unsigned hz = usart==USART1?config::PCLK2_HZ:config::PCLK1_HZ;
 	while(!(usart->SR & USART_TC));
 	//Calculate baud rate
-	uint32_t int_part = ((0x19 * config::PCLK2_HZ) / (0x04 * new_baudrate));
+	uint32_t int_part = ((0x19 * hz) / (0x04 * new_baudrate));
 	uint32_t tmp = (int_part / 0x64) << 0x04;
 	uint32_t fract_part = int_part - (0x64 * (tmp >> 0x04));
 	tmp |= ((((fract_part * 0x10) + 0x32) / 0x64)) & ((u8)0x0F);
@@ -223,14 +224,16 @@ int usart_buffered::puts(const char *str)
 
 
 /*----------------------------------------------------------*/
+//Serial interrupts handlers
 extern "C"
 {
+	//Usart 1
 	void usart1_isr_vector(void) __attribute__ ((interrupt));
 	void usart1_isr_vector(void)
 	{
 		if(usart1_obj) usart1_obj->isr();
 	}
-
+	//Usart 2
 	void usart2_isr_vector(void) __attribute__ ((interrupt));
 	void usart2_isr_vector(void)
 	{

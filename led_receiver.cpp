@@ -18,7 +18,8 @@ namespace app	//App namespace
 namespace
 {
 	GPIO_TypeDef * const LED_PORT = GPIOE;
-	const unsigned LED_PIN = 14;
+	const unsigned LED1_PIN = 14;
+	const unsigned LED2_PIN = 15;
 	const unsigned BLINK_TIME = 500;
 }
 
@@ -29,7 +30,10 @@ led_receiver::led_receiver(dev::usart_buffered &_serial)
 {
 	//Enable PE in APB2
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
-	io_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	io_config(LED_PORT,LED1_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	io_config(LED_PORT,LED2_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	io_set( LED_PORT, LED2_PIN );
+	io_set( LED_PORT, LED1_PIN );
 }
 
 
@@ -37,18 +41,37 @@ led_receiver::led_receiver(dev::usart_buffered &_serial)
 //Main task/thread function
 void led_receiver::main()
 {
-	serial.puts("Ala ma kota a kot ma ale\r\n");
 	while(true)
 	{
-		//Enable LED
-		io_clr( LED_PORT, LED_PIN );
-		//Wait time
-		isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
-		//Disable LED
-		io_set( LED_PORT, LED_PIN );
-		//Wait time
-		isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
-		serial.puts("Kupa dupa\r\n");
+		unsigned char c;
+		//Receive data from serial
+		if(serial.getchar(c)==isix::ISIX_EOK)
+		{
+			//Check for received char
+			switch(c)
+			{
+			//On led 1
+			case 'a':
+			case 'A':
+				io_clr( LED_PORT, LED1_PIN );
+				break;
+			//Off led 1
+			case 'b':
+			case 'B':
+				io_set( LED_PORT, LED1_PIN );
+				break;
+			//On led 2
+			case 'c':
+			case 'C':
+				io_clr( LED_PORT, LED2_PIN );
+				break;
+			//Off led 2
+			case 'd':
+			case 'D':
+				io_set( LED_PORT, LED2_PIN );
+				break;
+			}
+		}
 	}
 }
 /* ------------------------------------------------------------------ */
