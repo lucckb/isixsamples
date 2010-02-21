@@ -23,7 +23,7 @@ namespace
 
 /* ------------------------------------------------------------------ */
 //Default constructor, construct base object
-ledblink::ledblink():task_base(STACK_SIZE,TASK_PRIO)
+blinker::blinker():task_base(STACK_SIZE,TASK_PRIO)
 {
 	//Enable PE in APB2
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
@@ -33,7 +33,7 @@ ledblink::ledblink():task_base(STACK_SIZE,TASK_PRIO)
 
 /* ------------------------------------------------------------------ */
 //Main task/thread function
-void ledblink::main()
+void blinker::main()
 {
 	while(true)
 	{

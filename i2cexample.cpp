@@ -29,9 +29,6 @@ const unsigned MHZ = 1000000;
 const unsigned CTRL_TICKINT_Set = 2;
 const unsigned SysTick_Counter_Enable = 1;
 
-//HCLK system speed
-const unsigned HCLK_HZ = 72000000;
-
 /* ------------------------------------------------------------------ */
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
@@ -58,6 +55,7 @@ void uc_periph_setup()
      RCC->CFGR = RCC_CFGR_ADCPRE_8  | RCC_CFGR_PPRE1_DIV2 | RCC_PLLMul_9 |
 				RCC_CFGR_PPRE2_DIV1 | RCC_CFGR_PLLSRC;
 
+     RCC->CFGR2 = RCC_CFGR2_PREDIV1_DIV3;
     // At end disable HSI oscilator for power reduction
     RCC->CR &= ~RCC_CR_HSI_ON;
 

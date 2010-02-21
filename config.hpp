@@ -14,9 +14,9 @@ namespace config
 	namespace
 	{
 		//HCLK system speed
-		const unsigned HCLK_HZ = 72000000;
-		const unsigned PCLK1_HZ = 36000000;
-		const unsigned PCLK2_HZ = 72000000;
+		const unsigned HCLK_HZ =  75000000;
+		const unsigned PCLK1_HZ = 37500000;
+		const unsigned PCLK2_HZ = 75000000;
 	}
 }
 
