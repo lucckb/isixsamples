@@ -10,6 +10,9 @@ FORMAT	= hex
 # 0 - none optimalization, s - size optimalization 3 - most optimized
 OPT 	?= 0
 
+#Define MCU_VARIANT
+MCU_VARIANT = f107VBT6
+
 
 #Common flags 
 COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra
