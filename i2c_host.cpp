@@ -81,6 +81,7 @@ namespace {
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 		i2c(_i2c), sem_lock(1,1),sem_irq(0,1),err_flag(0)
 {
+	using namespace stm32;
 	// TODO Add configuration for i2c2 device support
 	if(_i2c==I2C1)
 	{

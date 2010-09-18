@@ -98,22 +98,22 @@ void __external_startup(void)
 	uc_periph_setup();
 
 	//1 bit for preemtion priority
-	nvic_priority_group(NVIC_PriorityGroup_1);
+	stm32::nvic_priority_group(NVIC_PriorityGroup_1);
 
 	//System priorities
-	nvic_set_priority(PendSV_IRQn,1,0x7);
+	stm32::nvic_set_priority(PendSV_IRQn,1,0x7);
 
 	//System priorities
-	nvic_set_priority(SVCall_IRQn,1,0x7);
+	stm32::nvic_set_priority(SVCall_IRQn,1,0x7);
 
 	//Set timer priority
-	nvic_set_priority(SysTick_IRQn,1,0x7);
+	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Debug console output
 
-	usartsimple_init(115200);
-	register_printf_putc_handler(usartsimple_putc,NULL);
-	tiny_printf("Hello world for all\r\n");
+	stm32::usartsimple_init(115200);
+	fnd::register_printf_putc_handler(stm32::usartsimple_putc,NULL);
+	fnd::tiny_printf("Hello world for all\r\n");
 
 	//Initialize isix
 	isix::isix_init(ISIX_NUM_PRIORITIES);
