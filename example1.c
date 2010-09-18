@@ -102,7 +102,7 @@ void __external_startup(void)
 	isix_init(ISIX_NUM_PRIORITIES);
 
 	//Setup the systick timer
-	timer_setup();
+	timer_setup(); //t
 }
 /* ------------------------------------------------------------------ */
 //App main entry point
