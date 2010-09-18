@@ -25,6 +25,7 @@ namespace
 //Default constructor, construct base object
 ledblink::ledblink():task_base(STACK_SIZE,TASK_PRIO)
 {
+	using namespace stm32;
 	//Enable PE in APB2
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	io_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
@@ -38,11 +39,11 @@ void ledblink::main()
 	while(true)
 	{
 		//Enable LED
-		io_clr( LED_PORT, LED_PIN );
+		stm32::io_clr( LED_PORT, LED_PIN );
 		//Wait time
 		isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
 		//Disable LED
-		io_set( LED_PORT, LED_PIN );
+		stm32::io_set( LED_PORT, LED_PIN );
 		//Wait time
 		isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
 	}
