@@ -60,6 +60,7 @@ namespace
 graph_key::graph_key(display_server &_srv) :
 	task_base(STACK_SIZE, TASK_PRIO),disp_srv(_srv)
 {
+	using namespace stm32;
 	//Enable PE in APB2
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	//Set GPIO as inputs

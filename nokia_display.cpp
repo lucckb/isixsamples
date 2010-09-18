@@ -189,30 +189,31 @@ nokia_display::nokia_display()
 //Set DC pin in state x
 inline void nokia_display::dc_pin(bool en)
 {
-	if(en) io_set(CTRL_PORT,DC_BIT);
-	else   io_clr(CTRL_PORT,DC_BIT);
+	if(en) stm32::io_set(CTRL_PORT,DC_BIT);
+	else   stm32::io_clr(CTRL_PORT,DC_BIT);
 }
 
 /* ------------------------------------------------------------------ */
 //Set RES pin in state x
 inline void nokia_display::res_pin(bool en)
 {
-	if(en) io_set(CTRL_PORT,RES_BIT);
-	else   io_clr(CTRL_PORT,RES_BIT);
+	if(en) stm32::io_set(CTRL_PORT,RES_BIT);
+	else   stm32::io_clr(CTRL_PORT,RES_BIT);
 }
 /* ------------------------------------------------------------------ */
 //Set SEL pin in state x
 inline void nokia_display::sel_pin(bool en)
 {
 	busy_delay(SSEL_DELAY);
-	if(en) io_set(SPI_PORT,SSEL_BIT);
-	else   io_clr(SPI_PORT,SSEL_BIT);
+	if(en) stm32::io_set(SPI_PORT,SSEL_BIT);
+	else   stm32::io_clr(SPI_PORT,SSEL_BIT);
 }
 
 /* ------------------------------------------------------------------ */
 //Hardware initialization method
 void nokia_display::hw_init()
 {
+	using namespace stm32;
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOD | RCC_APB2Periph_SPI1;
 
 	//SPI MISO (Input)
