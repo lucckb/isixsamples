@@ -76,8 +76,8 @@ private:
 private:
 	void start_tx();
 	void isr();
-	void irq_mask() { ::irq_mask(IRQ_PRIO, IRQ_SUB); }
-	void irq_umask() { ::irq_umask(); }
+	void irq_mask() { stm32::irq_mask(IRQ_PRIO, IRQ_SUB); }
+	void irq_umask() { stm32::irq_umask(); }
 	void periphcfg_usart1(bool is_alternate);
 	void periphcfg_usart2(bool is_alternate);
 private:

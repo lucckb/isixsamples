@@ -28,6 +28,7 @@ namespace
 led_receiver::led_receiver(dev::usart_buffered &_serial)
 	:task_base(STACK_SIZE,TASK_PRIO),serial(_serial)
 {
+	using namespace stm32;
 	//Enable PE in APB2
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	io_config(LED_PORT,LED1_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
@@ -53,22 +54,22 @@ void led_receiver::main()
 			//On led 1
 			case 'a':
 			case 'A':
-				io_clr( LED_PORT, LED1_PIN );
+				stm32::io_clr( LED_PORT, LED1_PIN );
 				break;
 			//Off led 1
 			case 'b':
 			case 'B':
-				io_set( LED_PORT, LED1_PIN );
+				stm32::io_set( LED_PORT, LED1_PIN );
 				break;
 			//On led 2
 			case 'c':
 			case 'C':
-				io_clr( LED_PORT, LED2_PIN );
+				stm32::io_clr( LED_PORT, LED2_PIN );
 				break;
 			//Off led 2
 			case 'd':
 			case 'D':
-				io_set( LED_PORT, LED2_PIN );
+				stm32::io_set( LED_PORT, LED2_PIN );
 				break;
 			}
 		}

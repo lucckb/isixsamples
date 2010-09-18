@@ -57,6 +57,7 @@ namespace
 /*----------------------------------------------------------*/
 void usart_buffered::periphcfg_usart1(bool is_alternate)
 {
+	using namespace stm32;
 	if(!is_alternate)
 	{
 		RCC->APB2ENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_USART1;
@@ -72,6 +73,7 @@ void usart_buffered::periphcfg_usart1(bool is_alternate)
 /*----------------------------------------------------------*/
 void usart_buffered::periphcfg_usart2(bool is_alternate)
 {
+	using namespace stm32;
 	if(!is_alternate)
 	{
 		RCC->APB2ENR |= RCC_APB2Periph_GPIOA;
@@ -120,15 +122,15 @@ usart_buffered::usart_buffered(USART_TypeDef *_usart, unsigned cbaudrate,
 	{
 		usart1_obj = this;
 		//Enable usart IRQ with lower priority
-		nvic_set_priority( USART1_IRQn,IRQ_PRIO, IRQ_SUB );
-		nvic_irq_enable( USART1_IRQn, true );
+		stm32::nvic_set_priority( USART1_IRQn,IRQ_PRIO, IRQ_SUB );
+		stm32::nvic_irq_enable( USART1_IRQn, true );
 	}
 	else if( _usart == USART2 )
 	{
 		usart2_obj = this;
 		//Enable usart IRQ with lower priority
-		nvic_set_priority( USART2_IRQn,IRQ_PRIO, IRQ_SUB );
-		nvic_irq_enable(  USART2_IRQn, true );
+		stm32::nvic_set_priority( USART2_IRQn,IRQ_PRIO, IRQ_SUB );
+		stm32::nvic_irq_enable(  USART2_IRQn, true );
 	}
 }
 

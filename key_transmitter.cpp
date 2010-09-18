@@ -55,7 +55,8 @@ namespace
 key_transmitter::key_transmitter(dev::usart_buffered &_serial) :
 		task_base(STACK_SIZE,TASK_PRIO),serial(_serial)
 {
-	//Enable PE in APB2
+	 using namespace stm32;
+	 //Enable PE in APB2
 	 RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	 //Set GPIO as inputs
 	 io_config(KEY_PORT,KEY_OK_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
