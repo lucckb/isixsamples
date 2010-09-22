@@ -24,7 +24,7 @@
 #define TASK_STK_SIZE 256			/* measure task stack size */
 #define TASK_PRIO_LED 3				/* led task prio */
 #define TASK_PRIO_TEMP 2			/* measure task prio */
-#define MEASURE_WAIT_TIME 1000		/* Measure interval */
+#define MEASURE_WAIT_TIME 500		/* Measure interval */
 /* ------------------------------------------------------------------ */
 //Temperature fractional structure
 struct temp
