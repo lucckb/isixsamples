@@ -1,7 +1,7 @@
 # Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = nokia_key
+TARGET	   = kamod_temp
 
 #Output format (elf,hex,bin)
 FORMAT	= hex

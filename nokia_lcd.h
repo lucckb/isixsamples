@@ -37,12 +37,6 @@ void nlcd_set_position(unsigned x, unsigned y);
  */
 void nlcd_put_string(const char *str, unsigned  x, unsigned y);
 
-/* ------------------------------------------------------------------ */
-/**
- * Put graphics on the display
- * @param[in] image Image definition
- */
-void nlcd_put_bitmap(const struct img_def *image);
 
 /* ------------------------------------------------------------------ */
 
