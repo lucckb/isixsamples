@@ -9,6 +9,7 @@
 #include "i2c_master.h"
 #include <system.h>
 #include <isix.h>
+
 /* ------------------------------------------------------------------ */
 //I2C PINS
 #define I2C1_PORT  GPIOB
@@ -241,8 +242,7 @@ errno_t i2cm_init( unsigned clk_speed)
 	 i2c->OAR1 = I2C_AcknowledgedAddress_7bit;
 
 	 i2c->SR1 = 0; i2c->SR2 = 0;
-	 /* Enable I2C interrupt */
-	 devirq_on(true);
+
 	 /* Enable interrupt controller */
 	 nvic_set_priority( I2C1_EV_IRQn, IRQ_PRIO, IRQ_SUB);
 	 nvic_irq_enable(I2C1_EV_IRQn,true);
@@ -327,22 +327,25 @@ int i2cm_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbu
 	buf_pos = 0;
 	//ACK config
 	ack_on(true);
+	//Clear status flags
+	clear_flags();
 	//Enable I2C irq
 	devirq_on(true);
 	//Send the start
 	generate_start(true);
 	//Sem read lock
-
 	if( (ret=isix_sem_wait(sem_irq,TRANSFER_TIMEOUT)) <0  )
 	{
 		if(ret==ISIX_ETIMEOUT)
 		{
+			devirq_on(false);
 			isix_sem_signal(sem_irq);
 			isix_sem_signal(sem_lock);
 			return ERR_TIMEOUT;
 		}
 		else
 		{
+			devirq_on(false);
 			isix_sem_signal(sem_irq);
 			isix_sem_signal(sem_lock);
 			return ret;
@@ -350,10 +353,12 @@ int i2cm_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbu
 	}
 	if( (ret=get_hwerror())  )
 	{
+		devirq_on(false);
 		err_flag = 0;
 		isix_sem_signal(sem_lock);
 		return ret;
 	}
+	devirq_on(false);
 	isix_sem_signal(sem_lock);
 	return ERR_OK;
 }
@@ -392,6 +397,7 @@ void i2c1_ev_isr_vector(void)
 		else
 		{
 			generate_stop(true);
+			devirq_on(false);
 			isix_sem_signal_isr(sem_irq);
 		}
 	}
@@ -419,16 +425,17 @@ void i2c1_ev_isr_vector(void)
 	else if(rx_bytes==0)
 	{
 		generate_stop(true);
+		devirq_on(false);
 		isix_sem_signal_isr(sem_irq);
 	}
 	break;
-
 	//Stop generated event
 	default:
 	if(event & EVENT_ERROR_MASK)
 	{
 		err_flag = event >> 8;
 		i2c->SR1 &= ~EVENT_ERROR_MASK;
+		devirq_on(false);
 		isix_sem_signal_isr(sem_irq);
 	}
 	else
