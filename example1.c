@@ -38,25 +38,6 @@
 #define KEY_DOWN  0x04
 //RIGHT button
 #define KEY_RIGHT_BIT  11
-#define KEY_RIGHT  0x08;
-//LEFT button
-#define KEY_LEFT_BIT  12
-#define KEY_LEFT  0x10
-//The kbd mask
-#define KEY_MASK  0x1f
-//The Delay
-#define DELAY_TIME  25
-//OK button
-#define KEY_OK_BIT  8
-#define KEY_OK  0x01
-//UP button
-#define KEY_UP_BIT  9
-#define KEY_UP  0x02
-//DOWN button
-#define KEY_DOWN_BIT  10
-#define KEY_DOWN  0x04
-//RIGHT button
-#define KEY_RIGHT_BIT  11
 #define KEY_RIGHT  0x08
 //LEFT button
 #define KEY_LEFT_BIT  12
