@@ -199,7 +199,7 @@ errno_t i2cm_init( unsigned clk_speed)
 	sem_lock = isix_sem_create_limited(NULL , 1, 1 );
 	if(!sem_lock) return ERR_ISIX;
 	sem_irq = isix_sem_create_limited(NULL, 0, 1 );
-	if(!sem_lock) return ERR_ISIX;
+	if(!sem_irq) return ERR_ISIX;
 
 	//GPIO configuration
 	RCC->APB2ENR |= I2C1_GPIO_ENR;
