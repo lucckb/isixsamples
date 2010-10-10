@@ -126,8 +126,7 @@ i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 	 i2c->OAR1 = I2C_AcknowledgedAddress_7bit;
 
 	 i2c->SR1 = 0; i2c->SR2 = 0;
-	 /* Enable I2C interrupt */
-	 devirq_on();
+
 	 //Assign as the global object
 	 if(_i2c==I2C1)
 	 {
@@ -217,6 +216,8 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	buf_pos = 0;
 	//ACK config
 	ack_on(true);
+	//Clear status flags
+	clear_flags();
 	//Enable I2C irq
 	devirq_on();
 	//Send the start
@@ -226,12 +227,14 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	{
 		if(ret==isix::ISIX_ETIMEOUT)
 		{
+			devirq_on(false);
 			sem_irq.signal();
 			sem_lock.signal();
 			return ERR_TIMEOUT;
 		}
 		else
 		{
+			devirq_on(false);
 			sem_irq.signal();
 			sem_lock.signal();
 			return ret;
@@ -239,10 +242,12 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	}
 	if( (ret=get_hwerror())  )
 	{
+		devirq_on(false);
 		err_flag = 0;
 		sem_lock.signal();
 		return ret;
 	}
+	devirq_on(false);
 	sem_lock.signal();
 	return ERR_OK;
 }
@@ -282,6 +287,7 @@ void i2c_host::isr()
 			else
 			{
 				generate_stop();
+				devirq_on(false);
 				sem_irq.signal_isr();
 			}
 		}
@@ -309,6 +315,7 @@ void i2c_host::isr()
 		else if(rx_bytes==0)
 		{
 			generate_stop();
+			devirq_on(false);
 			sem_irq.signal_isr();
 		}
 	break;
@@ -319,6 +326,7 @@ void i2c_host::isr()
 		{
 			err_flag = event >> 8;
 			i2c->SR1 &= ~EVENT_ERROR_MASK;
+			devirq_on(false);
 			sem_irq.signal_isr();
 		}
 		else

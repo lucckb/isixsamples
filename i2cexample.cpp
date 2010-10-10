@@ -111,7 +111,7 @@ void __external_startup(void)
 
 	//Debug console output
 
-	stm32::usartsimple_init(115200);
+	stm32::usartsimple_init(USART2,115200,true,config::PCLK1_HZ,config::PCLK2_HZ);
 	fnd::register_printf_putc_handler(stm32::usartsimple_putc,NULL);
 	fnd::tiny_printf("Hello world for all\r\n");
 
