@@ -23,6 +23,7 @@ namespace dev
 //ISR funcs decls
 extern "C" {
 void i2c1_ev_isr_vector(void) __attribute__ ((interrupt));
+void i2c1_er_isr_vector(void) __attribute__ ((interrupt));
 }
 
 /* ------------------------------------------------------------------ */
@@ -31,6 +32,7 @@ class i2c_host
 {
 	//Friend interrupt class
 	friend void i2c1_ev_isr_vector(void);
+	friend void i2c1_er_isr_vector(void);
 public:
 	enum errno
 	{
@@ -51,6 +53,7 @@ public:
 private:
 	//Interrupt service routine
 	void isr();
+	void isr_er();
 	//Configuration data
 	static const unsigned TRANSFER_TIMEOUT = 1000;
 	static const unsigned IRQ_PRIO = 1;
