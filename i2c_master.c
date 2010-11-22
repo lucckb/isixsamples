@@ -245,7 +245,9 @@ errno_t i2cm_init( unsigned clk_speed)
 
 	 /* Enable interrupt controller */
 	 nvic_set_priority( I2C1_EV_IRQn, IRQ_PRIO, IRQ_SUB);
+	 nvic_set_priority( I2C1_ER_IRQn, IRQ_PRIO, IRQ_SUB);
 	 nvic_irq_enable(I2C1_EV_IRQn,true);
+	 nvic_irq_enable(I2C1_ER_IRQn,true);
 	 return ERR_OK;
 }
 
@@ -339,14 +341,12 @@ int i2cm_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbu
 		if(ret==ISIX_ETIMEOUT)
 		{
 			devirq_on(false);
-			isix_sem_signal(sem_irq);
 			isix_sem_signal(sem_lock);
 			return ERR_TIMEOUT;
 		}
 		else
 		{
 			devirq_on(false);
-			isix_sem_signal(sem_irq);
 			isix_sem_signal(sem_lock);
 			return ret;
 		}
@@ -379,6 +379,7 @@ void i2c1_ev_isr_vector(void)
 	//Send bytes in tx mode
 	case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:	//EV6
 	case I2C_EVENT_MASTER_BYTE_TRANSMITTED:	//EV8
+	case I2C_EVENT_MASTER_BYTE_TRANSMITTING:
 	if(tx_bytes>0)
 	{
 		send_data(tx_buf[buf_pos++]);
@@ -431,18 +432,28 @@ void i2c1_ev_isr_vector(void)
 	break;
 	//Stop generated event
 	default:
-	if(event & EVENT_ERROR_MASK)
-	{
-		err_flag = event >> 8;
-		i2c->SR1 &= ~EVENT_ERROR_MASK;
 		devirq_on(false);
-		isix_sem_signal_isr(sem_irq);
-	}
-	else
-	{
-		clear_flags();
-	}
+        	generate_stop(true);
+        	isix_sem_signal_isr(sem_irq);
 	break;
 	}
 }
 /* ------------------------------------------------------------------ */
+/* Irq handler */
+void i2c1_er_isr_vector(void) __attribute__ ((interrupt));
+void i2c1_er_isr_vector(void)
+{
+    //SR0 only don't care about SR1
+    uint16_t event = get_last_event();
+    if(event & EVENT_ERROR_MASK)
+    {
+	err_flag = event >> 8;
+	i2c->SR1 &= ~EVENT_ERROR_MASK;
+	devirq_on(false);
+        generate_stop(true);
+	isix_sem_signal_isr(sem_irq);
+    }
+}
+/* ------------------------------------------------------------------ */
+
+
