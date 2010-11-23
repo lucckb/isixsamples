@@ -379,7 +379,6 @@ void i2c1_ev_isr_vector(void)
 	//Send bytes in tx mode
 	case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:	//EV6
 	case I2C_EVENT_MASTER_BYTE_TRANSMITTED:	//EV8
-	case I2C_EVENT_MASTER_BYTE_TRANSMITTING:
 	if(tx_bytes>0)
 	{
 		send_data(tx_buf[buf_pos++]);
