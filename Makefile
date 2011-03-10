@@ -29,7 +29,7 @@ LDFLAGS += -L../libfoundation -lfoundation -L../lib-stm32/src -lstm32lite -L../i
 ADDITIONAL_DEPS += ../libfoundation/libfoundation.a ../lib-stm32/src/libstm32lite.a ../isix/libisix.a
 	
 #CRT0 object with the startup file
-CRT0_OBJECT = ../lib-stm32/src/obj/crt0.o
+CRT0_OBJECT = ../lib-stm32/src/crt0.o
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
