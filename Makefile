@@ -18,7 +18,7 @@ MCU_VARIANT = f107VBT6
 COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra
 
 #Include
-COMMON_FLAGS += -I../libfoundation/include -I../isix/include -I../isix/arch/arm-cm3/include
+COMMON_FLAGS += -I../libfoundation/include -I../isix/include -I../isix/arch/arm-cm3/include -I../lib-stm32/inc
 LDFLAGS += -Wl,--defsym=_sys_stack_size=256
 LDFLAGS += -nodefaultlibs
 LDFLAGS += -L../libfoundation -lfoundation -L../lib-stm32/src -lstm32lite -L../isix -lisix
