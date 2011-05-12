@@ -25,7 +25,7 @@ namespace
 
 /* ------------------------------------------------------------------ */
 //Default constructor, construct base object
-led_receiver::led_receiver(dev::usart_buffered &_serial)
+led_receiver::led_receiver(stm32::dev::usart_buffered &_serial)
 	:task_base(STACK_SIZE,TASK_PRIO),serial(_serial)
 {
 	using namespace stm32;
@@ -44,7 +44,7 @@ void led_receiver::main()
 {
 	while(true)
 	{
-		unsigned char c;
+		char c;
 		//Receive data from serial
 		if(serial.getchar(c)==isix::ISIX_EOK)
 		{

@@ -12,10 +12,10 @@
 #include <isix.h>
 /* ------------------------------------------------------------------ */
 //Fwd class decl
-namespace dev
-{
+namespace stm32 {
+namespace dev {
 	class usart_buffered;
-}
+}}
 /* ------------------------------------------------------------------ */
 namespace app
 {
@@ -24,7 +24,7 @@ class led_receiver: public isix::task_base
 {
 public:
 	//Constructor
-	led_receiver(dev::usart_buffered &_serial);
+	led_receiver(stm32::dev::usart_buffered &_serial);
 protected:
 	//Main thread method
 	virtual void main();
@@ -33,10 +33,11 @@ private:
 	static const unsigned STACK_SIZE = 256;
 	static const unsigned TASK_PRIO = 3;
 	//The usart obj ref
-	dev::usart_buffered &serial;
+    stm32::dev::usart_buffered &serial;
 };
 /* ------------------------------------------------------------------ */
 }
 /* ------------------------------------------------------------------ */
 #endif /* BLINKER_HPP_ */
 /* ------------------------------------------------------------------ */
+

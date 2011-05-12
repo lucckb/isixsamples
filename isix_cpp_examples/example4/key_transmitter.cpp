@@ -52,7 +52,7 @@ namespace
 }
 /* ------------------------------------------------------------------ */
 //Constructor
-key_transmitter::key_transmitter(dev::usart_buffered &_serial) :
+key_transmitter::key_transmitter(stm32::dev::usart_buffered &_serial) :
 		task_base(STACK_SIZE,TASK_PRIO),serial(_serial)
 {
 	 using namespace stm32;

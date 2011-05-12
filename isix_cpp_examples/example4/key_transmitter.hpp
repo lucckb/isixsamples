@@ -12,10 +12,10 @@
 #include <isix.h>
 /* ------------------------------------------------------------------ */
 //Forward decl.
-namespace dev
-{
+namespace stm32 {
+namespace dev {
 	class usart_buffered;
-}
+}}
 
 /* ------------------------------------------------------------------ */
 namespace app
@@ -27,7 +27,7 @@ class key_transmitter: public isix::task_base
 {
 public:
 	//Constructor
-	key_transmitter(dev::usart_buffered &_serial);
+	key_transmitter(stm32::dev::usart_buffered &_serial);
 protected:
 	//Main thread method
 	virtual void main();
@@ -36,7 +36,7 @@ private:
 	static const unsigned STACK_SIZE = 256;
 	static const unsigned TASK_PRIO = 3;
 	//The usart obj ref
-	dev::usart_buffered &serial;
+    stm32::dev::usart_buffered &serial;
 };
 /* ------------------------------------------------------------------ */
 }
