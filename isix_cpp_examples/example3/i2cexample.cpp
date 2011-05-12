@@ -91,7 +91,7 @@ extern "C"
 
 /* ------------------------------------------------------------------ */
 //! This function is called just before call global constructors
-void __external_startup(void)
+void _external_startup(void)
 {
 
 	//Initialize system perhipheral
