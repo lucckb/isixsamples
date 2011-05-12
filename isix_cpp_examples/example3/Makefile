@@ -1,35 +1,29 @@
-# Automatic makefile for GNUARM (C/C++)
+#4 Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = rtci2c
+TARGET	   = example3cpp
 
 #Output format (elf,hex,bin)
-FORMAT	= hex
+FORMAT	= elf
 
 #Optimalization [0,1,2,3,s]
 # 0 - none optimalization, s - size optimalization 3 - most optimized
-OPT 	?= 0
+OPT 	?= 2
 
-#Define MCU_VARIANT
+#MCU variant
 MCU_VARIANT = f107VBT6
 
+#Enable exceptions support
+CPP_EXCEPTIONS = n
 
 #Common flags 
-COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra
+COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
 
 #Include
-COMMON_FLAGS += -I../libfoundation/include -I../isix/include -I../isix/arch/arm-cm3/include -I../lib-stm32/inc
-LDFLAGS += -Wl,--defsym=_sys_stack_size=256
-LDFLAGS += -nodefaultlibs
-LDFLAGS += -L../libfoundation -lfoundation -L../lib-stm32/src -lstm32lite -L../isix -lisix
+COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
+COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
+LDFLAGS += -Wl,--defsym=_sys_stack_size=384
 
-
-#-lgcc 
-#Additional library dependencies
-ADDITIONAL_DEPS += ../libfoundation/libfoundation.a ../lib-stm32/src/libstm32lite.a ../isix/libisix.a
-	
-#CRT0 object with the startup file
-CRT0_OBJECT = ../lib-stm32/src/crt0.o
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
@@ -47,8 +41,9 @@ LISTING = n
 #Debug version
 DEBUG ?=  y
 
+
 #Source C files
-SRC += $(wildcard *.c)
+SRC += $(wildcard *.c) 
 
 #Source C++ files
 CPPSRC += $(wildcard *.cpp)
@@ -56,6 +51,14 @@ CPPSRC += $(wildcard *.cpp)
 #Source ASM files
 ASRC += $(wildcard *.S)
 
-
-include ../lib-stm32/scripts/stm32.mk
+ISIX_DIR=../../isixrtos/libisix
+ISIX_ARCH=arm-cm3
+ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
+LIBFOUNDATION_DIR=../../isixrtos/libfoundation
+LIBSTM32_DIR=../../isixrtos/libstm32
+include $(ISIX_DIR)/isix.mk
+include $(ISIXDRV_DIR)/isixdrv.mk
+include $(LIBFOUNDATION_DIR)/libfoundation.mk
+include $(LIBSTM32_DIR)/libstm32.mk
+include $(LIBSTM32_DIR)/scripts/stm32.mk
 
