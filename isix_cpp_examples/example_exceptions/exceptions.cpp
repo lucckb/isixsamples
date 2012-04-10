@@ -1,7 +1,9 @@
 #include <isix.h>
 #include <stm32f10x_lib.h>
-
-
+#include <dbglog.h>
+#include <usart_simple.h>
+#include "config.hpp"
+#include <stdexcept>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -45,9 +47,9 @@ void uc_periph_setup()
     /* Configure system clocks ALL clocks freq 16MHz
      * PLL x 2
      */
-     RCC->CFGR = RCC_CFGR_ADCPRE_8  | RCC_CFGR_PPRE1_1 | RCC_PLLMul_9 |
-				RCC_CFGR_PPRE2_1 | RCC_CFGR_PLLSRC;
-     RCC->CFGR2 = RCC_CFGR2_PREDIV1_DIV3;
+    RCC->CFGR = RCC_CFGR_ADCPRE_8  | RCC_CFGR_PPRE1_DIV2 | RCC_PLLMul_9 |
+    		RCC_CFGR_PPRE2_DIV1 | RCC_CFGR_PLLSRC;
+    RCC->CFGR2 = RCC_CFGR2_PREDIV1_DIV3;
 
     // At end disable HSI oscilator for power reduction
     RCC->CR &= ~RCC_CR_HSI_ON;
@@ -174,9 +176,20 @@ protected:
 		//Last key state
 		bool state = true;
 		//Task/thread main loop
-		while(true)
+		try
 		{
-			execute_keycheck(state);
+			while(true)
+			{
+				execute_keycheck(state);
+			}
+		}
+		catch( int &val)
+		{
+			dbprintf("INT exception [%d]", val);
+		}
+		catch( const std::exception &e )
+		{
+			dbprintf("std::exception [%s]", e.what());
 		}
 	}
 private:
@@ -196,15 +209,21 @@ private:
 		else stm32::io_set( LED_PORT, LED_PIN );
 		//Wait short time
 		isix::isix_wait( isix::isix_ms2tick(DELAY_TIME) );
+		if( !stm32::io_get(KEY_PORT, KEY_RAISE_LOGIC ))
+			throw(std::logic_error("critical error raised"));
+		if( !stm32::io_get(KEY_PORT, KEY_RAISE_INT ))
+			throw(-1);
 	}
 private:
-		static const unsigned STACK_SIZE = 256;
+		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
 		bool is_enabled;
 		GPIO_TypeDef * const KEY_PORT;
 		GPIO_TypeDef * const LED_PORT;
 		static const unsigned LED_PIN = 15;
 		static const unsigned KEY_PIN = 8;
+		static const unsigned KEY_RAISE_LOGIC = 9;
+		static const unsigned KEY_RAISE_INT = 10;
 		static const unsigned DELAY_TIME = 25;
 };
 
@@ -215,6 +234,11 @@ private:
 //App main entry point
 int main()
 {
+	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
+	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
+	 dbprintf(" Exception presentation app using ISIXRTOS ");
+
+
 	//The blinker class
 	static app::ledblink led_blinker;
 	//The ledkey class
