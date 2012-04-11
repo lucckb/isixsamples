@@ -168,6 +168,7 @@ public:
 		//Enable PE in APB2
 		RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 		io_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+		io_config(LED_PORT,NOTIFY_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	}
 protected:
 	//Main function
@@ -185,10 +186,12 @@ protected:
 		}
 		catch( int &val)
 		{
+			stm32::io_clr( LED_PORT,NOTIFY_PIN );
 			dbprintf("INT exception [%d]", val);
 		}
 		catch( const std::exception &e )
 		{
+			stm32::io_clr( LED_PORT,NOTIFY_PIN );
 			dbprintf("std::exception [%s]", e.what());
 		}
 	}
@@ -210,9 +213,17 @@ private:
 		//Wait short time
 		isix::isix_wait( isix::isix_ms2tick(DELAY_TIME) );
 		if( !stm32::io_get(KEY_PORT, KEY_RAISE_LOGIC ))
+		{
+			/** From raise to catch 151us **/
+			stm32::io_set( LED_PORT,NOTIFY_PIN );
 			throw(std::logic_error("critical error raised"));
+		}
 		if( !stm32::io_get(KEY_PORT, KEY_RAISE_INT ))
+		{
+			/** From raise to catch 108us **/
+			stm32::io_set( LED_PORT,NOTIFY_PIN );
 			throw(-1);
+		}
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
@@ -222,6 +233,7 @@ private:
 		GPIO_TypeDef * const LED_PORT;
 		static const unsigned LED_PIN = 15;
 		static const unsigned KEY_PIN = 8;
+		static const unsigned NOTIFY_PIN = 0;
 		static const unsigned KEY_RAISE_LOGIC = 9;
 		static const unsigned KEY_RAISE_INT = 10;
 		static const unsigned DELAY_TIME = 25;
