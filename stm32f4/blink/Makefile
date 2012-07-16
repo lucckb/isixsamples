@@ -11,8 +11,8 @@ FORMAT	= elf
 OPT 	?= 2
 
 #MCU variant
-MCU_MAJOR_TYPE = f1
-MCU_MINOR_TYPE = 07VBT6
+MCU_MAJOR_TYPE = f4
+MCU_MINOR_TYPE = 17VGT6
 
 
 #Enable exceptions support
@@ -59,7 +59,7 @@ ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
 LIBFOUNDATION_DIR=../../isixrtos/libfoundation
 LIBSTM32_DIR=../../isixrtos/libstm32
 include $(ISIX_DIR)/isix.mk
-include $(ISIXDRV_DIR)/isixdrv.mk
+#include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(LIBSTM32_DIR)/libstm32.mk
 include $(LIBSTM32_DIR)/scripts/stm32.mk
