@@ -1,7 +1,7 @@
 #4 Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = exampleexceptions
+TARGET	   = blinkf4
 
 #Output format (elf,hex,bin)
 FORMAT	= elf
@@ -19,7 +19,7 @@ MCU_MINOR_TYPE = 17VGT6
 CPP_EXCEPTIONS = y
 
 #Common flags 
-COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
+COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
 
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH

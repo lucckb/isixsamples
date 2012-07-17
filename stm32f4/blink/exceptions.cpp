@@ -70,6 +70,8 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 #elif defined(STM32MCU_MAJOR_TYPE_F4)
+
+/* ------------------------------------------------------------------ */
 static void flash_latency(uint32_t frequency)
 {
 	uint32_t wait_states;
@@ -81,19 +83,22 @@ static void flash_latency(uint32_t frequency)
 	FLASH->ACR = FLASH_ACR_DCRST | FLASH_ACR_ICRST | wait_states;	// reset caches
 	FLASH->ACR = FLASH_ACR_DCEN | FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | wait_states;	// enable caches and prefetch
 }
+/* ------------------------------------------------------------------ */
 static void fpu_enable(void)
 {
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
 	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));	// set CP10 and CP11 Full Access
 #endif
 }
-static uint32_t pll_start(uint32_t crystal, uint32_t frequency);
-void uc_periph_setup()
-{
-	fpu_enable();
-	pll_start(8000000ul, 168000000ul);
 
-}
+
+#define RCC_PLLCFGR_PLLM_bit                            0
+#define RCC_PLLCFGR_PLLN_bit                            6
+#define RCC_PLLCFGR_PLLP_bit                            16
+#define RCC_PLLCFGR_PLLQ_DIV9_value                     9
+#define RCC_PLLCFGR_PLLQ_DIV9                           (RCC_PLLCFGR_PLLQ_DIV9_value << RCC_PLLCFGR_PLLQ_bit)
+#define RCC_PLLCFGR_PLLQ_bit                            24
+/* ------------------------------------------------------------------ */
 static uint32_t pll_start(uint32_t crystal, uint32_t frequency)
 {
 	uint32_t div, mul, div_core, vco_input_frequency, vco_output_frequency, frequency_core;
@@ -134,23 +139,37 @@ static uint32_t pll_start(uint32_t crystal, uint32_t frequency)
 		}
 	}
 
-	//RCC->PLLCFGR = (best_div << RCC_PLLCFGR_PLLM_bit) | (best_mul << RCC_PLLCFGR_PLLN_bit) | ((best_div_core / 2 - 1) << RCC_PLLCFGR_PLLP_bit) | RCC_PLLCFGR_PLLQ_DIV9 | RCC_PLLCFGR_PLLSRC_HSE;	// configure PLL factors, always divide USB clock by 9
+	RCC->PLLCFGR = (best_div << RCC_PLLCFGR_PLLM_bit) | (best_mul << RCC_PLLCFGR_PLLN_bit) | ((best_div_core / 2 - 1) << RCC_PLLCFGR_PLLP_bit) | RCC_PLLCFGR_PLLQ_DIV9 | RCC_PLLCFGR_PLLSRC_HSE;	// configure PLL factors, always divide USB clock by 9
 
 	RCC->CFGR = RCC_CFGR_PPRE2_DIV2 | RCC_CFGR_PPRE1_DIV4 | RCC_CFGR_HPRE_DIV1;	// AHB - no prescaler, APB1 - divide by 4, APB2 - divide by 2
 
-	//while (!RCC_CR_HSERDY_bb);				// wait for stable clock
-
-	//RCC_CR_PLLON_bb = 1;					// enable PLL
-	//while (!RCC_CR_PLLRDY_bb);				// wait for PLL lock
+	while(1)
+	{
+	   if(RCC->CR & RCC_CR_HSERDY) break;
+	}
+	RCC->CR |= RCC_CR_PLLON;
+	while(1)
+	{
+		if(RCC->CR & RCC_CR_PLLRDY) break;
+	}
 
 	RCC->CFGR |= RCC_CFGR_SW_PLL;			// change SYSCLK to PLL
 	while (((RCC->CFGR) & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);	// wait for switch
-
 	return best_frequency_core;
 }
 #else
 #error Selected MCU type is not supported by this sample
 #endif
+/* ------------------------------------------------------------------ */
+//Peripheral setup
+void uc_periph_setup()
+{
+	fpu_enable();
+	pll_start(8000000ul, 168000000ul);
+	//Setup NVIC vector at begin of flash
+	SCB->VTOR = NVIC_VectTab_FLASH;
+}
+
 /* ------------------------------------------------------------------ */
 //Setup the systick timer at ISIX_HZ (default 1000HZ)
 void timer_setup()
