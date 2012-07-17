@@ -266,9 +266,9 @@ public:
 	{
 		using namespace stm32;
 		//Enable PE in APB2
-//		RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
-//		io_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
-//		io_config(LED_PORT,NOTIFY_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+		RCC->AHB1ENR |= RCC_AHB1Periph_GPIOG;
+		gpio_config(LED_PORT, LED_PIN, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_25MHz, GPIO_OTYPE_PP );
+		gpio_config(LED_PORT, NOTIFY_PIN, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_25MHz, GPIO_OTYPE_PP );
 	}
 protected:
 	//Main function
@@ -286,12 +286,12 @@ protected:
 		}
 		catch( int &val)
 		{
-//			stm32::io_clr( LED_PORT,NOTIFY_PIN );
+			stm32::gpio_clr( LED_PORT,NOTIFY_PIN );
 			dbprintf("INT exception [%d]", val);
 		}
 		catch( const std::exception &e )
 		{
-//			stm32::io_clr( LED_PORT,NOTIFY_PIN );
+			stm32::gpio_clr( LED_PORT,NOTIFY_PIN );
 			dbprintf("std::exception [%s]", e.what());
 		}
 	}
@@ -301,27 +301,27 @@ private:
 	{
 
 		//Change state on rising edge
-//		if(stm32::io_get(KEY_PORT, KEY_PIN) && !p_state)
+		if(stm32::gpio_get(KEY_PORT, KEY_PIN) && !p_state)
 		{
 			is_enabled = !is_enabled;
 		}
 		//Get previous state
-//		p_state = stm32::io_get(KEY_PORT, KEY_PIN);
+		p_state = stm32::gpio_get(KEY_PORT, KEY_PIN);
 		//If enabled change state
-//		if(is_enabled) stm32::io_clr( LED_PORT, LED_PIN );
-//		else stm32::io_set( LED_PORT, LED_PIN );
+		if(is_enabled) stm32::gpio_clr( LED_PORT, LED_PIN );
+		else stm32::gpio_set( LED_PORT, LED_PIN );
 		//Wait short time
 		isix::isix_wait( isix::isix_ms2tick(DELAY_TIME) );
-//		if( !stm32::io_get(KEY_PORT, KEY_RAISE_LOGIC ))
+		if( !stm32::gpio_get(KEY_PORT, KEY_RAISE_LOGIC ))
 		{
 			/** From raise to catch 151us **/
-//			stm32::io_set( LED_PORT,NOTIFY_PIN );
+			stm32::gpio_set( LED_PORT,NOTIFY_PIN );
 			throw(std::logic_error("critical error raised"));
 		}
-//		if( !stm32::io_get(KEY_PORT, KEY_RAISE_INT ))
+		if( !stm32::gpio_get(KEY_PORT, KEY_RAISE_INT ))
 		{
 			/** From raise to catch 108us **/
-//			stm32::io_set( LED_PORT,NOTIFY_PIN );
+			stm32::gpio_set( LED_PORT,NOTIFY_PIN );
 			throw(-1);
 		}
 	}
