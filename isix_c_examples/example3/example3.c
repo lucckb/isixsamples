@@ -8,7 +8,7 @@
 /* ------------------------------------------------------------------ */
 #include <isix.h>
 #include "i2c_master.h"
-#include <system.h>
+#include <stm32system.h>
 /* ------------------------------------------------------------------ */
 #define I2C_SPEED 100000			/*I2c speed on the bus */
 #define TEMPSENSOR_I2CADDR 0x90		/*I2c temp sensor addr */

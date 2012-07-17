@@ -8,6 +8,7 @@
 /* ------------------------------------------------------------------ */
 #include <isix.h>
 #include <stm32lib.h>
+#include <stm32system.h>
 #include "the_application.hpp"
 #include <usart_simple.h>
 #include <tiny_printf.h>

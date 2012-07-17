@@ -1,5 +1,6 @@
 #include <isix.h>
 #include <stm32lib.h>
+#include <stm32system.h>
 #include "blinker.hpp"
 #include "ledkey.hpp"
 

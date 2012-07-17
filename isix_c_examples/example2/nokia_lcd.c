@@ -15,6 +15,7 @@
 /* ------------------------------------------------------------------ */
 #include "nokia_lcd.h"
 #include <stm32lib.h>
+#include <stm32system.h>
 #include <isix.h>
 /* ------------------------------------------------------------------ */
 //! Define if new uncompatible display will be used

@@ -7,8 +7,8 @@
 /* ------------------------------------------------------------------ */
 #include <isix.h>
 #include <stm32lib.h>
+#include <stm32system.h>
 #include "config.h"
-
 /* ------------------------------------------------------------------ */
 //! Configure ADC prescaler to 8
 #define RCC_CFGR_ADCPRE_8 (3<<14)

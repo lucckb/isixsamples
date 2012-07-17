@@ -8,7 +8,7 @@
 
 #include "config.hpp"
 #include "i2c_host.hpp"
-#include <system.h>
+#include <stm32system.h>
 #include <cstring>
 
 /* ------------------------------------------------------------------ */

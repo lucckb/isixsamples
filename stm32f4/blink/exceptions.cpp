@@ -4,6 +4,7 @@
 #include <usart_simple.h>
 #include "config.hpp"
 #include <stdexcept>
+#include <stm32system.h>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */

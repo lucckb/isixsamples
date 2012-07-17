@@ -9,7 +9,7 @@
 #ifndef I2C_HOST_HPP_
 #define I2C_HOST_HPP_
 /* ------------------------------------------------------------------ */
-#include <system.h>
+#include <stm32system.h>
 #include <stm32lib.h>
 #include <stdint.h>
 #include <cstddef>

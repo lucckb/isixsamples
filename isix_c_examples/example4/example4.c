@@ -9,7 +9,7 @@
 #include <isix.h>
 #include "nokia_lcd.h"
 #include <foundation.h>
-#include <system.h>
+#include <stm32system.h>
 /* ------------------------------------------------------------------ */
 #define LED_PORT GPIOE				/* Led port def */
 #define LED_PIN 14					/* Blink led pin */
