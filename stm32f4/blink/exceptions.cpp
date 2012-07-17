@@ -89,6 +89,8 @@ static void fpu_enable(void)
 {
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
 	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));	// set CP10 and CP11 Full Access
+#else
+#error nie uzywam fpu
 #endif
 }
 
@@ -352,6 +354,8 @@ int main()
 	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
 	 dbprintf(" Exception presentation app using ISIXRTOS ");
 
+	volatile float ala_x = 0.8;
+	ala_x *= 0.2;
 
 	//The blinker class
 	static app::ledblink led_blinker;
