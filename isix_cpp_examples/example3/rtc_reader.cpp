@@ -7,7 +7,7 @@
  */
 /* ------------------------------------------------------------------ */
 #include "rtc_reader.hpp"
-#include <stm32f10x_lib.h>
+#include <stm32lib.h>
 #include "display_server.hpp"
 #include <cstring>
 /* ------------------------------------------------------------------ */

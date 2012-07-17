@@ -45,11 +45,11 @@ static void keyscan_init(void)
 {
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	//Input push pull +GND
-	io_config_ext( KEYSCAN_PORT, KEYSCAN_COL_PINS, GPIO_MODE_INPUT, GPIO_CNF_IN_PULLUP );
-	io_clr_mask(KEYSCAN_PORT, KEYSCAN_COL_PINS);
+	gpio_config_ext( KEYSCAN_PORT, KEYSCAN_COL_PINS, GPIO_MODE_INPUT, GPIO_CNF_IN_PULLUP );
+	gpio_clr_mask(KEYSCAN_PORT, KEYSCAN_COL_PINS);
 	//Output row to zero
-	io_config_ext( KEYSCAN_PORT, KEYSCAN_ROW_PINS, GPIO_MODE_10MHZ, GPIO_CNF_GPIO_PP );
-	io_clr_mask(KEYSCAN_PORT, KEYSCAN_ROW_PINS);
+	gpio_config_ext( KEYSCAN_PORT, KEYSCAN_ROW_PINS, GPIO_MODE_10MHZ, GPIO_CNF_GPIO_PP );
+	gpio_clr_mask(KEYSCAN_PORT, KEYSCAN_ROW_PINS);
 }
 
 /* ------------------------------------------------------------------ */
@@ -110,10 +110,10 @@ ISIX_TASK_FUNC(kbd_task,entry_params)
 	for(int row=KEYSCAN_FIRST_ROW;row<=KEYSCAN_LAST_ROW ;row<<=1)
 	{
 		//Set row output
-		io_set_clr_mask( KEYSCAN_PORT, row, KEYSCAN_ROW_PINS );
+	gpio_set_clr_mask( KEYSCAN_PORT, row, KEYSCAN_ROW_PINS );
 		//Wait one tick before read
 		isix_wait(1);
-		int col = io_get_mask( KEYSCAN_PORT, KEYSCAN_COL_PINS);
+		int col =gpio_get_mask( KEYSCAN_PORT, KEYSCAN_COL_PINS);
 		if(col>0)
 		{
 			//If col selected translate key and sent to disp
@@ -149,15 +149,15 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
-	io_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+ gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	for(;;)
 	{
 		//Enable LED
-		io_clr( LED_PORT, LED_PIN );
+	gpio_clr( LED_PORT, LED_PIN );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 		//Disable LED
-		io_set( LED_PORT, LED_PIN );
+	gpio_set( LED_PORT, LED_PIN );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 	}

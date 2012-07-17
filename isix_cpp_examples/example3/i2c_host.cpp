@@ -87,10 +87,10 @@ i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 	{
 		//GPIO configuration
 		RCC->APB2ENR |= I2C1_GPIO_ENR;
-		io_config(I2C1_PORT,I2C1_SDA_PIN,GPIO_MODE_50MHZ,GPIO_CNF_ALT_OD);
-		io_config(I2C1_PORT,I2C1_SCL_PIN,GPIO_MODE_50MHZ,GPIO_CNF_ALT_OD);
-		io_set(I2C1_PORT,I2C1_SCL_PIN);
-		io_set(I2C1_PORT,I2C1_SDA_PIN);
+		gpio_config(I2C1_PORT,I2C1_SDA_PIN,GPIO_MODE_50MHZ,GPIO_CNF_ALT_OD);
+		gpio_config(I2C1_PORT,I2C1_SCL_PIN,GPIO_MODE_50MHZ,GPIO_CNF_ALT_OD);
+		gpio_set(I2C1_PORT,I2C1_SCL_PIN);
+		gpio_set(I2C1_PORT,I2C1_SDA_PIN);
 		//I2C module configuration
 		RCC->APB1ENR |= I2C1_ENR;
 	}

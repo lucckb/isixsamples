@@ -169,15 +169,15 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
-	io_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	for(;;)
 	{
 		//Enable LED
-		io_clr( LED_PORT, LED_PIN );
+		gpio_clr( LED_PORT, LED_PIN );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 		//Disable LED
-		io_set( LED_PORT, LED_PIN );
+		gpio_set( LED_PORT, LED_PIN );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 	}

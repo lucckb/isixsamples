@@ -14,7 +14,7 @@
  * Device connected to the hardware pin SPI1 */
 /* ------------------------------------------------------------------ */
 #include "nokia_lcd.h"
-#include <stm32f10x_lib.h>
+#include <stm32lib.h>
 #include <isix.h>
 /* ------------------------------------------------------------------ */
 //! Define if new uncompatible display will be used
@@ -180,16 +180,16 @@ unsigned char cx,cy;
 //Set DC pin in state x
 static inline void dc_pin(bool en)
 {
-	if(en) io_set(CTRL_PORT,DC_BIT);
-	else   io_clr(CTRL_PORT,DC_BIT);
+	if(en)gpio_set(CTRL_PORT,DC_BIT);
+	else  gpio_clr(CTRL_PORT,DC_BIT);
 }
 
 /* ------------------------------------------------------------------ */
 //Set RES pin in state x
 static inline void res_pin(bool en)
 {
-	if(en) io_set(CTRL_PORT,RES_BIT);
-	else   io_clr(CTRL_PORT,RES_BIT);
+	if(en)gpio_set(CTRL_PORT,RES_BIT);
+	else  gpio_clr(CTRL_PORT,RES_BIT);
 }
 /* ------------------------------------------------------------------ */
 //Very short delay busy wait method
@@ -204,8 +204,8 @@ static void busy_delay(unsigned delay)
 static inline void sel_pin(bool en)
 {
 	busy_delay(SSEL_DELAY);
-	if(en) io_set(SPI_PORT,SSEL_BIT);
-	else   io_clr(SPI_PORT,SSEL_BIT);
+	if(en)gpio_set(SPI_PORT,SSEL_BIT);
+	else  gpio_clr(SPI_PORT,SSEL_BIT);
 }
 
 /* ------------------------------------------------------------------ */
@@ -217,15 +217,15 @@ static void hw_init(void)
 	//SPI MISO (Input)
 	//io_config(SPI_PORT,MISO_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
 	//SPI MOSI (Output)
-	io_config(SPI_PORT,MOSI_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
+	gpio_config(SPI_PORT,MOSI_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
 	//SPI SCK (Output)
-	io_config(SPI_PORT,SCK_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
+	gpio_config(SPI_PORT,SCK_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
 	//SSEL
-	io_config(SPI_PORT,SSEL_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(SPI_PORT,SSEL_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
 
     //Control lines directions
-	io_config(CTRL_PORT,DC_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
-	io_config(CTRL_PORT,RES_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(CTRL_PORT,DC_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(CTRL_PORT,RES_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
 
     //Linia DC stan 1
     dc_pin(1);

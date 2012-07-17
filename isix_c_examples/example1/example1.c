@@ -10,7 +10,7 @@
  */
 /* ------------------------------------------------------------------ */
 #include <isix.h>
-#include <stm32f10x_lib.h>
+#include <stm32lib.h>
 #include "nokia_lcd.h"
 /* ------------------------------------------------------------------ */
 //Led Port
@@ -59,15 +59,15 @@ static inline unsigned short get_key()
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
-	io_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	for(;;)
 	{
 		//Enable LED
-		io_clr( LED_PORT, LED_PIN );
+		gpio_clr( LED_PORT, LED_PIN );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 		//Disable LED
-		io_set( LED_PORT, LED_PIN );
+		gpio_set( LED_PORT, LED_PIN );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 	}
@@ -119,11 +119,11 @@ static ISIX_TASK_FUNC(keyboard_srv_task,entry_params)
 	//Enable PE in APB2
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	//Set GPIO as inputs
-	io_config(KEY_PORT,KEY_OK_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
-	io_config(KEY_PORT,KEY_UP_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
-	io_config(KEY_PORT,KEY_DOWN_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
-	io_config(KEY_PORT,KEY_LEFT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
-	io_config(KEY_PORT,KEY_RIGHT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+	gpio_config(KEY_PORT,KEY_OK_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+	gpio_config(KEY_PORT,KEY_UP_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+	gpio_config(KEY_PORT,KEY_DOWN_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+	gpio_config(KEY_PORT,KEY_LEFT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
+	gpio_config(KEY_PORT,KEY_RIGHT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
 	fifo_t *kbd_fifo = (fifo_t*)entry_params;
 	//Previous key variable
 	static key_t p_key = -1;

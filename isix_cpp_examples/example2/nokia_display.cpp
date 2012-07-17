@@ -16,7 +16,7 @@
 /* ------------------------------------------------------------------ */
 #include "nokia_display.hpp"
 #include "img_def.hpp"
-#include <stm32f10x_lib.h>
+#include <stm32lib.h>
 #include <isix.h>
 /* ------------------------------------------------------------------ */
 //Application namespace
@@ -189,24 +189,24 @@ nokia_display::nokia_display()
 //Set DC pin in state x
 inline void nokia_display::dc_pin(bool en)
 {
-	if(en) stm32::io_set(CTRL_PORT,DC_BIT);
-	else   stm32::io_clr(CTRL_PORT,DC_BIT);
+    if( en) stm32::gpio_set(CTRL_PORT,DC_BIT);
+	else    stm32::gpio_clr(CTRL_PORT,DC_BIT);
 }
 
 /* ------------------------------------------------------------------ */
 //Set RES pin in state x
 inline void nokia_display::res_pin(bool en)
 {
-	if(en) stm32::io_set(CTRL_PORT,RES_BIT);
-	else   stm32::io_clr(CTRL_PORT,RES_BIT);
+    if(en) stm32::gpio_set(CTRL_PORT,RES_BIT);
+	else   stm32::gpio_clr(CTRL_PORT,RES_BIT);
 }
 /* ------------------------------------------------------------------ */
 //Set SEL pin in state x
 inline void nokia_display::sel_pin(bool en)
 {
 	busy_delay(SSEL_DELAY);
-	if(en) stm32::io_set(SPI_PORT,SSEL_BIT);
-	else   stm32::io_clr(SPI_PORT,SSEL_BIT);
+    if(en) stm32::gpio_set(SPI_PORT,SSEL_BIT);
+	else   stm32::gpio_clr(SPI_PORT,SSEL_BIT);
 }
 
 /* ------------------------------------------------------------------ */
@@ -217,17 +217,17 @@ void nokia_display::hw_init()
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOD | RCC_APB2Periph_SPI1;
 
 	//SPI MISO (Input)
-	//io_config(SPI_PORT,MISO_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
+	//gpio_config(SPI_PORT,MISO_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
 	//SPI MOSI (Output)
-	io_config(SPI_PORT,MOSI_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
+	gpio_config(SPI_PORT,MOSI_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
 	//SPI SCK (Output)
-	io_config(SPI_PORT,SCK_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
+	gpio_config(SPI_PORT,SCK_BIT,GPIO_MODE_50MHZ,GPIO_CNF_ALT_PP);
 	//SSEL
-	io_config(SPI_PORT,SSEL_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(SPI_PORT,SSEL_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
 
     //Control lines directions
-	io_config(CTRL_PORT,DC_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
-	io_config(CTRL_PORT,RES_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(CTRL_PORT,DC_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(CTRL_PORT,RES_BIT,GPIO_MODE_50MHZ,GPIO_CNF_GPIO_PP);
 
     //Linia DC stan 1
     dc_pin(1);

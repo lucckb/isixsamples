@@ -1,5 +1,5 @@
 #include <isix.h>
-#include <stm32f10x_lib.h>
+#include <stm32lib.h>
 #include "the_serialapp.hpp"
 #include "config.hpp"
 

@@ -10,7 +10,7 @@
 #define I2C_HOST_HPP_
 /* ------------------------------------------------------------------ */
 #include <system.h>
-#include <stm32f10x_lib.h>
+#include <stm32lib.h>
 #include <stdint.h>
 #include <cstddef>
 #include <isix.h>
