@@ -71,7 +71,6 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 #elif defined(STM32MCU_MAJOR_TYPE_F4)
-
 /* ------------------------------------------------------------------ */
 static void flash_latency(uint32_t frequency)
 {
@@ -89,8 +88,6 @@ static void fpu_enable(void)
 {
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
 	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));	// set CP10 and CP11 Full Access
-#else
-#error nie uzywam fpu
 #endif
 }
 
@@ -354,9 +351,22 @@ int main()
 	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
 	 dbprintf(" Exception presentation app using ISIXRTOS ");
 
-	volatile float ala_x = 0.8;
-	ala_x *= 0.2;
-
+	 RCC->AHB1ENR |= RCC_AHB1Periph_GPIOE;
+	 //gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	 stm32::gpio_config(GPIOE, 14 , stm32::GPIO_MODE_OUTPUT, stm32::GPIO_PUPD_NONE, stm32::GPIO_SPEED_25MHZ, stm32::GPIO_OTYPE_PP );
+	 volatile float ala_x = 10.2;
+	 while(true)
+	 {
+	 			//Enable LED
+	 			stm32::gpio_clr( GPIOE, 14 );
+	 			//Wait time
+	 			isix::isix_wait( isix::isix_ms2tick(500) );
+	 			//Disable LED
+	 			stm32::gpio_set( GPIOE, 14  );
+	 			//Wait time
+	 			isix::isix_wait( isix::isix_ms2tick(500) );
+	 			ala_x *= 0.2;
+	 }
 	//The blinker class
 	static app::ledblink led_blinker;
 	//The ledkey class

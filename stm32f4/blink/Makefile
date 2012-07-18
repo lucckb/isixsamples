@@ -38,7 +38,7 @@ CXXFLAGS += $(COMMON_FLAGS)
 #CXXFLAGS +=  -fno-threadsafe-statics
 
 #Per file listing
-LISTING = n
+LISTING = y
 
 #Debug version
 DEBUG ?=  y
