@@ -351,10 +351,12 @@ int main()
 	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
 	 dbprintf(" Exception presentation app using ISIXRTOS ");
 
-	 RCC->AHB1ENR |= RCC_AHB1Periph_GPIOE;
+	 //RCC->AHB1ENR |= RCC_AHB1Periph_GPIOE;
+	 stm32::gpio_clock_enable( GPIOE, true );
 	 //gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
-	 stm32::gpio_config(GPIOE, 14 , stm32::GPIO_MODE_OUTPUT, stm32::GPIO_PUPD_NONE, stm32::GPIO_SPEED_25MHZ, stm32::GPIO_OTYPE_PP );
-	 volatile float ala_x = 10.2;
+	 //stm32::gpio_config(GPIOE, 14 , stm32::GPIO_MODE_OUTPUT, stm32::GPIO_PUPD_NONE, stm32::GPIO_SPEED_25MHZ, stm32::GPIO_OTYPE_PP );
+	 stm32::gpio_abstract_config(GPIOE, 14, stm32::AGPIO_MODE_OUTPUT_PP, stm32::AGPIO_SPEED_HALF );
+	 static volatile float ala_x = 10.2;
 	 while(true)
 	 {
 	 			//Enable LED
@@ -365,7 +367,8 @@ int main()
 	 			stm32::gpio_set( GPIOE, 14  );
 	 			//Wait time
 	 			isix::isix_wait( isix::isix_ms2tick(500) );
-	 			ala_x *= 0.2;
+	 			ala_x *= 1.1;
+	 			dbprintf("Ala value=%d", (int)ala_x);
 	 }
 	//The blinker class
 	static app::ledblink led_blinker;
