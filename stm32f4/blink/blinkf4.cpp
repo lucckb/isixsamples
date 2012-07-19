@@ -83,14 +83,8 @@ static void flash_latency(uint32_t frequency)
 	FLASH->ACR = FLASH_ACR_DCRST | FLASH_ACR_ICRST | wait_states;	// reset caches
 	FLASH->ACR = FLASH_ACR_DCEN | FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | wait_states;	// enable caches and prefetch
 }
-/* ------------------------------------------------------------------ */
-static void fpu_enable(void)
-{
-#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));	// set CP10 and CP11 Full Access
-#endif
-}
 
+/* ------------------------------------------------------------------ */
 
 #define RCC_PLLCFGR_PLLM_bit                            0
 #define RCC_PLLCFGR_PLLN_bit                            6
@@ -164,7 +158,6 @@ static uint32_t pll_start(uint32_t crystal, uint32_t frequency)
 //Peripheral setup
 void uc_periph_setup()
 {
-	fpu_enable();
 	pll_start(8000000ul, 168000000ul);
 	//Setup NVIC vector at begin of flash
 	SCB->VTOR = NVIC_VectTab_FLASH;
