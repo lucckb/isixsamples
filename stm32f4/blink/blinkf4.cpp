@@ -3,8 +3,8 @@
 #include <dbglog.h>
 #include <usart_simple.h>
 #include "config.hpp"
-#include <stdexcept>
 #include <stm32system.h>
+#include <stm32rcc.h>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -71,87 +71,8 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 #elif defined(STM32MCU_MAJOR_TYPE_F4)
-/* ------------------------------------------------------------------ */
-static void flash_latency(uint32_t frequency)
-{
-	uint32_t wait_states;
-
-	wait_states = frequency / 30000000ul;	// calculate wait_states (30M is valid for 2.7V to 3.6V voltage range, use 24M for 2.4V to 2.7V, 18M for 2.1V to 2.4V or 16M for  1.8V to 2.1V)
-	wait_states &= 7;						// trim to max allowed value - 7
-
-	FLASH->ACR = wait_states;				// set wait_states, disable all caches and prefetch
-	FLASH->ACR = FLASH_ACR_DCRST | FLASH_ACR_ICRST | wait_states;	// reset caches
-	FLASH->ACR = FLASH_ACR_DCEN | FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | wait_states;	// enable caches and prefetch
-}
 
 /* ------------------------------------------------------------------ */
-
-#define RCC_PLLCFGR_PLLM_bit                            0
-#define RCC_PLLCFGR_PLLN_bit                            6
-#define RCC_PLLCFGR_PLLP_bit                            16
-#define RCC_PLLCFGR_PLLQ_DIV9_value                     9
-#define RCC_PLLCFGR_PLLQ_DIV9                           (RCC_PLLCFGR_PLLQ_DIV9_value << RCC_PLLCFGR_PLLQ_bit)
-#define RCC_PLLCFGR_PLLQ_bit                            24
-/* ------------------------------------------------------------------ */
-static uint32_t pll_start(uint32_t crystal, uint32_t frequency)
-{
-	uint32_t div, mul, div_core, vco_input_frequency, vco_output_frequency, frequency_core;
-	uint32_t best_div = 0, best_mul = 0, best_div_core = 0, best_frequency_core = 0;
-
-	RCC->CR  |= RCC_CR_HSEON;
-	flash_latency(frequency);				// configure Flash latency for desired frequency
-
-	for (div = 2; div <= 63; div++)			// PLLM in [2; 63]
-	{
-		vco_input_frequency = crystal / div;
-
-		if ((vco_input_frequency < 1000000ul) || (vco_input_frequency > 2000000))	// skip invalid settings
-			continue;
-
-		for (mul = 64; mul <= 432; mul++)	// PLLN in [64; 432]
-		{
-			vco_output_frequency = vco_input_frequency * mul;
-
-			if ((vco_output_frequency < 64000000ul) || (vco_output_frequency > 432000000ul))	// skip invalid settings
-				continue;
-
-			for (div_core = 2; div_core <= 8; div_core += 2)	// PLLP in {2, 4, 6, 8}
-			{
-				frequency_core = vco_output_frequency / div_core;
-
-				if (frequency_core > frequency)	// skip values over desired frequency
-					continue;
-
-				if (frequency_core > best_frequency_core)	// is this configuration better than previous one?
-				{
-					best_frequency_core = frequency_core;	// yes - save values
-					best_div = div;
-					best_mul = mul;
-					best_div_core = div_core;
-				}
-			}
-		}
-	}
-   // configure PLL factors, always divide USB clock by 9
-	RCC->PLLCFGR = (best_div << RCC_PLLCFGR_PLLM_bit) | (best_mul << RCC_PLLCFGR_PLLN_bit) |
-			((best_div_core / 2 - 1) << RCC_PLLCFGR_PLLP_bit)
-			| RCC_PLLCFGR_PLLQ_DIV9 | RCC_PLLCFGR_PLLSRC_HSE;
-	// AHB - no prescaler, APB1 - divide by 4, APB2 - divide by 2
-	RCC->CFGR = RCC_CFGR_PPRE2_DIV2 | RCC_CFGR_PPRE1_DIV4 | RCC_CFGR_HPRE_DIV1;
-	while(1)
-	{
-	   if(RCC->CR & RCC_CR_HSERDY) break;
-	}
-	RCC->CR |= RCC_CR_PLLON;
-	while(1)
-	{
-		if(RCC->CR & RCC_CR_PLLRDY) break;
-	}
-
-	RCC->CFGR |= RCC_CFGR_SW_PLL;			// change SYSCLK to PLL
-	while (((RCC->CFGR) & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);	// wait for switch
-	return best_frequency_core;
-}
 #else
 #error Selected MCU type is not supported by this sample
 #endif
@@ -159,7 +80,11 @@ static uint32_t pll_start(uint32_t crystal, uint32_t frequency)
 //Peripheral setup
 void uc_periph_setup()
 {
-	pll_start(8000000ul, 168000000ul);
+	stm32::rcc_flash_latency( config::HCLK_HZ );
+	stm32::rcc_pll1_sysclk_setup( stm32::e_sysclk_hse_pll, config::XTAL_HZ , config::HCLK_HZ );
+	//Setup dividers
+	RCC->CFGR &= ~(RCC_CFGR_PPRE2 | RCC_CFGR_PPRE1 );
+	RCC->CFGR |= RCC_CFGR_PPRE2_DIV2 | RCC_CFGR_PPRE1_DIV4 | RCC_CFGR_HPRE_DIV1;
 	//Setup NVIC vector at begin of flash
 	SCB->VTOR = NVIC_VectTab_FLASH;
 }
@@ -272,64 +197,12 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		/*
-		//Last key state
-		bool state = true;
-		//Task/thread main loop
-		try
-		{
-			while(true)
-			{
-				execute_keycheck(state);
-			}
-		}
-		catch( int &val)
-		{
-			stm32::gpio_clr( LED_PORT,NOTIFY_PIN );
-			dbprintf("INT exception [%d]", val);
-		}
-		catch( const std::exception &e )
-		{
-			stm32::gpio_clr( LED_PORT,NOTIFY_PIN );
-			dbprintf("std::exception [%s]", e.what());
-		}
-		*/
 		volatile float ala_j = 1.2;
 		for(;;)
 		{
 			isix::isix_wait( isix::isix_ms2tick(600) );
 			ala_j += 50.0;
 			dbprintf("Ala2 value=%d", (int)ala_j);
-		}
-	}
-private:
-	//Execute keycheck function
-	void execute_keycheck(bool &p_state)
-	{
-
-		//Change state on rising edge
-		if(stm32::gpio_get(KEY_PORT, KEY_PIN) && !p_state)
-		{
-			is_enabled = !is_enabled;
-		}
-		//Get previous state
-		p_state = stm32::gpio_get(KEY_PORT, KEY_PIN);
-		//If enabled change state
-		if(is_enabled) stm32::gpio_clr( LED_PORT, LED_PIN );
-		else stm32::gpio_set( LED_PORT, LED_PIN );
-		//Wait short time
-		isix::isix_wait( isix::isix_ms2tick(DELAY_TIME) );
-		if( !stm32::gpio_get(KEY_PORT, KEY_RAISE_LOGIC ))
-		{
-			/** From raise to catch 151us **/
-			stm32::gpio_set( LED_PORT,NOTIFY_PIN );
-			throw(std::logic_error("critical error raised"));
-		}
-		if( !stm32::gpio_get(KEY_PORT, KEY_RAISE_INT ))
-		{
-			/** From raise to catch 108us **/
-			stm32::gpio_set( LED_PORT,NOTIFY_PIN );
-			throw(-1);
 		}
 	}
 private:
