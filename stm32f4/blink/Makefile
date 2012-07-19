@@ -24,7 +24,7 @@ COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
 COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
-LDFLAGS += -Wl,--defsym=_sys_stack_size=384
+LDFLAGS += -Wl,--defsym=_sys_stack_size=512
 
 
 #C compiler options
@@ -54,7 +54,7 @@ CPPSRC += $(wildcard *.cpp)
 ASRC += $(wildcard *.S)
 
 ISIX_DIR=../../isixrtos/libisix
-ISIX_ARCH=arm-cm3
+ISIX_ARCH=arm-cm4f
 ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
 LIBFOUNDATION_DIR=../../isixrtos/libfoundation
 LIBSTM32_DIR=../../isixrtos/libstm32
