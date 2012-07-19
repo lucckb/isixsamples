@@ -132,11 +132,12 @@ static uint32_t pll_start(uint32_t crystal, uint32_t frequency)
 			}
 		}
 	}
-
-	RCC->PLLCFGR = (best_div << RCC_PLLCFGR_PLLM_bit) | (best_mul << RCC_PLLCFGR_PLLN_bit) | ((best_div_core / 2 - 1) << RCC_PLLCFGR_PLLP_bit) | RCC_PLLCFGR_PLLQ_DIV9 | RCC_PLLCFGR_PLLSRC_HSE;	// configure PLL factors, always divide USB clock by 9
-
-	RCC->CFGR = RCC_CFGR_PPRE2_DIV2 | RCC_CFGR_PPRE1_DIV4 | RCC_CFGR_HPRE_DIV1;	// AHB - no prescaler, APB1 - divide by 4, APB2 - divide by 2
-
+   // configure PLL factors, always divide USB clock by 9
+	RCC->PLLCFGR = (best_div << RCC_PLLCFGR_PLLM_bit) | (best_mul << RCC_PLLCFGR_PLLN_bit) |
+			((best_div_core / 2 - 1) << RCC_PLLCFGR_PLLP_bit)
+			| RCC_PLLCFGR_PLLQ_DIV9 | RCC_PLLCFGR_PLLSRC_HSE;
+	// AHB - no prescaler, APB1 - divide by 4, APB2 - divide by 2
+	RCC->CFGR = RCC_CFGR_PPRE2_DIV2 | RCC_CFGR_PPRE1_DIV4 | RCC_CFGR_HPRE_DIV1;
 	while(1)
 	{
 	   if(RCC->CR & RCC_CR_HSERDY) break;
