@@ -14,6 +14,8 @@ OPT 	?= 2
 MCU_MAJOR_TYPE = f4
 MCU_MINOR_TYPE = 17VGT6
 
+#System stack size interrupts etc
+MCU_SYSTEM_STACK_SIZE = 512
 
 #Enable exceptions support
 CPP_EXCEPTIONS = y
@@ -24,7 +26,6 @@ COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
 COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
-LDFLAGS += -Wl,--defsym=_sys_stack_size=512
 
 
 #C compiler options
