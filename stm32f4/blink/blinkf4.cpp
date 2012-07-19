@@ -297,8 +297,9 @@ protected:
 		volatile float ala_j = 1.2;
 		for(;;)
 		{
-			isix::isix_wait( isix::isix_ms2tick(500) );
+			isix::isix_wait( isix::isix_ms2tick(600) );
 			ala_j += 50.0;
+			dbprintf("Ala2 value=%d", (int)ala_j);
 		}
 	}
 private:
