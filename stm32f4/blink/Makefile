@@ -55,7 +55,6 @@ CPPSRC += $(wildcard *.cpp)
 ASRC += $(wildcard *.S)
 
 ISIX_DIR=../../isixrtos/libisix
-ISIX_ARCH=arm-cm4f
 ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
 LIBFOUNDATION_DIR=../../isixrtos/libfoundation
 LIBSTM32_DIR=../../isixrtos/libstm32
