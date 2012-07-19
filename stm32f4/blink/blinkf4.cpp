@@ -230,7 +230,7 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		float ala_z = 1.2;
+		volatile float ala_z = 1.2;
 		while(true)
 		{
 			//Enable LED
@@ -272,6 +272,7 @@ protected:
 	//Main function
 	virtual void main()
 	{
+		/*
 		//Last key state
 		bool state = true;
 		//Task/thread main loop
@@ -291,6 +292,13 @@ protected:
 		{
 			stm32::gpio_clr( LED_PORT,NOTIFY_PIN );
 			dbprintf("std::exception [%s]", e.what());
+		}
+		*/
+		volatile float ala_j = 1.2;
+		for(;;)
+		{
+			isix::isix_wait( isix::isix_ms2tick(500) );
+			ala_j += 50.0;
 		}
 	}
 private:
