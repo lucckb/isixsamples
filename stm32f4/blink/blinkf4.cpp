@@ -345,6 +345,7 @@ int main()
 	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
 	 dbprintf(" Exception presentation app using ISIXRTOS ");
 
+#if 0
 	 //RCC->AHB1ENR |= RCC_AHB1Periph_GPIOE;
 	 stm32::gpio_clock_enable( GPIOE, true );
 	 //gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
@@ -364,6 +365,7 @@ int main()
 	 			ala_x *= 1.1;
 	 			dbprintf("Ala value=%d", (int)ala_x);
 	 }
+#endif
 	//The blinker class
 	static app::ledblink led_blinker;
 	//The ledkey class
