@@ -11,8 +11,10 @@ FORMAT	= elf
 OPT 	?= 2
 
 #MCU variant
-MCU_MAJOR_TYPE = f4
-MCU_MINOR_TYPE = 17VGT6
+#MCU_MAJOR_TYPE = f4
+#MCU_MINOR_TYPE = 17VGT6
+MCU_MAJOR_TYPE = f1
+MCU_MINOR_TYPE = 07VBT6
 
 #System stack size interrupts etc
 MCU_SYSTEM_STACK_SIZE = 512
@@ -26,7 +28,8 @@ COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
 COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
-
+#only for f1 lib
+COMMON_FLAGS +=-DSTM32F10X_CL
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
