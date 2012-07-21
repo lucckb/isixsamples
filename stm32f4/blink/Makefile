@@ -29,7 +29,7 @@ COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
 COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
 #only for f1 lib
-COMMON_FLAGS +=-DSTM32F10X_CL
+#COMMON_FLAGS +=-DSTM32F10X_CL
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
@@ -62,7 +62,7 @@ ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
 LIBFOUNDATION_DIR=../../isixrtos/libfoundation
 LIBSTM32_DIR=../../isixrtos/libstm32
 include $(ISIX_DIR)/isix.mk
-#include $(ISIXDRV_DIR)/isixdrv.mk
+include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(LIBSTM32_DIR)/libstm32.mk
 include $(LIBSTM32_DIR)/scripts/stm32.mk
