@@ -6,7 +6,7 @@
 #include <stm32system.h>
 #include <stm32rcc.h>
 #include <stm32gpio.h>
-#include <stm32f4x/stm32pwr.h>
+#include <stm32tim.h>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
