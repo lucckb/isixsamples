@@ -29,6 +29,15 @@ namespace config
 		const unsigned PCLK1_HZ = HCLK_HZ/4;
 		const unsigned PCLK2_HZ = HCLK_HZ/2;
 	}
+#elif defined(STM32MCU_MAJOR_TYPE_F2)
+	namespace
+	{
+		//HCLK system speed
+		const unsigned XTAL_HZ = 8000000;
+		const unsigned HCLK_HZ = 120000000;
+		const unsigned PCLK1_HZ = HCLK_HZ/4;
+		const unsigned PCLK2_HZ = HCLK_HZ/2;
+	}
 #endif
 }
 /* ------------------------------------------------------------------ */
