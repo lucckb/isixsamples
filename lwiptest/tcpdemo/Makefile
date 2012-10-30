@@ -1,7 +1,7 @@
 #4 Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = blinkf4
+TARGET	   = tcpipdemo
 
 #Output format (elf,hex,bin)
 FORMAT	= elf
@@ -10,28 +10,26 @@ FORMAT	= elf
 # 0 - none optimalization, s - size optimalization 3 - most optimized
 OPT 	?= 2
 
+
 #MCU variant
-MCU_MAJOR_TYPE = f4
-MCU_MINOR_TYPE = 17VGT6
-#MCU_MAJOR_TYPE = f1
-#MCU_MINOR_TYPE = 07VBT6
-#MCU_MAJOR_TYPE = f2
-#MCU_MINOR_TYPE = 17VG
+MCU_MAJOR_TYPE = f1
+MCU_MINOR_TYPE = 07VBT6
+
 
 #System stack size interrupts etc
 MCU_SYSTEM_STACK_SIZE = 512
 
+
 #Enable exceptions support
-CPP_EXCEPTIONS = y
+CPP_EXCEPTIONS = n
 
 #Common flags 
-COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
+COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
 
 #Include
-COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
-COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
-#only for f1 lib
-#COMMON_FLAGS +=-DSTM32F10X_CL
+COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH 
+COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC) $(LIBTCPIP_INC)
+
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
@@ -49,7 +47,6 @@ LISTING = n
 #Debug version
 DEBUG ?=  y
 
-
 #Source C files
 SRC += $(wildcard *.c) 
 
@@ -59,10 +56,19 @@ CPPSRC += $(wildcard *.cpp)
 #Source ASM files
 ASRC += $(wildcard *.S)
 
-ISIX_DIR=../../isixrtos/libisix
-ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
-LIBFOUNDATION_DIR=../../isixrtos/libfoundation
-LIBSTM32_DIR=../../isixrtos/libstm32
+#Isix base directory
+ISIX_PROJECT_DIR 	:=	../../isixrtos
+#Isix architecture
+ISIX_ARCH			:=	arm-cm3
+
+#Target libraries
+ISIX_DIR			:=	$(ISIX_PROJECT_DIR)/libisix
+ISIXDRV_DIR			:=	$(ISIX_PROJECT_DIR)/libisixdrvstm32
+LIBFOUNDATION_DIR	:=  $(ISIX_PROJECT_DIR)/libfoundation
+LIBSTM32_DIR		:=	$(ISIX_PROJECT_DIR)/libstm32
+LIBTCPIP_DIR		:=	$(ISIX_PROJECT_DIR)/libtcpip
+
+include $(LIBTCPIP_DIR)/libtcpip.mk
 include $(ISIX_DIR)/isix.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
