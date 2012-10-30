@@ -217,8 +217,11 @@ static void RCC_AHBPeriphResetCmd(uint32_t RCC_AHBPeriph, FunctionalState NewSta
   */
 static void ETH_DeInit(void)
 {
+
   RCC_AHBPeriphResetCmd(RCC_AHBPeriph_ETH_MAC, ENABLE);
+  nop();
   RCC_AHBPeriphResetCmd(RCC_AHBPeriph_ETH_MAC, DISABLE);
+  nop();
 }
 /* ------------------------------------------------------------------ */
 #define PHY_ADDRESS       0x01 /* Relative to STM3210C-EVAL Board */
@@ -262,12 +265,12 @@ static void Ethernet_Configuration(void)
   ETH_SoftwareReset();
 
   /* Wait for software reset */
-  while (ETH_GetSoftwareResetStatus() == SET);
+  while (ETH_GetSoftwareResetStatus() == SET) nop();
 
   /* ETHERNET Configuration ------------------------------------------------------*/
   /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
   ETH_StructInit(&ETH_InitStructure);
-
+#if 0
   /* Fill ETH_InitStructure parametrs */
   /*------------------------   MAC   -----------------------------------*/
   ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
@@ -302,7 +305,10 @@ static void Ethernet_Configuration(void)
   ETH_InitStructure.ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;
   ETH_InitStructure.ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
   ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
-
+#else
+  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
+  ETH_InitStructure.ETH_ReceiveAll = ETH_ReceiveAll_Enable;
+#endif
   /* Configure Ethernet */
   if ( ETH_Init(&ETH_InitStructure, PHY_ADDRESS, HCLK_HZ) == 1 )
   {
@@ -341,65 +347,58 @@ static void eth_gpio_init()
     //Enable gpios
 	rcc_apb2_periph_clock_cmd( RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
 		RCC_APB2Periph_GPIOC |	RCC_APB2Periph_GPIOD |RCC_APB2Periph_AFIO, true);
-	  /* ETHERNET pins configuration */
-		  /* AF Output Push Pull:
-		  - ETH_MII_MDIO / ETH_RMII_MDIO: PA2
-		  - ETH_MII_MDC / ETH_RMII_MDC: PC1
-		  - ETH_MII_TXD2: PC2
-		  - ETH_MII_TX_EN / ETH_RMII_TX_EN: PB11
-		  - ETH_MII_TXD0 / ETH_RMII_TXD0: PB12
-		  - ETH_MII_TXD1 / ETH_RMII_TXD1: PB13
-		  - ETH_MII_PPS_OUT / ETH_RMII_PPS_OUT: PB5
-		  - ETH_MII_TXD3: PB8 */
+	/* ETHERNET pins configuration */
+	  /* AF Output Push Pull:
+	  - ETH_MII_MDIO / ETH_RMII_MDIO: PA2
+	  - ETH_MII_MDC / ETH_RMII_MDC: PC1
+	  - ETH_MII_TXD2: PC2
+	  - ETH_MII_TX_EN / ETH_RMII_TX_EN: PB11
+	  - ETH_MII_TXD0 / ETH_RMII_TXD0: PB12
+	  - ETH_MII_TXD1 / ETH_RMII_TXD1: PB13
+	  - ETH_MII_PPS_OUT / ETH_RMII_PPS_OUT: PB5
+	  - ETH_MII_TXD3: PB8 */
 
-		  /* Configure PA2 as alternate function push-pull */
-		  gpio_config( GPIOA, 2,  GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
-		  /* Configure PC1, PC2 and PC3 as alternate function push-pull */
-		  gpio_config_ext( GPIOC, (1<<1)| (1<<2), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
-		  /* Configure PB5, PB8, PB11, PB12 and PB13 as alternate function push-pull */
-		  gpio_config_ext( GPIOC, (1<<5)|(1<<8)|(1<<11)|(1<<12)|(1<<13), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
-
-
-		  /**************************************************************/
-		  /*               For Remapped Ethernet pins                   */
-		  /*************************************************************/
-		  /* Input (Reset Value):
-		  - ETH_MII_CRS CRS: PA0
-		  - ETH_MII_RX_CLK / ETH_RMII_REF_CLK: PA1
-		  - ETH_MII_COL: PA3
-		  - ETH_MII_RX_DV / ETH_RMII_CRS_DV: PD8
-		  - ETH_MII_TX_CLK: PC3
-		  - ETH_MII_RXD0 / ETH_RMII_RXD0: PD9
-		  - ETH_MII_RXD1 / ETH_RMII_RXD1: PD10
-		  - ETH_MII_RXD2: PD11
-		  - ETH_MII_RXD3: PD12
-		  - ETH_MII_RX_ER: PB10 */
-
-		  /* ETHERNET pins remapp in STM3210C-EVAL board: RX_DV and RxD[3:0] */
-		  GPIO_PinRemapConfig(GPIO_Remap_ETH, ENABLE);
-
-		  /* Configure PA0, PA1 and PA3 as input */
-		  gpio_config_ext(GPIOA, (1<<0)|(1<<1)|(1<<3), GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
-
-		  /* Configure PB10 as input */
-		  gpio_config( GPIOB, 10, GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
-
-		  /* Configure PC3 as input */
-		  gpio_config( GPIOC, 3, GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
-
-		  /* Configure PD8, PD9, PD10, PD11 and PD12 as input */
-		  gpio_config_ext(GPIOD, (1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12), GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
+	  /* Configure PA2 as alternate function push-pull */
+	  gpio_config( GPIOA, 2,  GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
+	  /* Configure PC1, PC2 and PC3 as alternate function push-pull */
+	  gpio_config_ext( GPIOC, (1<<1)| (1<<2), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
+	  /* Configure PB5, PB8, PB11, PB12 and PB13 as alternate function push-pull */
+	  gpio_config_ext( GPIOC, (1<<5)|(1<<8)|(1<<11)|(1<<12)|(1<<13), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
 
 
-		  /* MCO pin configuration------------------------------------------------- */
-		  /* Configure MCO (PA8) as alternate function push-pull */
-		  /*
-		  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-		  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-		  GPIO_Init(GPIOA, &GPIO_InitStructure);
-		  */
-		  gpio_config( GPIOA, 8 , GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP);
+	  /**************************************************************/
+	  /*               For Remapped Ethernet pins                   */
+	  /*************************************************************/
+	  /* Input (Reset Value):
+	  - ETH_MII_CRS CRS: PA0
+	  - ETH_MII_RX_CLK / ETH_RMII_REF_CLK: PA1
+	  - ETH_MII_COL: PA3
+	  - ETH_MII_RX_DV / ETH_RMII_CRS_DV: PD8
+	  - ETH_MII_TX_CLK: PC3
+	  - ETH_MII_RXD0 / ETH_RMII_RXD0: PD9
+	  - ETH_MII_RXD1 / ETH_RMII_RXD1: PD10
+	  - ETH_MII_RXD2: PD11
+	  - ETH_MII_RXD3: PD12
+	  - ETH_MII_RX_ER: PB10 */
+
+	  /* ETHERNET pins remapp in STM3210C-EVAL board: RX_DV and RxD[3:0] */
+	  GPIO_PinRemapConfig(GPIO_Remap_ETH, ENABLE);
+
+	  /* Configure PA0, PA1 and PA3 as input */
+	  gpio_config_ext(GPIOA, (1<<0)|(1<<1)|(1<<3), GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
+
+	  /* Configure PB10 as input */
+	  gpio_config( GPIOB, 10, GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
+
+	  /* Configure PC3 as input */
+	  gpio_config( GPIOC, 3, GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
+
+	  /* Configure PD8, PD9, PD10, PD11 and PD12 as input */
+	  gpio_config_ext(GPIOD, (1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12), GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
+
+	  /* MCO pin configuration------------------------------------------------- */
+	  /* Configure MCO (PA8) as alternate function push-pull */
+	  gpio_config( GPIOA, 8 , GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP);
 }
 
 #if 0
@@ -417,31 +416,41 @@ static void tcpiplib_init()
 }
 #endif
 /* ------------------------------------------------------------------ */
-//TEST 111 1111111 111
 
-static int ETHconfigureRX(uint8_t);
-
-
-//TEST 111 1111111 111
+//TEST FUN
 int ETHconfigureMII(void) {
 
+  enum { ETHRXBUFNB =  4 };
+
+  static ETH_DMADESCTypeDef DMARxDscrTab[ETHRXBUFNB] __attribute__ ((aligned (4)));
+/* Długość buforów powinna wynosić ETH_MAX_PACKET_SIZE + VLAN_TAG,
+   jeśli są używane ramki VLAN. */
+  static uint8_t RxBuff[ETHRXBUFNB][ETH_MAX_PACKET_SIZE]  __attribute__ ((aligned (4)));
+
   rcc_mco_config( RCC_MCO_HSE );
-  rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC |
-              RCC_AHBPeriph_ETH_MAC_Tx |
-              RCC_AHBPeriph_ETH_MAC_Rx,
-                          ENABLE);
-  //ETHinterfaceRemapedMIIconfigure();
+  rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC | RCC_AHBPeriph_ETH_MAC_Tx |
+        RCC_AHBPeriph_ETH_MAC_Rx, ENABLE);
+
   eth_gpio_init();
   GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
   ETH_DeInit();
   ETH_SoftwareReset();
-  while (ETH_GetSoftwareResetStatus() == RESET );
+  while (ETH_GetSoftwareResetStatus() == SET ) nop();
+  ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], ETHRXBUFNB);
+  {
+	  ETH_InitTypeDef e;
+	    ETH_StructInit(&e);
+	    e.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
+	    e.ETH_ReceiveAll = ETH_ReceiveAll_Enable;
+	    if (ETH_Init(&e, PHY_ADDRESS, HCLK_HZ) == 0)
+	      return -1;
+  }
   return 0;
 }
 
 
-
 /* ------------------------------------------------------------------ */
+
 //App main entry point
 int main(void)
 {
@@ -461,20 +470,29 @@ int main(void)
 	isix_start_scheduler();
 	*/
 	unsigned pkts = 0;
+	unsigned size;
+	static uint8_t packet[ETH_MAX_PACKET_SIZE];
+	  static ETH_DMADESCTypeDef DMARxDscrTab[4]
+	    __attribute__ ((aligned (4)));
+	  /* Długość buforów powinna wynosić ETH_MAX_PACKET_SIZE + VLAN_TAG,
+	     jeśli są używane ramki VLAN. */
+	  static uint8_t RxBuff[4][ETH_MAX_PACKET_SIZE]
+	    __attribute__ ((aligned (4)));
 #if 1
 	ETHconfigureMII();
-	//ETHconfigureRX(PHY_ADDRESS);
-	//eth_gpio_init();
-	ETHconfigureRX(PHY_ADDRESS);
-
+	ETH_Start();
 	dbprintf("After config #1!!!\n");
-	 static uint8_t packet[ETH_MAX_PACKET_SIZE];
-	    unsigned size;
-	 ETHconfigureMII();
-	 	//ETHconfigureRX(PHY_ADDRESS);
-	 	//eth_gpio_init();
-	 	ETHconfigureRX(PHY_ADDRESS);
-	 	dbprintf("After config #2!!!\n");
+#else
+	  rcc_mco_config( RCC_MCO_HSE );
+	  rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC |
+	              RCC_AHBPeriph_ETH_MAC_Tx |
+	              RCC_AHBPeriph_ETH_MAC_Rx,
+	                          ENABLE);
+	  ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], 4);
+	 eth_gpio_init();
+	Ethernet_Configuration();
+	ETH_Start();
+
 #endif
 	 for(;;)
 	 {
@@ -531,40 +549,7 @@ int main(void)
 	      }
 	    }
 	}
-
 }
-/* ------------------------------------------------------------------ */
-int ETHconfigureRX(uint8_t phyAddress) {
-  #define ETHRXBUFNB 4
 
-  static ETH_DMADESCTypeDef DMARxDscrTab[ETHRXBUFNB]
-    __attribute__ ((aligned (4)));
-  /* Długość buforów powinna wynosić ETH_MAX_PACKET_SIZE + VLAN_TAG,
-     jeśli są używane ramki VLAN. */
-  static uint8_t RxBuff[ETHRXBUFNB][ETH_MAX_PACKET_SIZE]
-    __attribute__ ((aligned (4)));
-
-  ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], ETHRXBUFNB);
-
-
-  ETH_InitTypeDef e;
-
-  ETH_StructInit(&e);
-  e.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
-  e.ETH_ReceiveAll = ETH_ReceiveAll_Enable;
-  if (ETH_Init(&e, phyAddress, HCLK_HZ) == 0)
-    return -1;
-  ETH_Start();
-
-  return 0;
-}
 /* ------------------------------------------------------------------ */
 
-void eth_isr_vector(void) __attribute__((__interrupt__));
-void eth_isr_vector(void)
-{
-	 // isix_sem_signal_isr( netif_sem );
-	  /* Clear the Eth DMA Rx IT pending bits */
-	  ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
-	  ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
-}
