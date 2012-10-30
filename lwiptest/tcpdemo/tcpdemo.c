@@ -238,6 +238,7 @@ static void Ethernet_Configuration(void)
 
   /* Get HSE clock = 25MHz on PA8 pin (MCO) */
  // RCC_MCOConfig(RCC_MCO_HSE);
+  rcc_mco_config( RCC_MCO_HSE );
 
 #elif defined RMII_MODE  /* Mode RMII with STM3210C-EVAL */
   GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_RMII);
@@ -398,6 +399,7 @@ static void eth_gpio_init()
 		  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 		  GPIO_Init(GPIOA, &GPIO_InitStructure);
 		  */
+		  gpio_config( GPIOA, 8 , GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP);
 }
 
 #if 0
@@ -417,132 +419,20 @@ static void tcpiplib_init()
 /* ------------------------------------------------------------------ */
 //TEST 111 1111111 111
 
-#define PHY_ADDRESS 1
 static int ETHconfigureRX(uint8_t);
 
-void ETHinterfaceRemapedMIIconfigure() {
-
-
-	rcc_apb2_periph_clock_cmd(RCC_APB2Periph_GPIOA |
-                         RCC_APB2Periph_GPIOB |
-                         RCC_APB2Periph_GPIOC |
-                         RCC_APB2Periph_GPIOD |
-                         /* RCC_APB2Periph_GPIOE | */
-                         RCC_APB2Periph_AFIO,
-                         ENABLE);
-
-	rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC |
-                        RCC_AHBPeriph_ETH_MAC_Tx |
-                        RCC_AHBPeriph_ETH_MAC_Rx,
-                        ENABLE);
-
-  GPIO_PinRemapConfig(GPIO_Remap_ETH, ENABLE);
-  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
-
-  /* Linie wejściowe
-     ETH_MII_CRS    - PA0 - Odbieranie carrier sense jest wymagane
-                            w half-duplex.
-     ETH_MII_RX_CLK - PA1
-     ETH_MII_COL    - PA3
-     ETH_MII_RX_ER  - PB10
-     ETH_MII_TX_CLK - PC3
-     ETH_MII_RX_DV  - PD8
-     ETH_MII_RXD0   - PD9
-     ETH_MII_RXD1   - PD10
-     ETH_MII_RXD2   - PD11
-     ETH_MII_RXD3   - PD12 */
-  /*
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = 0;
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_3;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-*/
-  gpio_config_ext(GPIOA, (1<<0)|(1<<1)|(1<<3), GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
-
-
- // GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-  //GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  /* Configure PB10 as input */
-  gpio_config( GPIOB, 10, GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
-
-  //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-  //GPIO_Init(GPIOC, &GPIO_InitStructure);
-  /* Configure PC3 as input */
-  gpio_config( GPIOC, 3, GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
-
- // GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 |
-     //                           GPIO_Pin_10 | GPIO_Pin_11 |
-       //                         GPIO_Pin_12;
- // GPIO_Init(GPIOD, &GPIO_InitStructure);
-     gpio_config_ext(GPIOD, (1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12), GPIO_MODE_INPUT, GPIO_CNF_IN_FLOAT );
-  /* Linie wyjściowe
-     ETH_MII_MDIO    - PA2
-     ETH_MII_PPS_OUT - PB5 - nie podłączone do PHY
-     ETH_MII_TXD3    - PB8
-     ETH_MII_TX_EN   - PB11
-     ETH_MII_TXD0    - PB12
-     ETH_MII_TXD1    - PB13
-     ETH_MII_MDC     - PC1
-     ETH_MII_TXD2    - PC2
-     MCO             - PA8 - zegar jako ostatni */
-  //GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  //GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-
-  //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  //GPIO_Init(GPIOA, &GPIO_InitStructure);
-	  gpio_config( GPIOA, 2,  GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
-
-  //GPIO_InitStructure.GPIO_Pin = /* GPIO_Pin_5 | */
-   //                             GPIO_Pin_8 | GPIO_Pin_11 |
-    //                            GPIO_Pin_12 | GPIO_Pin_13;
-  //GPIO_Init(GPIOB, &GPIO_InitStructure);
-  gpio_config_ext(GPIOB, (1<<8)|(1<<11)|(1<<12)|(1<<13), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
-
-
-  //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2;
-  //GPIO_Init(GPIOC, &GPIO_InitStructure);
-  gpio_config_ext(GPIOC, (1<<1)|(1<<2), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
-
-  //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-  //GPIO_Init(GPIOA, &GPIO_InitStructure);
-  //gpio_config( GPIOA, 8,  GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
-  gpio_config( GPIOA, 8 , GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP);
-}
-
-static const uint16_t gpioPowerDownPin = 13;
-static const uint32_t rccPowerDown = RCC_APB2Periph_GPIOD;
-static GPIO_TypeDef * const gpioPowerDown = GPIOD;
-
-/* Konfiguruj wyprowadzenie PWRDWN modułu ethernetowego (PHY). */
-static void ETHpowerConfigure() {
-  //GPIO_InitTypeDef GPIO_InitStructure;
-
-  rcc_apb2_periph_clock_cmd(rccPowerDown, ENABLE);
-  /*
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Pin = gpioPowerDownPin;
-  GPIO_Init(gpioPowerDown, &GPIO_InitStructure);
-  */
-  gpio_config( gpioPowerDown, gpioPowerDownPin, GPIO_MODE_50MHZ, GPIO_CNF_GPIO_PP);
-}
-
-/* Włącz zasilanie modułu ethernetowego. Po resecie wyjście jest
-   w stanie niskim, ale na wszelki wypadek... */
-static void ETHpowerUp() {
-  //GPIO_WriteBit(gpioPowerDown, gpioPowerDownPin, Bit_RESET);
-	gpio_clr(gpioPowerDown, gpioPowerDownPin );
-}
 
 //TEST 111 1111111 111
 int ETHconfigureMII(void) {
 
   rcc_mco_config( RCC_MCO_HSE );
-  ETHinterfaceRemapedMIIconfigure();
-  ETHpowerConfigure();
-  ETHpowerUp();
+  rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC |
+              RCC_AHBPeriph_ETH_MAC_Tx |
+              RCC_AHBPeriph_ETH_MAC_Rx,
+                          ENABLE);
+  //ETHinterfaceRemapedMIIconfigure();
+  eth_gpio_init();
+  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
   ETH_DeInit();
   ETH_SoftwareReset();
   while (ETH_GetSoftwareResetStatus() == RESET );
@@ -557,12 +447,6 @@ int main(void)
 {
 	dblog_init( usartsimple_putc, NULL, usartsimple_init,
 			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
-	rcc_ahb_periph_clock_cmd( RCC_AHBPeriph_ETH_MAC | RCC_AHBPeriph_ETH_MAC_Tx |
-			RCC_AHBPeriph_ETH_MAC_Rx, true );
-	 //Enable eth stuff
-		//rcc_ahb_periph_clock_cmd( RCC_AHBPeriph_ETH_MAC | RCC_AHBPeriph_ETH_MAC_Tx |
-		//		RCC_AHBPeriph_ETH_MAC_Rx, true );
-
 		//eth_gpio_init();
 		//Ethernet_Configuration();
 	/*
@@ -577,18 +461,21 @@ int main(void)
 	isix_start_scheduler();
 	*/
 	unsigned pkts = 0;
+#if 1
 	ETHconfigureMII();
 	//ETHconfigureRX(PHY_ADDRESS);
 	//eth_gpio_init();
 	ETHconfigureRX(PHY_ADDRESS);
 
-	dbprintf("After config !!!\n");
+	dbprintf("After config #1!!!\n");
 	 static uint8_t packet[ETH_MAX_PACKET_SIZE];
 	    unsigned size;
 	 ETHconfigureMII();
 	 	//ETHconfigureRX(PHY_ADDRESS);
 	 	//eth_gpio_init();
 	 	ETHconfigureRX(PHY_ADDRESS);
+	 	dbprintf("After config #2!!!\n");
+#endif
 	 for(;;)
 	 {
 	    size = ETH_HandleRxPkt(packet);
@@ -659,6 +546,7 @@ int ETHconfigureRX(uint8_t phyAddress) {
 
   ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], ETHRXBUFNB);
 
+
   ETH_InitTypeDef e;
 
   ETH_StructInit(&e);
@@ -666,20 +554,8 @@ int ETHconfigureRX(uint8_t phyAddress) {
   e.ETH_ReceiveAll = ETH_ReceiveAll_Enable;
   if (ETH_Init(&e, phyAddress, HCLK_HZ) == 0)
     return -1;
-#define PHYCR     0x19
-   #define LED_CNFG0 0x0020
-   #define LED_CNFG1 0x0040
-   uint16_t phyreg;
-
-   /* konfiguracja diod świecących na ZL3ETH
-      zielona - link status:
-      on = good link, off = no link, blink = activity
-      pomarańczowa - speed:
-      on = 100 Mb/s, off = 10 Mb/s */
-   phyreg = ETH_ReadPHYRegister( PHY_ADDRESS, PHYCR);
-   phyreg &= ~(LED_CNFG0 | LED_CNFG1);
-   ETH_WritePHYRegister( PHY_ADDRESS, PHYCR, phyreg);
   ETH_Start();
+
   return 0;
 }
 /* ------------------------------------------------------------------ */
