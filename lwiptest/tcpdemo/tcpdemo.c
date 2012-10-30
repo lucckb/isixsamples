@@ -19,6 +19,8 @@
 #include <stm32system.h>
 #include <stm32gpio.h>
 #include <stm32_eth.h>
+#include <stdbool.h>
+
 /* ------------------------------------------------------------------ */
 //Led Port
 #define LED_PORT GPIOE
@@ -226,123 +228,12 @@ static void ETH_DeInit(void)
 /* ------------------------------------------------------------------ */
 #define PHY_ADDRESS       0x01 /* Relative to STM3210C-EVAL Board */
 #define MII_MODE
-/**
-  * @brief  Configures the Ethernet Interface
-  * @param  None
-  * @retval None
-  */
-static void Ethernet_Configuration(void)
-{
-  ETH_InitTypeDef ETH_InitStructure;
-
-  /* MII/RMII Media interface selection ------------------------------------------*/
-#ifdef MII_MODE /* Mode MII with STM3210C-EVAL  */
-  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
-
-  /* Get HSE clock = 25MHz on PA8 pin (MCO) */
- // RCC_MCOConfig(RCC_MCO_HSE);
-  rcc_mco_config( RCC_MCO_HSE );
-
-#elif defined RMII_MODE  /* Mode RMII with STM3210C-EVAL */
-  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_RMII);
-
-  /* Set PLL3 clock output to 50MHz (25MHz /5 *10 =50MHz) */
-  RCC_PLL3Config(RCC_PLL3Mul_10);
-  /* Enable PLL3 */
-  RCC_PLL3Cmd(ENABLE);
-  /* Wait till PLL3 is ready */
-  while (RCC_GetFlagStatus(RCC_FLAG_PLL3RDY) == RESET)
-  {}
-
-  /* Get PLL3 clock on PA8 pin (MCO) */
-  RCC_MCOConfig(RCC_MCO_PLL3CLK);
-#endif
-
-  /* Reset ETHERNET on AHB Bus */
-  ETH_DeInit();
-
-  /* Software reset */
-  ETH_SoftwareReset();
-
-  /* Wait for software reset */
-  while (ETH_GetSoftwareResetStatus() == SET) nop();
-
-  /* ETHERNET Configuration ------------------------------------------------------*/
-  /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
-  ETH_StructInit(&ETH_InitStructure);
-#if 0
-  /* Fill ETH_InitStructure parametrs */
-  /*------------------------   MAC   -----------------------------------*/
-  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
-  ETH_InitStructure.ETH_LoopbackMode = ETH_LoopbackMode_Disable;
-  ETH_InitStructure.ETH_RetryTransmission = ETH_RetryTransmission_Disable;
-  ETH_InitStructure.ETH_AutomaticPadCRCStrip = ETH_AutomaticPadCRCStrip_Disable;
-  ETH_InitStructure.ETH_ReceiveAll = ETH_ReceiveAll_Disable;
-  ETH_InitStructure.ETH_BroadcastFramesReception = ETH_BroadcastFramesReception_Enable;
-  ETH_InitStructure.ETH_PromiscuousMode = ETH_PromiscuousMode_Disable;
-  ETH_InitStructure.ETH_MulticastFramesFilter = ETH_MulticastFramesFilter_Perfect;
-  ETH_InitStructure.ETH_UnicastFramesFilter = ETH_UnicastFramesFilter_Perfect;
-#ifdef ISIX_TCPIPLIB_CHECKSUM_BY_HARDWARE
-  ETH_InitStructure.ETH_ChecksumOffload = ETH_ChecksumOffload_Enable;
-#else
-#error
-#endif
-
-  /*------------------------   DMA   -----------------------------------*/
-
-  /* When we use the Checksum offload feature, we need to enable the Store and Forward mode:
-  the store and forward guarantee that a whole frame is stored in the FIFO, so the MAC can insert/verify the checksum,
-  if the checksum is OK the DMA can handle the frame otherwise the frame is dropped */
-  ETH_InitStructure.ETH_DropTCPIPChecksumErrorFrame = ETH_DropTCPIPChecksumErrorFrame_Enable;
-  ETH_InitStructure.ETH_ReceiveStoreForward = ETH_ReceiveStoreForward_Enable;
-  ETH_InitStructure.ETH_TransmitStoreForward = ETH_TransmitStoreForward_Enable;
-
-  ETH_InitStructure.ETH_ForwardErrorFrames = ETH_ForwardErrorFrames_Disable;
-  ETH_InitStructure.ETH_ForwardUndersizedGoodFrames = ETH_ForwardUndersizedGoodFrames_Disable;
-  ETH_InitStructure.ETH_SecondFrameOperate = ETH_SecondFrameOperate_Enable;
-  ETH_InitStructure.ETH_AddressAlignedBeats = ETH_AddressAlignedBeats_Enable;
-  ETH_InitStructure.ETH_FixedBurst = ETH_FixedBurst_Enable;
-  ETH_InitStructure.ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;
-  ETH_InitStructure.ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
-  ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
-#else
-  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
-  ETH_InitStructure.ETH_ReceiveAll = ETH_ReceiveAll_Enable;
-#endif
-  /* Configure Ethernet */
-  if ( ETH_Init(&ETH_InitStructure, PHY_ADDRESS, HCLK_HZ) == 1 )
-  {
-	  dbprintf("ETH init success %s"
-			  , ETH_InitStructure.ETH_Speed == ETH_Speed_100M?"100MBPS":"10MBPS");
-  }
-  else
-  {
-	  dbprintf("ETH init fail mode");
-  }
-	#define PHYCR     0x19
-   #define LED_CNFG0 0x0020
-   #define LED_CNFG1 0x0040
-   uint16_t phyreg;
-
-   /* konfiguracja diod świecących na ZL3ETH
-      zielona - link status:
-      on = good link, off = no link, blink = activity
-      pomarańczowa - speed:
-      on = 100 Mb/s, off = 10 Mb/s */
-   phyreg = ETH_ReadPHYRegister( PHY_ADDRESS, PHYCR);
-   phyreg &= ~(LED_CNFG0 | LED_CNFG1);
-   ETH_WritePHYRegister( PHY_ADDRESS, PHYCR, phyreg);
-
-
-}
 
 /* ------------------------------------------------------------------ */
-void LwIP_Init(void);
-
 #define GPIO_Remap_ETH              ((uint32_t)0x00200020)
 
 //GPIO initialize
-static void eth_gpio_init()
+static void eth_gpio_init(bool provide_mco)
 {
     //Enable gpios
 	rcc_apb2_periph_clock_cmd( RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
@@ -398,27 +289,144 @@ static void eth_gpio_init()
 
 	  /* MCO pin configuration------------------------------------------------- */
 	  /* Configure MCO (PA8) as alternate function push-pull */
-	  gpio_config( GPIOA, 8 , GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP);
+	  if(provide_mco)
+		  gpio_config( GPIOA, 8 , GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP);
 }
 
-#if 0
-//Initialize the TCPIP library
-static void tcpiplib_init()
+/* ------------------------------------------------------------------ */
+/**
+  * @brief  Configures the Ethernet Interface
+  * @param  None
+  * @retval None
+  */
+static void ethernet_init(bool provide_mco)
 {
-    /*****  Initialize the system stuff  ***************/
     //Enable eth stuff
 	rcc_ahb_periph_clock_cmd( RCC_AHBPeriph_ETH_MAC | RCC_AHBPeriph_ETH_MAC_Tx |
 			RCC_AHBPeriph_ETH_MAC_Rx, true );
 
-	eth_gpio_init();
-	Ethernet_Configuration();
+  eth_gpio_init(provide_mco);
+  ETH_InitTypeDef ETH_InitStructure;
+
+  /* MII/RMII Media interface selection ------------------------------------------*/
+#ifdef MII_MODE /* Mode MII with STM3210C-EVAL  */
+  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
+
+ if( provide_mco)
+ {
+  /* Get HSE clock = 25MHz on PA8 pin (MCO) */
+ // RCC_MCOConfig(RCC_MCO_HSE);
+  rcc_mco_config( RCC_MCO_HSE );
+ }
+#elif defined RMII_MODE  /* Mode RMII with STM3210C-EVAL */
+  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_RMII);
+
+  /* Set PLL3 clock output to 50MHz (25MHz /5 *10 =50MHz) */
+  RCC_PLL3Config(RCC_PLL3Mul_10);
+  /* Enable PLL3 */
+  RCC_PLL3Cmd(ENABLE);
+  /* Wait till PLL3 is ready */
+  while (RCC_GetFlagStatus(RCC_FLAG_PLL3RDY) == RESET)
+  {}
+
+  /* Get PLL3 clock on PA8 pin (MCO) */
+  RCC_MCOConfig(RCC_MCO_PLL3CLK);
+#endif
+
+  /* Reset ETHERNET on AHB Bus */
+  ETH_DeInit();
+
+  /* Software reset */
+  ETH_SoftwareReset();
+
+  /* Wait for software reset */
+  while (ETH_GetSoftwareResetStatus() == SET) nop();
+
+  //TODO: Receive packet test only
+  if(true)
+  {
+	  enum { ETHRXBUFNB =  4 };
+	  static ETH_DMADESCTypeDef DMARxDscrTab[ETHRXBUFNB] __attribute__ ((aligned (4)));
+	/* Długość buforów powinna wynosić ETH_MAX_PACKET_SIZE + VLAN_TAG,
+	   jeśli są używane ramki VLAN. */
+	  static uint8_t RxBuff[ETHRXBUFNB][ETH_MAX_PACKET_SIZE]  __attribute__ ((aligned (4)));
+	  ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], ETHRXBUFNB);
+  }
+  /* ETHERNET Configuration ------------------------------------------------------*/
+  /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
+  ETH_StructInit(&ETH_InitStructure);
+  /* Fill ETH_InitStructure parametrs */
+  /*------------------------   MAC   -----------------------------------*/
+  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
+  ETH_InitStructure.ETH_LoopbackMode = ETH_LoopbackMode_Disable;
+  ETH_InitStructure.ETH_RetryTransmission = ETH_RetryTransmission_Disable;
+  ETH_InitStructure.ETH_AutomaticPadCRCStrip = ETH_AutomaticPadCRCStrip_Disable;
+  ETH_InitStructure.ETH_ReceiveAll = ETH_ReceiveAll_Disable;
+  ETH_InitStructure.ETH_BroadcastFramesReception = ETH_BroadcastFramesReception_Enable;
+  ETH_InitStructure.ETH_PromiscuousMode = ETH_PromiscuousMode_Disable;
+  ETH_InitStructure.ETH_MulticastFramesFilter = ETH_MulticastFramesFilter_Perfect;
+  ETH_InitStructure.ETH_UnicastFramesFilter = ETH_UnicastFramesFilter_Perfect;
+#ifdef ISIX_TCPIPLIB_CHECKSUM_BY_HARDWARE
+  ETH_InitStructure.ETH_ChecksumOffload = ETH_ChecksumOffload_Enable;
+#endif
+
+  /*------------------------   DMA   -----------------------------------*/
+
+  /* When we use the Checksum offload feature, we need to enable the Store and Forward mode:
+  the store and forward guarantee that a whole frame is stored in the FIFO, so the MAC can insert/verify the checksum,
+  if the checksum is OK the DMA can handle the frame otherwise the frame is dropped */
+  ETH_InitStructure.ETH_DropTCPIPChecksumErrorFrame = ETH_DropTCPIPChecksumErrorFrame_Enable;
+  ETH_InitStructure.ETH_ReceiveStoreForward = ETH_ReceiveStoreForward_Enable;
+  ETH_InitStructure.ETH_TransmitStoreForward = ETH_TransmitStoreForward_Enable;
+
+  ETH_InitStructure.ETH_ForwardErrorFrames = ETH_ForwardErrorFrames_Disable;
+  ETH_InitStructure.ETH_ForwardUndersizedGoodFrames = ETH_ForwardUndersizedGoodFrames_Disable;
+  ETH_InitStructure.ETH_SecondFrameOperate = ETH_SecondFrameOperate_Enable;
+  ETH_InitStructure.ETH_AddressAlignedBeats = ETH_AddressAlignedBeats_Enable;
+  ETH_InitStructure.ETH_FixedBurst = ETH_FixedBurst_Enable;
+  ETH_InitStructure.ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;
+  ETH_InitStructure.ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
+  ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
+  /* Configure Ethernet */
+  if ( ETH_Init(&ETH_InitStructure, PHY_ADDRESS, HCLK_HZ) == 1 )
+  {
+	  dbprintf("ETH init success %s"
+			  , ETH_InitStructure.ETH_Speed == ETH_Speed_100M?"100MBPS":"10MBPS");
+  }
+  else
+  {
+	  dbprintf("ETH init fail mode");
+  }
+	#define PHYCR     0x19
+   #define LED_CNFG0 0x0020
+   #define LED_CNFG1 0x0040
+   uint16_t phyreg;
+
+   /* konfiguracja diod świecących na ZL3ETH
+      zielona - link status:
+      on = good link, off = no link, blink = activity
+      pomarańczowa - speed:
+      on = 100 Mb/s, off = 10 Mb/s */
+   phyreg = ETH_ReadPHYRegister( PHY_ADDRESS, PHYCR);
+   phyreg &= ~(LED_CNFG0 | LED_CNFG1);
+   ETH_WritePHYRegister( PHY_ADDRESS, PHYCR, phyreg);
+
+}
+
+/* ------------------------------------------------------------------ */
+void LwIP_Init(void);
+//Initialize the TCPIP library
+static void tcpiplib_init()
+{
+    /*****  Initialize the system stuff  ***************/
+	ethernet_init(true);
 	LwIP_Init();
 }
-#endif
+
 /* ------------------------------------------------------------------ */
 
 //TEST FUN
-int ETHconfigureMII(void) {
+int ETHconfigureMII(bool provide_mco) {
 
   enum { ETHRXBUFNB =  4 };
 
@@ -427,11 +435,13 @@ int ETHconfigureMII(void) {
    jeśli są używane ramki VLAN. */
   static uint8_t RxBuff[ETHRXBUFNB][ETH_MAX_PACKET_SIZE]  __attribute__ ((aligned (4)));
 
-  rcc_mco_config( RCC_MCO_HSE );
+  if(provide_mco)
+	  rcc_mco_config( RCC_MCO_HSE );
+
   rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC | RCC_AHBPeriph_ETH_MAC_Tx |
         RCC_AHBPeriph_ETH_MAC_Rx, ENABLE);
 
-  eth_gpio_init();
+  eth_gpio_init(provide_mco);
   GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
   ETH_DeInit();
   ETH_SoftwareReset();
@@ -472,25 +482,12 @@ int main(void)
 	unsigned pkts = 0;
 	unsigned size;
 	static uint8_t packet[ETH_MAX_PACKET_SIZE];
-	  static ETH_DMADESCTypeDef DMARxDscrTab[4]
-	    __attribute__ ((aligned (4)));
-	  /* Długość buforów powinna wynosić ETH_MAX_PACKET_SIZE + VLAN_TAG,
-	     jeśli są używane ramki VLAN. */
-	  static uint8_t RxBuff[4][ETH_MAX_PACKET_SIZE]
-	    __attribute__ ((aligned (4)));
-#if 1
-	ETHconfigureMII();
+#if 0
+	ETHconfigureMII(false);
 	ETH_Start();
 	dbprintf("After config #1!!!\n");
 #else
-	  rcc_mco_config( RCC_MCO_HSE );
-	  rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC |
-	              RCC_AHBPeriph_ETH_MAC_Tx |
-	              RCC_AHBPeriph_ETH_MAC_Rx,
-	                          ENABLE);
-	  ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], 4);
-	 eth_gpio_init();
-	Ethernet_Configuration();
+	ethernet_init(true);
 	ETH_Start();
 
 #endif
