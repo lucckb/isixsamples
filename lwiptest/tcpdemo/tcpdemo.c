@@ -423,41 +423,6 @@ static void tcpiplib_init()
 	LwIP_Init();
 }
 
-/* ------------------------------------------------------------------ */
-
-//TEST FUN
-int ETHconfigureMII(bool provide_mco) {
-
-  enum { ETHRXBUFNB =  4 };
-
-  static ETH_DMADESCTypeDef DMARxDscrTab[ETHRXBUFNB] __attribute__ ((aligned (4)));
-/* Długość buforów powinna wynosić ETH_MAX_PACKET_SIZE + VLAN_TAG,
-   jeśli są używane ramki VLAN. */
-  static uint8_t RxBuff[ETHRXBUFNB][ETH_MAX_PACKET_SIZE]  __attribute__ ((aligned (4)));
-
-  if(provide_mco)
-	  rcc_mco_config( RCC_MCO_HSE );
-
-  rcc_ahb_periph_clock_cmd(RCC_AHBPeriph_ETH_MAC | RCC_AHBPeriph_ETH_MAC_Tx |
-        RCC_AHBPeriph_ETH_MAC_Rx, ENABLE);
-
-  eth_gpio_init(provide_mco);
-  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
-  ETH_DeInit();
-  ETH_SoftwareReset();
-  while (ETH_GetSoftwareResetStatus() == SET ) nop();
-  ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], ETHRXBUFNB);
-  {
-	  ETH_InitTypeDef e;
-	    ETH_StructInit(&e);
-	    e.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
-	    e.ETH_ReceiveAll = ETH_ReceiveAll_Enable;
-	    if (ETH_Init(&e, PHY_ADDRESS, HCLK_HZ) == 0)
-	      return -1;
-  }
-  return 0;
-}
-
 
 /* ------------------------------------------------------------------ */
 
@@ -482,15 +447,8 @@ int main(void)
 	unsigned pkts = 0;
 	unsigned size;
 	static uint8_t packet[ETH_MAX_PACKET_SIZE];
-#if 0
-	ETHconfigureMII(false);
+	ethernet_init(false);
 	ETH_Start();
-	dbprintf("After config #1!!!\n");
-#else
-	ethernet_init(true);
-	ETH_Start();
-
-#endif
 	 for(;;)
 	 {
 	    size = ETH_HandleRxPkt(packet);
