@@ -405,7 +405,6 @@ static void ethernet_init(bool provide_mco)
 
 /* ------------------------------------------------------------------ */
 void LwIP_Init(void);
-static void receive_test();
 
 
 //Initialize the TCPIP library
