@@ -50,28 +50,6 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 	}
 }
 
-/* ------------------------------------------------------------------ */
-/**
-  * @brief  Selects the Ethernet media interface.
-  * @note   This function applies only to STM32 Connectivity line devices.
-  * @param  GPIO_ETH_MediaInterface: specifies the Media Interface mode.
-  *   This parameter can be one of the following values:
-  *     @arg GPIO_ETH_MediaInterface_MII: MII mode
-  *     @arg GPIO_ETH_MediaInterface_RMII: RMII mode
-  * @retval None
-  */
-#define GPIO_ETH_MediaInterface_MII    ((u32)0x00000000)
-#define GPIO_ETH_MediaInterface_RMII   ((u32)0x00000001)
-#define MAPR_MII_RMII_SEL_BB        (PERIPH_BB_BASE + (MAPR_OFFSET * 32) + (MII_RMII_SEL_BitNumber * 4))
-#define MAPR_OFFSET                 (AFIO_OFFSET + 0x04)
-#define MII_RMII_SEL_BitNumber      ((u8)0x17)
-#define AFIO_OFFSET                 (AFIO_BASE - PERIPH_BASE)
-
-static inline void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface)
-{
-  /* Configure MII_RMII selection bit */
-  *(__IO uint32_t *) MAPR_MII_RMII_SEL_BB = GPIO_ETH_MediaInterface;
-}
 
 /* ------------------------------------------------------------------ */
 /**
@@ -172,7 +150,7 @@ static void ethernet_init(bool provide_mco)
 
   /* MII/RMII Media interface selection ------------------------------------------*/
 #ifdef MII_MODE /* Mode MII with STM3210C-EVAL  */
-  GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_MII);
+  gpio_eth_media_interface_config(GPIO_ETH_MediaInterface_MII);
 
  if( provide_mco)
  {
@@ -266,7 +244,7 @@ static void ethernet_init(bool provide_mco)
 }
 
 /* ------------------------------------------------------------------ */
-void LwIP_Init(void);
+void tcp_eth_init(void);
 
 
 //Initialize the TCPIP library
@@ -274,7 +252,7 @@ static void tcpiplib_init()
 {
     /*****  Initialize the system stuff  ***************/
 	ethernet_init(false);
-	LwIP_Init();
+	tcp_eth_init();
 	tcpecho_init();
 }
 
