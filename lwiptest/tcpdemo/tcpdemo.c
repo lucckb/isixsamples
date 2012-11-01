@@ -20,7 +20,7 @@
 #include <stm32gpio.h>
 #include <stm32_eth.h>
 #include <stdbool.h>
-
+#include "tcpecho/tcpecho.h"
 /* ------------------------------------------------------------------ */
 //Led Port
 #define LED_PORT GPIOE
@@ -254,7 +254,7 @@ static void eth_gpio_init(bool provide_mco)
 	  /* Configure PC1, PC2 and PC3 as alternate function push-pull */
 	  gpio_config_ext( GPIOC, (1<<1)| (1<<2), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
 	  /* Configure PB5, PB8, PB11, PB12 and PB13 as alternate function push-pull */
-	  gpio_config_ext( GPIOC, (1<<5)|(1<<8)|(1<<11)|(1<<12)|(1<<13), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
+	  gpio_config_ext( GPIOB, (1<<5)|(1<<8)|(1<<11)|(1<<12)|(1<<13), GPIO_MODE_50MHZ, GPIO_CNF_ALT_PP );
 
 
 	  /**************************************************************/
@@ -343,7 +343,7 @@ static void ethernet_init(bool provide_mco)
   while (ETH_GetSoftwareResetStatus() == SET) nop();
 
   //TODO: Receive packet test only
-  if(true)
+  if(false)
   {
 	  enum { ETHRXBUFNB =  4 };
 	  static ETH_DMADESCTypeDef DMARxDscrTab[ETHRXBUFNB] __attribute__ ((aligned (4)));
@@ -415,14 +415,20 @@ static void ethernet_init(bool provide_mco)
 
 /* ------------------------------------------------------------------ */
 void LwIP_Init(void);
+static void receive_test();
+
+
 //Initialize the TCPIP library
 static void tcpiplib_init()
 {
     /*****  Initialize the system stuff  ***************/
-	ethernet_init(true);
+	ethernet_init(false);
 	LwIP_Init();
+	tcpecho_init();
 }
 
+
+/* ------------------------------------------------------------------ */
 
 /* ------------------------------------------------------------------ */
 
@@ -431,9 +437,8 @@ int main(void)
 {
 	dblog_init( usartsimple_putc, NULL, usartsimple_init,
 			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
-		//eth_gpio_init();
-		//Ethernet_Configuration();
-	/*
+	//receive_test();
+
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,
 			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
@@ -443,7 +448,12 @@ int main(void)
     tcpiplib_init();
 	//Start the isix scheduler
 	isix_start_scheduler();
-	*/
+}
+
+
+/* ------------------------------------------------------------------ */
+void receive_test(void)
+{
 	unsigned pkts = 0;
 	unsigned size;
 	static uint8_t packet[ETH_MAX_PACKET_SIZE];
@@ -505,6 +515,49 @@ int main(void)
 	    }
 	}
 }
+enum crash_mode
+{
+	CRASH_TYPE_USER=1,
+	CRASH_TYPE_SYSTEM
+};
+/* ------------------------------------------------------------------ */
+void crash_info(enum crash_mode crash_type, unsigned long * SP)
+{
+	//Disable interrupt
+	irq_disable();
+	//Initialize usart simple no interrupt
+	tiny_printf("\r\n\r\n ^^^^^^^^^^ CPU Crashed in [%s] mode!!! ARMv7m core regs: ^^^^^^^^^\r\n",
+			crash_type==CRASH_TYPE_USER?"USER":"SYSTEM" );
+	tiny_printf("[R0=%08x]\t[R1=%08x]\t[R2=%08x]\t[R3=%08x]\r\n", SP[0],SP[1],SP[2],SP[3]);
+	tiny_printf("[R12=%08x]\t[LR=%08x]\t[PC=%08x]\t[PSR=%08x]\r\n",SP[4],SP[5],SP[6],SP[7]);
+	const unsigned long rBFAR = (*((volatile unsigned long *)(0xE000ED38)));
+	const unsigned long rCFSR = (*((volatile unsigned long *)(0xE000ED28)));
+	const unsigned long rHFSR = (*((volatile unsigned long *)(0xE000ED2C)));
+	const unsigned long rDFSR = (*((volatile unsigned long *)(0xE000ED30)));
+	const unsigned long rAFSR = (*((volatile unsigned long *)(0xE000ED3C)));
+	tiny_printf("[BAFR=%08x]\t[CFSR=%08x]\t[HFSR=%08x]\t[DFSR=%08x]\r\n",rBFAR,rCFSR,rHFSR,rDFSR);
+	tiny_printf("[AFSR=%08x]\r\n", rAFSR);
+	for(;;) wfi();
+}
+/* ------------------------------------------------------------------ */
+void hard_fault_exception_vector(void) __attribute__((__interrupt__,naked));
 
 /* ------------------------------------------------------------------ */
-
+void hard_fault_exception_vector(void)
+{
+	unsigned long *sp;
+	enum crash_mode cmode;
+	//Check for SP or MSP
+	asm(
+		"TST LR, #4\n"
+	    "ITTEE EQ\n"
+	    "MRSEQ %[stackptr], MSP\n"
+		"MOVEQ %[crashm],%[tsystem]\n"
+	    "MRSNE %[stackptr], PSP\n"
+		"MOVNE %[crashm],%[tuser]\n"
+		: [stackptr] "=r"(sp), [crashm] "=r"(cmode):
+		  [tuser]"I"(CRASH_TYPE_USER),[tsystem]"I"(CRASH_TYPE_SYSTEM)
+		);
+	//Print the crash info
+	crash_info( cmode, sp );
+}

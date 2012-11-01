@@ -73,7 +73,7 @@ extern void server_init(void);
   * @retval None
   *
   */
-#if 0
+
 void LwIP_Init(void)
 {
   struct ip_addr ipaddr;
@@ -90,7 +90,11 @@ void LwIP_Init(void)
 
 #endif
  // lwip_init();
-  tcpip_init( NULL, NULL);
+  //tcpip_init( NULL, NULL);
+  netif_init();
+  tcpip_init( NULL, NULL );
+
+
 #if LWIP_DHCP
   ipaddr.addr = 0;
   netmask.addr = 0;
@@ -163,7 +167,7 @@ void LwIP_Init(void)
 
 }
 
-#endif
+
 
 #if 0
 /**

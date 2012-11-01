@@ -48,10 +48,10 @@ LISTING = n
 DEBUG ?=  y
 
 #Source C files
-SRC += $(wildcard *.c) 
+SRC += $(wildcard *.c) tcpecho/tcpecho.c
 
 #Source C++ files
-CPPSRC += $(wildcard *.cpp)
+CPPSRC += $(wildcard *.cpp) 
 
 #Source ASM files
 ASRC += $(wildcard *.S)
