@@ -34,14 +34,7 @@
 #include <stm32_eth.h>
 
 
-#define MAX_DHCP_TRIES        4
-#define SELECTED              1
-#define NOT_SELECTED		  (!SELECTED)
-#define CLIENTMAC6            2
-
 #define sprintf(x,...) tiny_snprintf(x,sizeof(x),__VA_ARGS__)
-
-
 static struct netif netif;
 
 
