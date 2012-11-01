@@ -32,40 +32,19 @@
 #include <stdio.h>
 #include <dbglog.h>
 #include <stm32_eth.h>
-/* Private typedef -----------------------------------------------------------*/
-#define LCD_DELAY             3000
-#define KEY_DELAY 			  3000
-#define LCD_TIMER_MSECS       250
+
+
 #define MAX_DHCP_TRIES        4
 #define SELECTED              1
 #define NOT_SELECTED		  (!SELECTED)
 #define CLIENTMAC6            2
-//#define CLIENTMAC6            3
-//#define CLIENTMAC6            4
+
 #define sprintf(x,...) tiny_snprintf(x,sizeof(x),__VA_ARGS__)
 
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-struct netif netif;
-__IO uint32_t TCPTimer = 0;
-__IO uint32_t ARPTimer = 0;
 
-#ifdef LWIP_DHCP
-__IO uint32_t DHCPfineTimer = 0;
-__IO uint32_t DHCPcoarseTimer = 0;
-static uint32_t IPaddress = 0;
-#endif
+static struct netif netif;
 
-__IO uint32_t DisplayTimer = 0;
-uint8_t LedToggle = 4;
-uint8_t	Server = 0;
 
-/* Private function prototypes -----------------------------------------------*/
-extern void client_init(void);
-extern void server_init(void);
-
-/* Private functions ---------------------------------------------------------*/
 
 /**
   * @brief  Initializes the lwIP stack
@@ -81,16 +60,6 @@ void LwIP_Init(void)
   struct ip_addr gw;
   uint8_t macaddress[6]={0x00,0xA4,0xA5,0x10,0x20,0x30};
 
-#if 0
-  /* Initializes the dynamic memory heap defined by MEM_SIZE.*/
-  mem_init();
-
-  /* Initializes the memory pools defined by MEMP_NUM_x.*/
-  memp_init();
-
-#endif
- // lwip_init();
-  //tcpip_init( NULL, NULL);
   netif_init();
   tcpip_init( NULL, NULL );
 
@@ -99,34 +68,6 @@ void LwIP_Init(void)
   ipaddr.addr = 0;
   netmask.addr = 0;
   gw.addr = 0;
-
-  /* Configure the board opeartin mode: Client/Server */  
-  LCD_DisplayStringLine(Line5, "  Keep Key button   ");
-  LCD_DisplayStringLine(Line6, "pressed to activate ");
-  LCD_DisplayStringLine(Line7, "     the server     ");
-
-  Delay(KEY_DELAY);
-  
-  if(!STM_EVAL_PBGetState(Button_KEY))
-  {	
-	Server = SELECTED;
-	
-	LCD_DisplayStringLine(Line5, "                    ");
-	LCD_DisplayStringLine(Line6, "  Server selected   ");	
-	LCD_DisplayStringLine(Line7, "                    ");
-	Delay(LCD_DELAY);
-  }
-  else
-  {
-    macaddress[5]=CLIENTMAC6;
-	
-	Server = NOT_SELECTED;
-	
-	LCD_DisplayStringLine(Line5, "                    ");
-	LCD_DisplayStringLine(Line6, "  Client selected   ");	
-	LCD_DisplayStringLine(Line7, "                    ");
-	Delay(LCD_DELAY);
-  }
 
 #else
   IP4_ADDR(&ipaddr, 192, 168, 16, 222);
@@ -153,7 +94,6 @@ void LwIP_Init(void)
   /*  Registers the default network interface.*/
   netif_set_default(&netif);
 
-
 #if LWIP_DHCP
   /*  Creates a new DHCP client for this interface on the first call.
   Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
@@ -168,45 +108,7 @@ void LwIP_Init(void)
 }
 
 
-
 #if 0
-/**
-  * @brief  LwIP periodic tasks
-  * @param  localtime the current LocalTime value
-  * @retval None
-  */
-void LwIP_Periodic_Handle(__IO uint32_t localtime)
-{
-
-  /* TCP periodic process every 250 ms */
-  if (localtime - TCPTimer >= TCP_TMR_INTERVAL)
-  {
-    TCPTimer =  localtime;
-    tcp_tmr();
-  }
-  /* ARP periodic process every 5s */
-  if (localtime - ARPTimer >= ARP_TMR_INTERVAL)
-  {
-    ARPTimer =  localtime;
-    etharp_tmr();
-  }
-
-#if LWIP_DHCP
-  /* Fine DHCP periodic process every 500ms */
-  if (localtime - DHCPfineTimer >= DHCP_FINE_TIMER_MSECS)
-  {
-    DHCPfineTimer =  localtime;
-    dhcp_fine_tmr();
-  }
-  /* DHCP Coarse periodic process every 60s */
-  if (localtime - DHCPcoarseTimer >= DHCP_COARSE_TIMER_MSECS)
-  {
-    DHCPcoarseTimer =  localtime;
-    dhcp_coarse_tmr();
-  }
-#endif
-
-}
 
 /**
   * @brief  LCD & LEDs periodic handling
