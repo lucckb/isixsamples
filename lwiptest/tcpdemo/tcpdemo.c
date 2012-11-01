@@ -342,16 +342,6 @@ static void ethernet_init(bool provide_mco)
   /* Wait for software reset */
   while (ETH_GetSoftwareResetStatus() == SET) nop();
 
-  //TODO: Receive packet test only
-  if(false)
-  {
-	  enum { ETHRXBUFNB =  4 };
-	  static ETH_DMADESCTypeDef DMARxDscrTab[ETHRXBUFNB] __attribute__ ((aligned (4)));
-	/* Długość buforów powinna wynosić ETH_MAX_PACKET_SIZE + VLAN_TAG,
-	   jeśli są używane ramki VLAN. */
-	  static uint8_t RxBuff[ETHRXBUFNB][ETH_MAX_PACKET_SIZE]  __attribute__ ((aligned (4)));
-	  ETH_DMARxDescChainInit(DMARxDscrTab, &RxBuff[0][0], ETHRXBUFNB);
-  }
   /* ETHERNET Configuration ------------------------------------------------------*/
   /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
   ETH_StructInit(&ETH_InitStructure);
@@ -451,77 +441,13 @@ int main(void)
 }
 
 
-/* ------------------------------------------------------------------ */
-void receive_test(void)
-{
-	unsigned pkts = 0;
-	unsigned size;
-	static uint8_t packet[ETH_MAX_PACKET_SIZE];
-	ethernet_init(false);
-	ETH_Start();
-	 for(;;)
-	 {
-	    size = ETH_HandleRxPkt(packet);
-	    //dbprintf("Size=%d", size);
-	    if (size >= 60) { /* Najkrótsza ramka bez FCS ma 60 oktetów. */
-
-	     // if (pkts == 0)
-	      //  LCDclear();
-	      pkts++;
-	      dbprintf(
-	               /* Numer pakietu i MAC nadawcy */
-	               "%-4u %02x%02x%02x%02x%02x%02x\t"
-	               /* Rozmiar pakietu i MAC odbiorcy */
-	               "%4u %02x%02x%02x%02x%02x%02x\n",
-	               pkts,
-	               packet[6], packet[7], packet[8],
-	               packet[9], packet[10], packet[11],
-	               size + 4, /* ETH_HandleRxPkt daje długość bez FCS. */
-	               packet[0], packet[1], packet[2],
-	               packet[3], packet[4], packet[5]);
-	      if (packet[12] == 0x08 && packet[13] == 0x00) {
-	        /* Pakiet IP */
-	    	  dbprintf(
-	                 /* Typ pakietu i IP nadawcy */
-	                 "%02x%02x %u.%u.%u.%u        \t"
-	                 /* Protokół warstwy wyższej (wg. RFC 790: 1 = ICMP,
-	                    6 = TCP, 17 = UDP) i IP odbiorcy */
-	                 "%4u %u.%u.%u.%u        ",
-	                 packet[12], packet[13],
-	                 packet[26], packet[27], packet[28], packet[29],
-	                 packet[23],
-	                 packet[30], packet[31], packet[32], packet[33]);
-	      }
-	      else if (packet[12] == 0x08 && packet[13] == 0x06) {
-	        /* Pakiet ARP */
-	        dbprintf(
-	                 /* Typ pakietu i IP nadawcy */
-	                 "%02x%02x %u.%u.%u.%u        \t"
-	                 /* Operacja ARP i IP odbiorcy */
-	                 "%02x%02x %u.%u.%u.%u        ",
-	                 packet[12], packet[13],
-	                 packet[28], packet[29], packet[30], packet[31],
-	                 packet[20], packet[21],
-	                 packet[38], packet[39], packet[40], packet[41]);
-	      }
-	      else {
-	        /* Inny typ pakietu nie powinien się pojawić. */
-	        dbprintf(
-	                 /* Typ pakietu */
-	                 "%02x%02x                \t"
-	                 "                    ",
-	                 packet[12], packet[13]);
-	      }
-	    }
-	}
-}
 enum crash_mode
 {
 	CRASH_TYPE_USER=1,
 	CRASH_TYPE_SYSTEM
 };
 /* ------------------------------------------------------------------ */
-void crash_info(enum crash_mode crash_type, unsigned long * SP)
+static inline void crash_info(enum crash_mode crash_type, unsigned long * SP)
 {
 	//Disable interrupt
 	irq_disable();
