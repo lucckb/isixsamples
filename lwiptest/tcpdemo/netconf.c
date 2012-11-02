@@ -35,7 +35,6 @@
 
 
 #define sprintf(x,...) tiny_snprintf(x,sizeof(x),__VA_ARGS__)
-static struct netif netif;
 
 
 /**
@@ -45,7 +44,7 @@ static struct netif netif;
   *
   */
 
-void tcp_eth_init(void)
+void tcp_eth_init(unsigned hclk)
 {
   struct ip_addr ipaddr;
   struct ip_addr netmask;
@@ -55,7 +54,7 @@ void tcp_eth_init(void)
   netif_init();
   tcpip_init( NULL, NULL );
 
-
+  struct netif *netif =  ethernetif_setup( macaddress, 1, hclk, false, false );
 #if LWIP_DHCP
   ipaddr.addr = 0;
   netmask.addr = 0;
@@ -67,7 +66,6 @@ void tcp_eth_init(void)
   IP4_ADDR(&gw, 192, 168, 16, 1);
 #endif
 
-  set_mac_address(macaddress);
 
   /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
             struct ip_addr *netmask, struct ip_addr *gw,
@@ -81,21 +79,21 @@ void tcp_eth_init(void)
 
   The init function pointer must point to a initialization function for
   your ethernet netif interface. The following code illustrates it's use.*/
-  netif_add(&netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
+  netif_add(netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 
   /*  Registers the default network interface.*/
-  netif_set_default(&netif);
+  netif_set_default(netif);
 
 #if LWIP_DHCP
   /*  Creates a new DHCP client for this interface on the first call.
   Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
   the predefined regular intervals after starting the client.
   You can peek in the netif->dhcp struct for the actual DHCP status.*/
-  dhcp_start(&netif);
+  dhcp_start(netif);
 #endif
 
   /*  When the netif is fully configured this function must be called.*/
-  netif_set_up(&netif);
+  netif_set_up(netif);
 
 }
 
