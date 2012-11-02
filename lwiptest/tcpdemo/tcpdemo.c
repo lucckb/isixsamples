@@ -64,7 +64,7 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
   *
   */
 
-static void tcp_eth_init(unsigned hclk)
+static void tcp_eth_init(void)
 {
   struct ip_addr ipaddr;
   struct ip_addr netmask;
@@ -74,7 +74,7 @@ static void tcp_eth_init(unsigned hclk)
   netif_init();
   tcpip_init( NULL, NULL );
 
-  struct netif *netif =  ethernetif_setup( macaddress, 1, hclk, false, false );
+  struct netif *netif =  stm32_emac_if_setup( macaddress, 1, HCLK_HZ, false, false );
 #if LWIP_DHCP
   ipaddr.addr = 0;
   netmask.addr = 0;
@@ -99,7 +99,7 @@ static void tcp_eth_init(unsigned hclk)
 
   The init function pointer must point to a initialization function for
   your ethernet netif interface. The following code illustrates it's use.*/
-  netif_add(netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
+  netif_add(netif, &ipaddr, &netmask, &gw, NULL, &stm32_emac_if_init_callback, &tcpip_input);
 
   /*  Registers the default network interface.*/
   netif_set_default(netif);
@@ -117,16 +117,6 @@ static void tcp_eth_init(unsigned hclk)
 
 }
 
-
-
-//Initialize the TCPIP library
-static void tcpiplib_init()
-{
-    /*****  Initialize the system stuff  ***************/
-	tcp_eth_init(HCLK_HZ);
-	tcpecho_init();
-}
-
 /* ------------------------------------------------------------------ */
 
 //App main entry point
@@ -142,7 +132,8 @@ int main(void)
 	);
 	dbprintf("Hello from TCPIP stack example");
 	//Initialize the tcpip library
-    tcpiplib_init();
+	tcp_eth_init();
+	tcpecho_init();
 	//Start the isix scheduler
 	isix_start_scheduler();
 }
