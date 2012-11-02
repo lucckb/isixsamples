@@ -64,6 +64,7 @@ void uc_periph_setup()
 	        break;
 	    }
     }
+    //rcc_mco_config( RCC_MCO_HSE );
     //Setup NVIC vector at begin of flash
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
