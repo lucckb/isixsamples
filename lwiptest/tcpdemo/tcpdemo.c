@@ -66,7 +66,14 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 
 static void netif_callback( struct netif *netif )
 {
-	dbprintf("Netif callback called %08x", netif->flags);
+	if( netif->flags & NETIF_FLAG_LINK_UP )
+	{
+		dbprintf("LINK-UP");
+	}
+	else
+	{
+		dbprintf("LINK-DOWN");
+	}
 }
 
 static void tcp_eth_init(void)
@@ -79,7 +86,12 @@ static void tcp_eth_init(void)
   netif_init();
   tcpip_init( NULL, NULL );
 
-  struct netif *netif =  stm32_emac_if_setup( macaddress, 1, HCLK_HZ, false, false, 1 , 7 );
+  struct netif *netif =  stm32_emac_if_setup( macaddress, 1, HCLK_HZ, false, false );
+  if(!netif)
+  {
+	  dbprintf("Unable to create network interface");
+	  isix_bug();
+  }
 #if LWIP_DHCP
   ipaddr.addr = 0;
   netmask.addr = 0;
