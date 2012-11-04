@@ -64,6 +64,11 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
   *
   */
 
+static void netif_callback( struct netif *netif )
+{
+	dbprintf("Netif callback called %08x", netif->flags);
+}
+
 static void tcp_eth_init(void)
 {
   struct ip_addr ipaddr;
@@ -74,7 +79,7 @@ static void tcp_eth_init(void)
   netif_init();
   tcpip_init( NULL, NULL );
 
-  struct netif *netif =  stm32_emac_if_setup( macaddress, 1, HCLK_HZ, false, false );
+  struct netif *netif =  stm32_emac_if_setup( macaddress, 1, HCLK_HZ, false, false, 1 , 7 );
 #if LWIP_DHCP
   ipaddr.addr = 0;
   netmask.addr = 0;
@@ -100,7 +105,7 @@ static void tcp_eth_init(void)
   The init function pointer must point to a initialization function for
   your ethernet netif interface. The following code illustrates it's use.*/
   netif_add(netif, &ipaddr, &netmask, &gw, NULL, &stm32_emac_if_init_callback, &tcpip_input);
-
+  netif_set_link_callback( netif, netif_callback );
   /*  Registers the default network interface.*/
   netif_set_default(netif);
 
