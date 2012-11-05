@@ -84,7 +84,7 @@ static void tcp_eth_init(void)
   netif_init();
   tcpip_init( NULL, NULL );
 
-  struct netif *netif =  stm32_emac_if_setup( macaddress );
+  struct netif *netif =  stm32_emac_netif_create( macaddress );
   if(!netif)
   {
 	  dbprintf("Unable to create network interface");
