@@ -53,8 +53,6 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 	}
 }
 
-
-
 /* ------------------------------------------------------------------ */
 
 /**
@@ -86,7 +84,7 @@ static void tcp_eth_init(void)
   netif_init();
   tcpip_init( NULL, NULL );
 
-  struct netif *netif =  stm32_emac_if_setup( macaddress, 1, HCLK_HZ );
+  struct netif *netif =  stm32_emac_if_setup( macaddress );
   if(!netif)
   {
 	  dbprintf("Unable to create network interface");
@@ -102,7 +100,6 @@ static void tcp_eth_init(void)
   IP4_ADDR(&netmask, 255, 255, 255, 0);
   IP4_ADDR(&gw, 192, 168, 16, 1);
 #endif
-
 
   /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
             struct ip_addr *netmask, struct ip_addr *gw,
