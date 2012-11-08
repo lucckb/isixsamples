@@ -64,7 +64,7 @@ tcpecho_thread(void *arg)
       struct netbuf *buf;
       void *data;
       u16_t len;
-      
+
       while ((err = netconn_recv(newconn, &buf)) == ERR_OK) {
         /*printf("Recved\n");*/
         do {
