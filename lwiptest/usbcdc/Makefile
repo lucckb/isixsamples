@@ -28,7 +28,7 @@ COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros  -fs
 
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
-COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC) $(LIBTCPIP_INC)
+COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC) $(LIBUSBSTM_INC)
 
 
 #C compiler options
@@ -67,8 +67,10 @@ ISIXDRV_DIR			:=	$(ISIX_PROJECT_DIR)/libisixdrvstm32
 LIBFOUNDATION_DIR	:=  $(ISIX_PROJECT_DIR)/libfoundation
 LIBSTM32_DIR		:=	$(ISIX_PROJECT_DIR)/libstm32
 LIBTCPIP_DIR		:=	$(ISIX_PROJECT_DIR)/libtcpip
+LIBUSBSTM32_DIR		:=	$(ISIX_PROJECT_DIR)/libusbstm32
 
-#include $(LIBTCPIP_DIR)/libtcpip.mk
+
+include $(LIBUSBSTM32_DIR)/libusbstm32.mk
 include $(ISIX_DIR)/isix.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
