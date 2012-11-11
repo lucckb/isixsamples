@@ -18,6 +18,7 @@
 #include <stm32system.h>
 #include <stm32gpio.h>
 #include <stdbool.h>
+#include <usbdevserial.h>
 /* ------------------------------------------------------------------ */
 //Led Port
 #define LED_PORT GPIOE
@@ -61,11 +62,15 @@ int main(void)
 			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
 	);
 	dbprintf("Hello from CDCACM usb example");
+
+	/* Initialize the usb serial */
+	stm32_usbdev_serial_init( 128, 128 );
+
     //Start the isix scheduler
 	isix_start_scheduler();
 }
 
-
+/* ------------------------------------------------------------------ */
 enum crash_mode
 {
 	CRASH_TYPE_USER=1,
