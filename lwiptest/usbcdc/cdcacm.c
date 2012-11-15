@@ -47,15 +47,17 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 		isix_wait_ms( BLINK_TIME );
 	}
 }
-
+/* ------------------------------------------------------------------ */
+static const char long_text[] =
+		"With Kindles and ebooks on everyone's lips (sc. hands) nowadays, this might come as a surprise to some, but besides being a techie, I have also amassed quite a collection of actual books (mostly hardcover and first editions) in my personal library. I have always been reluctant to lend them out and the collection has grown so large now that it has become difficult to keep track of all of them. This is why I am looking for a modern solution to implement some professional-yet-still-home-sized library management. Ideally, this should include some cool features like RFID tags or NFC for keeping track of the books, finding and checking them out quickly, if I decide to lend one.";
 /* ------------------------------------------------------------------ */
 static ISIX_TASK_FUNC(cdc_task, entry_param)
 {
 	(void)entry_param;
 	for(;;)
 	{
-		isix_wait_ms(1000);
-		stm32_usbdev_write( "DUPADUPA\r\n", 10 );
+		isix_wait_ms(3000);
+		stm32_usbdev_write( long_text, sizeof(long_text)-1 );
 	}
 }
 
