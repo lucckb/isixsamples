@@ -49,23 +49,34 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 }
 
 /* ------------------------------------------------------------------ */
+static ISIX_TASK_FUNC(cdc_task, entry_param)
+{
+	(void)entry_param;
+	for(;;)
+	{
+		isix_wait_ms(1000);
+		stm32_usbdev_write( "DUPADUPA\r\n", 10 );
+	}
+}
 
+/* ------------------------------------------------------------------ */
 //App main entry point
 int main(void)
 {
 	dblog_init( usartsimple_putc, NULL, usartsimple_init,
 			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
-	//receive_test();
 
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,
 			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
 	);
+	isix_task_create( cdc_task, NULL,
+				1024, BLINKING_TASK_PRIO
+		);
 	dbprintf("Hello from CDCACM usb example");
 
 	/* Initialize the usb serial */
-	stm32_usbdev_serial_init( 128, 128 );
-
+	stm32_usbdev_serial_init(  );
     //Start the isix scheduler
 	isix_start_scheduler();
 }
