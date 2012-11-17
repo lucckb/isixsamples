@@ -59,6 +59,7 @@ static ISIX_TASK_FUNC(cdc_task, entry_param)
 	{
 		int ret = stm32_usbdev_serial_read(tbuf, sizeof(tbuf), 1000 );
 		if( ret >= 0) tbuf[ret] = 0;
+		else if( ret < 0 ) isix_wait_ms(1000);
 		dbprintf("R: %d %s", ret, tbuf);
 	}
 }
