@@ -114,15 +114,15 @@ static inline void crash_info(enum crash_mode crash_type, unsigned long * SP)
 	//Initialize usart simple no interrupt
 	tiny_printf("\r\n\r\n ^^^^^^^^^^ CPU Crashed in [%s] mode!!! ARMv7m core regs: ^^^^^^^^^\r\n",
 			crash_type==CRASH_TYPE_USER?"USER":"SYSTEM" );
-	tiny_printf("[R0=%08x]\t[R1=%08x]\t[R2=%08x]\t[R3=%08x]\r\n", SP[0],SP[1],SP[2],SP[3]);
-	tiny_printf("[R12=%08x]\t[LR=%08x]\t[PC=%08x]\t[PSR=%08x]\r\n",SP[4],SP[5],SP[6],SP[7]);
+	tiny_printf("[R0=%08lx]\t[R1=%08lx]\t[R2=%08lx]\t[R3=%08lx]\r\n", SP[0],SP[1],SP[2],SP[3]);
+	tiny_printf("[R12=%08lx]\t[LR=%08lx]\t[PC=%08lx]\t[PSR=%08lx]\r\n",SP[4],SP[5],SP[6],SP[7]);
 	const unsigned long rBFAR = (*((volatile unsigned long *)(0xE000ED38)));
 	const unsigned long rCFSR = (*((volatile unsigned long *)(0xE000ED28)));
 	const unsigned long rHFSR = (*((volatile unsigned long *)(0xE000ED2C)));
 	const unsigned long rDFSR = (*((volatile unsigned long *)(0xE000ED30)));
 	const unsigned long rAFSR = (*((volatile unsigned long *)(0xE000ED3C)));
-	tiny_printf("[BAFR=%08x]\t[CFSR=%08x]\t[HFSR=%08x]\t[DFSR=%08x]\r\n",rBFAR,rCFSR,rHFSR,rDFSR);
-	tiny_printf("[AFSR=%08x]\r\n", rAFSR);
+	tiny_printf("[BAFR=%08lx]\t[CFSR=%08lx]\t[HFSR=%08lx]\t[DFSR=%08lx]\r\n",rBFAR,rCFSR,rHFSR,rDFSR);
+	tiny_printf("[AFSR=%08lx]\r\n", rAFSR);
 	for(;;) wfi();
 }
 /* ------------------------------------------------------------------ */
