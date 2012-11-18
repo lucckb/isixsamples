@@ -55,7 +55,7 @@ static const char long_text[] =
 		 "has grown so large now that it has become difficult to keep track of all of them. This is why I am looking" ""
 		 "for a modern solution to implement some professional-yet-still-home-sized library management. Ideally, this "
 		 "should include some cool features like RFID tags or NFC for keeping track of the books, finding and checking "
-		 "them out quickly, if I decide to lend one.";
+		 "them out quickly, if I decide to lend one.\r\n";
 static char tbuf[256];
 /* ------------------------------------------------------------------ */
 static ISIX_TASK_FUNC(cdc_task, entry_param)
@@ -63,16 +63,18 @@ static ISIX_TASK_FUNC(cdc_task, entry_param)
 	(void)entry_param;
 	for(;;)
 	{
-		//int ret = stm32_usbdev_serial_read(tbuf, sizeof(tbuf), 1000 );
-		//if( ret >= 0) tbuf[ret] = 0;
-		//else if( ret < 0 )
-		//{
-		//	ret = stm32_usbdev_wait_for_device_connected( 1000 );
-		//}
-		//bprintf("R: %d %s", ret, tbuf);
-		int ret = stm32_usbdev_serial_write(long_text, sizeof(long_text)-1, 1000 );
-		isix_wait(1000);
-		//dbprintf("W: %d %s", ret, tbuf);
+		int ret = stm32_usbdev_serial_read(tbuf, sizeof(tbuf), 1000 );
+		dbprintf("R: %d %s", ret, tbuf);
+		if( ret >= 0)
+		{
+			tbuf[ret] = 0;
+			ret = stm32_usbdev_serial_write(long_text, sizeof(long_text)-1, ISIX_TIME_INFINITE );
+			dbprintf("W: %d %d", ret,  sizeof(long_text)-1);
+		}
+		else if( ret < 0 )
+		{
+			stm32_usbdev_wait_for_device_connected( 1000 );
+		}
 	}
 }
 
