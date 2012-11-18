@@ -64,6 +64,8 @@ static ISIX_TASK_FUNC(cdc_task, entry_param)
 			ret = stm32_usbdev_wait_for_device_connected( 1000 );
 		}
 		dbprintf("R: %d %s", ret, tbuf);
+		ret = stm32_usbdev_serial_write(long_text, sizeof(long_text)-1, 1000 );
+		dbprintf("W: %d %s", ret, tbuf);
 	}
 }
 
