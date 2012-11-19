@@ -87,8 +87,7 @@ static void tcp_eth_init(void)
   struct netif *netif =  stm32_emac_netif_create( macaddress );
   if(!netif)
   {
-	  dbprintf("Unable to create network interface");
-	  isix_bug();
+	  isix_bug("Unable to create network interface");
   }
 #if LWIP_DHCP
   ipaddr.addr = 0;
