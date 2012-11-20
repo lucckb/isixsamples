@@ -24,11 +24,13 @@
 #include "ethernetif.h"
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>
+#include <usbdevserial.h>
 /* ------------------------------------------------------------------ */
 //Led Port
-#define LED_PORT GPIOE
-#define LED_PIN 14
-
+#define LED_PORT1 GPIOA
+#define LED_PIN1 5
+#define LED_PORT2 GPIOC
+#define LED_PIN2 8
 //Blinking time and prio
 #define BLINK_TIME 500
 #define BLINKING_TASK_PRIO 3
@@ -38,23 +40,24 @@
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
 	(void)entry_param;
-	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
-	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	RCC->APB2ENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC;
+	gpio_config(LED_PORT1,LED_PIN1,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(LED_PORT2,LED_PIN2,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	gpio_set( LED_PORT2, LED_PIN2 );
 	for(;;)
 	{
-		//Enable LED
-		gpio_clr( LED_PORT, LED_PIN );
+		//Enable LEDEunikova
+		gpio_clr( LED_PORT1, LED_PIN1 );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 		//Disable LED
-		gpio_set( LED_PORT, LED_PIN );
+		gpio_set( LED_PORT1, LED_PIN1 );
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 	}
 }
 
 /* ------------------------------------------------------------------ */
-
 /**
   * @brief  Initializes the lwIP stack
   * @param  None
@@ -131,27 +134,6 @@ static void tcp_eth_init(void)
 }
 
 /* ------------------------------------------------------------------ */
-
-//App main entry point
-int main(void)
-{
-	dblog_init( usartsimple_putc, NULL, usartsimple_init,
-			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
-	//receive_test();
-
-	//Create ISIX blinking task
-	isix_task_create( blinking_task, NULL,
-			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
-	);
-	dbprintf("Hello from TCPIP stack example");
-	//Initialize the tcpip library
-	tcp_eth_init();
-	tcpecho_init();
-	//Start the isix scheduler
-	isix_start_scheduler();
-}
-
-
 enum crash_mode
 {
 	CRASH_TYPE_USER=1,
@@ -198,3 +180,57 @@ void hard_fault_exception_vector(void)
 	//Print the crash info
 	crash_info( cmode, sp );
 }
+
+
+/* ------------------------------------------------------------------ */
+static const char long_text[] =
+		"With Kindles and ebooks on everyone's lips (sc. hands) nowadays, this might come as a surprise to some,"
+		"but besides being a techie, I have also amassed quite a collection of actual books (mostly hardcover and "
+		"first editions) in my personal library. I have always been reluctant to lend them out and the collection "
+		 "has grown so large now that it has become difficult to keep track of all of them. This is why I am looking" ""
+		 "for a modern solution to implement some professional-yet-still-home-sized library management. Ideally, this "
+		 "should include some cool features like RFID tags or NFC for keeping track of the books, finding and checking "
+		 "them out quickly, if I decide to lend one.\r\n";
+static char tbuf[256];
+/* ------------------------------------------------------------------ */
+static ISIX_TASK_FUNC(cdc_task, entry_param)
+{
+	(void)entry_param;
+	for(;;)
+	{
+		int ret = stm32_usbdev_serial_read(tbuf, sizeof(tbuf), 1000 );
+		dbprintf("R: %d %s", ret, tbuf);
+		if( ret >= 0)
+		{
+			tbuf[ret] = 0;
+			ret = stm32_usbdev_serial_write(long_text, sizeof(long_text)-1, ISIX_TIME_INFINITE );
+			dbprintf("W: %d %d", ret,  sizeof(long_text)-1);
+		}
+		else if( ret < 0 )
+		{
+			stm32_usbdev_wait_for_device_connected( 1000 );
+		}
+	}
+}
+/* ------------------------------------------------------------------ */
+//App main entry point
+int main(void)
+{
+	dblog_init( usartsimple_putc, NULL, usartsimple_init,
+			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
+	//receive_test();
+
+	//Create ISIX blinking task
+	isix_task_create( blinking_task, NULL, ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO);
+	//Create USB CDC class task
+	isix_task_create( cdc_task, NULL, 1024, BLINKING_TASK_PRIO );
+	dbprintf("Hello from USB+TCP sample");
+	//Initialize the tcpip library
+	tcp_eth_init();
+	tcpecho_init();
+	/* Initialize the usb serial */
+	stm32_usbdev_serial_open();
+	//Start the isix scheduler
+	isix_start_scheduler();
+}
+/* ------------------------------------------------------------------ */

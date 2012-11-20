@@ -53,7 +53,7 @@ void uc_periph_setup()
     rcc_prediv1_config(RCC_PREDIV1_Source_PLL2,RCC_PREDIV1_Div5);
     /* PLL: PLLCLK = PREDIV1 * 9 = 72 MHz */
     rcc_pll_config(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);
-    /* Wlasz PLL */
+    /* Wlacz PLL */
     rcc_pll_cmd(ENABLE);
     while(!rcc_get_flag_status(RCC_FLAG_PLLRDY)) nop();
     /* PLL zrodlem SYSCLK */
@@ -61,7 +61,6 @@ void uc_periph_setup()
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08);
     /* Zrodlo taktowania USB */
     rcc_otgfs_clk_config(RCC_OTGFSCLKSource_PLLVCO_Div3);
-
     //Setup NVIC vector at begin of flash
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
