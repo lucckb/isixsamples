@@ -119,7 +119,7 @@ void _external_startup(void)
 	tiny_printf("Hello world for all\r\n");
 	*/
 	//Initialize isix
-	isix::isix_init(ISIX_NUM_PRIORITIES,NULL);
+	isix::isix_init(ISIX_NUM_PRIORITIES);
 
 	//Setup the systick timer
 	timer_setup();
