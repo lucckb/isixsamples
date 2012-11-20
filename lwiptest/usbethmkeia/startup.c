@@ -27,7 +27,6 @@ void uc_periph_setup()
 	//Enable HSE fait for setup
 	rcc_hse_config( RCC_HSE_ON );
 	while( !rcc_get_flag_status(RCC_FLAG_HSERDY ) ) nop();
-
     //Configure flash: Prefetch enable and 1 wait state
     FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY_2;
     /* HCLK = SYSCLK */

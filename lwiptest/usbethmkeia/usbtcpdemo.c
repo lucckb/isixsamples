@@ -40,7 +40,8 @@
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
 	(void)entry_param;
-	RCC->APB2ENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC;
+	gpio_clock_enable( GPIOA, true );
+	gpio_clock_enable( GPIOF, true );
 	gpio_config(LED_PORT1,LED_PIN1,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	gpio_config(LED_PORT2,LED_PIN2,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	gpio_set( LED_PORT2, LED_PIN2 );
@@ -56,7 +57,6 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 		isix_wait_ms( BLINK_TIME );
 	}
 }
-
 /* ------------------------------------------------------------------ */
 /**
   * @brief  Initializes the lwIP stack
@@ -64,7 +64,6 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
   * @retval None
   *
   */
-
 static void netif_callback( struct netif *netif )
 {
 	if( netif->flags & NETIF_FLAG_LINK_UP )
@@ -218,8 +217,6 @@ int main(void)
 {
 	dblog_init( usartsimple_putc, NULL, usartsimple_init,
 			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
-	//receive_test();
-
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL, ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO);
 	//Create USB CDC class task
