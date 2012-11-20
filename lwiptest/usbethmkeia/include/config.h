@@ -25,5 +25,19 @@
 //Exti port
 #define PHY_INT_GPIO_PORT C
 /* ------------------------------------------------------------------ */
-
+//USB configuration
+//TX and RX packet number of packet buffers (x64)
+#define USB_PACKET_TX_BUF_NBUFS			4
+#define USB_PACKET_RX_BUF_NBUFS			8
+//USB VID and USB PID
+#define USBD_VID                        0x0483
+#define USBD_PID                        0x5740
+//Description strings
+#define USBD_MANUFACTURER_STRING        "BoFF"
+#define USBD_PRODUCT_FS_STRING          "ISIX Virtual ComPort"
+#define USBD_SERIALNUMBER_FS_STRING     "00000000050C"
+#define USBD_CONFIGURATION_FS_STRING    "VCP Config"
+#define USBD_INTERFACE_FS_STRING        "VCP Interface"
+/* ------------------------------------------------------------------ */
 #endif /* CONFIG_H_ */
+/* ------------------------------------------------------------------ */
