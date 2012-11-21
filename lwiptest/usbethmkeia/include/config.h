@@ -27,8 +27,8 @@
 /* ------------------------------------------------------------------ */
 //USB configuration
 //TX and RX packet number of packet buffers (x64)
-#define USB_PACKET_TX_BUF_NBUFS			4
-#define USB_PACKET_RX_BUF_NBUFS			8
+#define USBD_ISIX_CDCSERIAL_PACKET_TX_BUF_NBUFS			4
+#define USBD_ISIX_CDCSERIAL_PACKET_RX_BUF_NBUFS			8
 //USB VID and USB PID
 #define USBD_VID                        0x0483
 #define USBD_PID                        0x5740
