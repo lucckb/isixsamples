@@ -25,6 +25,7 @@
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>
 #include <usbdevserial.h>
+#include <stm32crashinfo.h>
 /* ------------------------------------------------------------------ */
 //Led Port
 #define LED_PORT1 GPIOA
@@ -132,55 +133,16 @@ static void tcp_eth_init(void)
 
 }
 
+
+
 /* ------------------------------------------------------------------ */
-enum crash_mode
+#ifdef PDEBUG
+//Crash info interrupt handler
+void __attribute__((__interrupt__,naked)) hard_fault_exception_vector(void)
 {
-	CRASH_TYPE_USER=1,
-	CRASH_TYPE_SYSTEM
-};
-/* ------------------------------------------------------------------ */
-static inline void crash_info(enum crash_mode crash_type, unsigned long * SP)
-{
-	//Disable interrupt
-	irq_disable();
-	//Initialize usart simple no interrupt
-	tiny_printf("\r\n\r\n ^^^^^^^^^^ CPU Crashed in [%s] mode!!! ARMv7m core regs: ^^^^^^^^^\r\n",
-			crash_type==CRASH_TYPE_USER?"USER":"SYSTEM" );
-	tiny_printf("[R0=%08lx]\t[R1=%08lx]\t[R2=%08lx]\t[R3=%08lx]\r\n", SP[0],SP[1],SP[2],SP[3]);
-	tiny_printf("[R12=%08lx]\t[LR=%08lx]\t[PC=%08lx]\t[PSR=%08lx]\r\n",SP[4],SP[5],SP[6],SP[7]);
-	const unsigned long rBFAR = (*((volatile unsigned long *)(0xE000ED38)));
-	const unsigned long rCFSR = (*((volatile unsigned long *)(0xE000ED28)));
-	const unsigned long rHFSR = (*((volatile unsigned long *)(0xE000ED2C)));
-	const unsigned long rDFSR = (*((volatile unsigned long *)(0xE000ED30)));
-	const unsigned long rAFSR = (*((volatile unsigned long *)(0xE000ED3C)));
-	tiny_printf("[BAFR=%08lx]\t[CFSR=%08lx]\t[HFSR=%08lx]\t[DFSR=%08lx]\r\n",rBFAR,rCFSR,rHFSR,rDFSR);
-	tiny_printf("[AFSR=%08lx]\r\n", rAFSR);
-	for(;;) wfi();
+	cm3_hard_hault_regs_dump();
 }
-/* ------------------------------------------------------------------ */
-void hard_fault_exception_vector(void) __attribute__((__interrupt__,naked));
-
-/* ------------------------------------------------------------------ */
-void hard_fault_exception_vector(void)
-{
-	unsigned long *sp;
-	enum crash_mode cmode;
-	//Check for SP or MSP
-	asm(
-		"TST LR, #4\n"
-	    "ITTEE EQ\n"
-	    "MRSEQ %[stackptr], MSP\n"
-		"MOVEQ %[crashm],%[tsystem]\n"
-	    "MRSNE %[stackptr], PSP\n"
-		"MOVNE %[crashm],%[tuser]\n"
-		: [stackptr] "=r"(sp), [crashm] "=r"(cmode):
-		  [tuser]"I"(CRASH_TYPE_USER),[tsystem]"I"(CRASH_TYPE_SYSTEM)
-		);
-	//Print the crash info
-	crash_info( cmode, sp );
-}
-
-
+#endif
 /* ------------------------------------------------------------------ */
 static const char long_text[] =
 		"With Kindles and ebooks on everyone's lips (sc. hands) nowadays, this might come as a surprise to some,"
