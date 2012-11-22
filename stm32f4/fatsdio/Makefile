@@ -1,7 +1,7 @@
 #4 Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = blinkf4
+TARGET	   = fatsdio
 
 #Output format (elf,hex,bin)
 FORMAT	= elf
@@ -13,10 +13,7 @@ OPT 	?= 2
 #MCU variant
 MCU_MAJOR_TYPE = f4
 MCU_MINOR_TYPE = 17VGT6
-#MCU_MAJOR_TYPE = f1
-#MCU_MINOR_TYPE = 07VBT6
-#MCU_MAJOR_TYPE = f2
-#MCU_MINOR_TYPE = 17VG
+
 
 #System stack size interrupts etc
 MCU_SYSTEM_STACK_SIZE = 512
@@ -25,9 +22,7 @@ MCU_SYSTEM_STACK_SIZE = 512
 CPP_EXCEPTIONS = y
 
 #Common flags 
-COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
-
-#Include
+COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros
 #only for f1 lib
 #COMMON_FLAGS +=-DSTM32F10X_CL
 
@@ -38,8 +33,6 @@ CFLAGS += -std=gnu99
 #C++ compiler options 
 CXXFLAGS += $(COMMON_FLAGS)
 
-#Disable safe constructors
-#CXXFLAGS +=  -fno-threadsafe-statics
 
 #Per file listing
 LISTING = n
@@ -57,11 +50,15 @@ CPPSRC += $(wildcard *.cpp)
 #Source ASM files
 ASRC += $(wildcard *.S)
 
-ISIX_DIR=../../isixrtos/libisix
-ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
-LIBFOUNDATION_DIR=../../isixrtos/libfoundation
-LIBSTM32_DIR=../../isixrtos/libstm32
+ISIX_BASE_DIR=../../isixrtos
+ISIX_DIR=$(ISIX_BASE_DIR)/libisix
+LIBFSFAT_DIR=$(ISIX_BASE_DIR)/libfsfat
+ISIXDRV_DIR=$(ISIX_BASE_DIR)/libisixdrvstm32
+LIBFOUNDATION_DIR=$(ISIX_BASE_DIR)/libfoundation
+LIBSTM32_DIR=$(ISIX_BASE_DIR)/libstm32
+
 include $(ISIX_DIR)/isix.mk
+include $(LIBFSFAT_DIR)/libfsfat.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(LIBSTM32_DIR)/libstm32.mk
