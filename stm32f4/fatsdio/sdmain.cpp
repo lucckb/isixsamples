@@ -12,6 +12,8 @@
 #include <stm32pwr.h>
 #include <fs/fat.h>
 #include <stm32sdio.h>
+#include "sdio_sdcard_driver.h"
+#include <cctype>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -88,7 +90,6 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		volatile float ala_z = 1.2;
 		while(true)
 		{
 			//Enable LED
@@ -99,8 +100,6 @@ protected:
 			stm32::gpio_set( LED_PORT, LED_PIN );
 			//Wait time
 			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
-			ala_z *= 1.1;
-			dbprintf("VAR1=%d", (int)ala_z);
 		}
 	}
 private:
@@ -124,12 +123,10 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		volatile float ala_j = 1.2;
 		for(;;)
 		{
 			isix::isix_wait( isix::isix_ms2tick(600) );
-			ala_j += 50.0;
-			dbprintf("VAR2=%d", (int)ala_j);
+
 		}
 	}
 private:
@@ -153,6 +150,17 @@ int main()
 	static app::ledkey led_key;
 	FATFS fs;
 	f_mount(0, &fs);
+	isix::isix_wait_ms(1000);
+	dbprintf("SDINIT status %i", stm32::drv::isix_sdio_card_driver_init() );
+	static unsigned char buf[512];
+	int rd = stm32::drv::isix_sdio_card_driver_read(  buf, 0, 1 );
+	dbprintf("Rd status=%d", rd);
+	for(int i=0; i<512; i++ )
+	{
+
+		fnd::tiny_printf("%c", std::isprint(buf[i])?buf[i]:'.');
+	}
+	fnd::tiny_printf("\r\n");
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }
