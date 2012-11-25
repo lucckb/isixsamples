@@ -129,6 +129,15 @@ protected:
 		{
 			dbprintf("SDINIT status %i", stm32::drv::isix_sdio_card_driver_init() );
 			isix::isix_wait_ms( 1000 );
+			while(1)
+			{
+				if ( !(stm32::drv::isix_sdio_card_driver_status() & stm32::drv::SDCARD_DRVSTAT_NODISK) )
+				{
+					dbprintf("REINIT status %i", stm32::drv::isix_sdio_card_driver_reinitialize());
+					break;
+				}
+				isix::isix_wait_ms( 1000 );
+			}
 			static char buf[512];
 			std::strcpy(buf,"Ala ma kota");
 			const int wr = stm32::drv::isix_sdio_card_driver_write( buf, 20000, 1 );
