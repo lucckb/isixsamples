@@ -125,20 +125,32 @@ protected:
 	virtual void main()
 	{
 		//for(;;)
+		if(1)
 		{
+			dbprintf("SDINIT status %i", stm32::drv::isix_sdio_card_driver_init() );
 			isix::isix_wait_ms( 1000 );
 			static char buf[512];
 			std::strcpy(buf,"Ala ma kota");
-			const int wr = stm32::drv::isix_sdio_card_driver_write( buf, 0, 1 );
+			const int wr = stm32::drv::isix_sdio_card_driver_write( buf, 20000, 1 );
 			dbprintf("Wr status=%d", wr);
 			std::memset(buf, 0, sizeof(buf) );
-			const int rd = stm32::drv::isix_sdio_card_driver_read(  buf, 0, 1 );
+			const int rd = stm32::drv::isix_sdio_card_driver_read(  buf, 20000 , 1 );
 			dbprintf("Rd status=%d", rd);
 			for(int i=0; i<512; i++ )
 			{
 				fnd::tiny_printf("%c", std::isprint(buf[i])?buf[i]:'.');
 			}
 			fnd::tiny_printf("\r\n");
+		}
+		else
+		{
+			FATFS fs;
+			static char buf[512];
+			dbprintf("FMNTSTAT=%i NETR=%hi", f_mount(0, &fs), fs.n_rootdir );
+			FIL f;
+			dbprintf( "OPENRES=%i", f_open(&f, "kupa.txt", FA_READ ) );
+			UINT rlen;
+			dbprintf( "RES=%i RL=%i", f_read( &f, buf, sizeof(buf), &rlen ), rlen );
 		}
 	}
 private:
@@ -160,10 +172,7 @@ int main()
 	static app::ledblink led_blinker;
 	//The ledkey class
 	static app::ledkey led_key;
-	FATFS fs;
-	f_mount(0, &fs);
 	isix::isix_wait_ms(1000);
-	dbprintf("SDINIT status %i", stm32::drv::isix_sdio_card_driver_init() );
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }
