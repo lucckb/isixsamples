@@ -138,6 +138,11 @@ protected:
 				}
 				isix::isix_wait_ms( 1000 );
 			}
+			{
+				stm32::drv::sdcard_info info;
+				stm32::drv::isix_sdio_card_driver_get_info( &info );
+				dbprintf("SDCS FREQ %i", info.SD_csd.MaxBusClkFrec );
+			}
 			static char buf[512];
 			std::strcpy(buf,"Ala ma kota");
 			const int wr = stm32::drv::isix_sdio_card_driver_write( buf, 20000, 1 );
