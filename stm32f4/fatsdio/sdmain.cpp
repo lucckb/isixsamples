@@ -14,6 +14,7 @@
 #include <stm32sdio.h>
 #include "sdio_sdcard_driver.h"
 #include <cctype>
+#include <cstring>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -123,10 +124,21 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		for(;;)
+		//for(;;)
 		{
-			isix::isix_wait( isix::isix_ms2tick(600) );
-
+			isix::isix_wait_ms( 1000 );
+			static char buf[512];
+			std::strcpy(buf,"Ala ma kota");
+			const int wr = stm32::drv::isix_sdio_card_driver_write( buf, 0, 1 );
+			dbprintf("Wr status=%d", wr);
+			std::memset(buf, 0, sizeof(buf) );
+			const int rd = stm32::drv::isix_sdio_card_driver_read(  buf, 0, 1 );
+			dbprintf("Rd status=%d", rd);
+			for(int i=0; i<512; i++ )
+			{
+				fnd::tiny_printf("%c", std::isprint(buf[i])?buf[i]:'.');
+			}
+			fnd::tiny_printf("\r\n");
 		}
 	}
 private:
@@ -152,15 +164,6 @@ int main()
 	f_mount(0, &fs);
 	isix::isix_wait_ms(1000);
 	dbprintf("SDINIT status %i", stm32::drv::isix_sdio_card_driver_init() );
-	static unsigned char buf[512];
-	int rd = stm32::drv::isix_sdio_card_driver_read(  buf, 0, 1 );
-	dbprintf("Rd status=%d", rd);
-	for(int i=0; i<512; i++ )
-	{
-
-		fnd::tiny_printf("%c", std::isprint(buf[i])?buf[i]:'.');
-	}
-	fnd::tiny_printf("\r\n");
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }
