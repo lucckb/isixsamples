@@ -139,9 +139,17 @@ protected:
 				std::memset(buf, 0, sizeof(buf) );
 				err = f_mount(0, &fs);
 				dbprintf("Fat disk mount status %i", err );
+				//Print card info
+				{
+					stm32::drv::isix_sdio_card_driver_init();
+					stm32::drv::sdcard_info info;
+					int err = stm32::drv::isix_sdio_card_driver_get_info(&info, stm32::drv::sdcard_info_f_info );
+					dbprintf("Status = %i Card info blocksize: %lu capacity %u type: %i", err,
+							info.CardBlockSize, (unsigned)info.CardCapacity/1024/1024, info.CardType );
+				}
 				if( !err )
 				{
-					int err = f_open(&f, "kupa.txt", FA_READ );
+					int err = f_open(&f, "dupa.txt", FA_READ );
 					dbprintf( "Open file for read status=%i", err );
 					if( !err )
 					{
