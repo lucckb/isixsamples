@@ -125,7 +125,7 @@ protected:
 	virtual void main()
 	{
 		//for(;;)
-		if(1)
+		if(0)
 		{
 			dbprintf("SDINIT status %i", stm32::drv::isix_sdio_card_driver_init() );
 			isix::isix_wait_ms( 1000 );
@@ -158,13 +158,24 @@ protected:
 		}
 		else
 		{
-			FATFS fs;
-			static char buf[512];
-			dbprintf("FMNTSTAT=%i NETR=%hi", f_mount(0, &fs), fs.n_rootdir );
-			FIL f;
-			dbprintf( "OPENRES=%i", f_open(&f, "kupa.txt", FA_READ ) );
-			UINT rlen;
-			dbprintf( "RES=%i RL=%i", f_read( &f, buf, sizeof(buf), &rlen ), rlen );
+			bool p_card_state = false;
+			while(1)
+			{
+				bool card_state = stm32::drv::isix_sdio_card_driver_is_card_in_slot();
+				if (  card_state && !p_card_state )
+				{
+					FATFS fs;
+					static char buf[512];
+					dbprintf("FMNTSTAT=%i NETR=%hi", f_mount(0, &fs), fs.n_rootdir );
+					FIL f;
+					dbprintf( "OPENRES=%i", f_open(&f, "kupa.txt", FA_READ ) );
+					UINT rlen;
+					dbprintf( "RES=%i RL=%i", f_read( &f, buf, sizeof(buf), &rlen ), rlen );
+					dbprintf("BUF [%s]", buf);
+				}
+				p_card_state = card_state;
+				isix::isix_wait_ms( 25 );
+			}
 		}
 	}
 private:
