@@ -88,7 +88,7 @@ public:
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
 	}
 protected:
-	//Main function
+	//Main functionQMonikQ
 	virtual void main()
 	{
 		while(true)
@@ -172,6 +172,10 @@ protected:
 					UINT rlen;
 					dbprintf( "RES=%i RL=%i", f_read( &f, buf, sizeof(buf), &rlen ), rlen );
 					dbprintf("BUF [%s]", buf);
+					f_close( &f );
+					dbprintf( "FWOPEN=%d",f_open(&f, "dupa.txt", FA_CREATE_NEW | FA_WRITE ) );
+					dbprintf("FWRITE=%d %d",f_write( &f, "Kurwa\r\n",7, &rlen ), rlen );
+					f_close( &f );
 				}
 				p_card_state = card_state;
 				isix::isix_wait_ms( 25 );
