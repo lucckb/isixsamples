@@ -149,7 +149,7 @@ protected:
 				}
 				if( !err )
 				{
-					int err = f_open(&f, "dupa.txt", FA_READ );
+					int err = f_open(&f, "toread.txt", FA_READ );
 					dbprintf( "Open file for read status=%i", err );
 					if( !err )
 					{
@@ -171,7 +171,7 @@ protected:
 				}
 				if(!err)
 				{
-					int err = f_open(&f, "dupa.txt", FA_WRITE | FA_CREATE_ALWAYS );
+					int err = f_open(&f, "write.txt", FA_WRITE | FA_CREATE_ALWAYS );
 					dbprintf( "Open file for write status=%i", err );
 					if(!err )
 					{
