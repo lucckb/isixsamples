@@ -124,62 +124,59 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		//for(;;)
-		if(0)
+		isix::isix_wait_ms( 1000 );
+		bool p_card_state = false;
+		static char buf[513];
+		FATFS fs;
+		int err;
+		FIL f;
+		UINT ccnt;
+		for(;;)
 		{
-			dbprintf("SDINIT status %i", stm32::drv::isix_sdio_card_driver_init() );
-			isix::isix_wait_ms( 1000 );
-			while(1)
+			bool card_state = stm32::drv::isix_sdio_card_driver_is_card_in_slot();
+			if (  card_state && !p_card_state )
 			{
-				if ( !(stm32::drv::isix_sdio_card_driver_status() & stm32::drv::SDCARD_DRVSTAT_NODISK) )
+				std::memset(buf, 0, sizeof(buf) );
+				err = f_mount(0, &fs);
+				dbprintf("Fat disk mount status %i", err );
+				if( !err )
 				{
-					dbprintf("REINIT status %i", stm32::drv::isix_sdio_card_driver_reinitialize());
-					break;
+					int err = f_open(&f, "kupa.txt", FA_READ );
+					dbprintf( "Open file for read status=%i", err );
+					if( !err )
+					{
+						for(;;)
+						{
+							err = f_read(&f, buf,sizeof(buf)-1,&ccnt );
+							if( err || ccnt == 0 ) break;
+							if( ccnt > 0 )
+							{
+								buf[ccnt] = '\0';
+								fnd::tiny_printf("%s", buf);
+							}
+						}
+						fnd::tiny_printf("\r\n");
+						dbprintf("Read finished ret=%i count=%u", err, ccnt );
+					}
+					err = f_close( &f );
+					dbprintf( "Close status %i", err );
 				}
-				isix::isix_wait_ms( 1000 );
-			}
-			{
-				stm32::drv::sdcard_info info;
-				stm32::drv::isix_sdio_card_driver_get_info( &info );
-				dbprintf("SDCS FREQ %i", info.SD_csd.MaxBusClkFrec );
-			}
-			static char buf[512];
-			std::strcpy(buf,"Ala ma kota");
-			const int wr = stm32::drv::isix_sdio_card_driver_write( buf, 20000, 1 );
-			dbprintf("Wr status=%d", wr);
-			std::memset(buf, 0, sizeof(buf) );
-			const int rd = stm32::drv::isix_sdio_card_driver_read(  buf, 20000 , 1 );
-			dbprintf("Rd status=%d", rd);
-			for(int i=0; i<512; i++ )
-			{
-				fnd::tiny_printf("%c", std::isprint(buf[i])?buf[i]:'.');
-			}
-			fnd::tiny_printf("\r\n");
-		}
-		else
-		{
-			bool p_card_state = false;
-			while(1)
-			{
-				bool card_state = stm32::drv::isix_sdio_card_driver_is_card_in_slot();
-				if (  card_state && !p_card_state )
+				if(!err)
 				{
-					FATFS fs;
-					static char buf[512];
-					dbprintf("FMNTSTAT=%i NETR=%hi", f_mount(0, &fs), fs.n_rootdir );
-					FIL f;
-					dbprintf( "OPENRES=%i", f_open(&f, "kupa.txt", FA_READ ) );
-					UINT rlen;
-					dbprintf( "RES=%i RL=%i", f_read( &f, buf, sizeof(buf), &rlen ), rlen );
-					dbprintf("BUF [%s]", buf);
-					f_close( &f );
-					dbprintf( "FWOPEN=%d",f_open(&f, "dupa.txt", FA_CREATE_NEW | FA_WRITE ) );
-					dbprintf("FWRITE=%d %d",f_write( &f, "Kurwa\r\n",7, &rlen ), rlen );
-					f_close( &f );
+					int err = f_open(&f, "dupa.txt", FA_WRITE | FA_CREATE_ALWAYS );
+					dbprintf( "Open file for write status=%i", err );
+					if(!err )
+					{
+						static const char wstr[] = "Ala ma kota a kot ma ale\r\n";
+						err = f_write( &f, wstr, sizeof(wstr)-1, &ccnt );
+						dbprintf("Write finished ret=%i count=%u", err, ccnt );
+						err = f_close( &f );
+						dbprintf( "Close status %i", err );
+					}
 				}
-				p_card_state = card_state;
-				isix::isix_wait_ms( 25 );
 			}
+			p_card_state = card_state;
+			isix::isix_wait_ms( 100 );
 		}
 	}
 private:
