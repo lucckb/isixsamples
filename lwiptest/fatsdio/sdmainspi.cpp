@@ -6,14 +6,12 @@
 #include <stm32system.h>
 #include <stm32rcc.h>
 #include <stm32gpio.h>
-#include <stm32tim.h>
-#include <stm32adc.h>
-#include <stm32dma.h>
-#include <stm32pwr.h>
 #include <fs/fat.h>
 #include <spi_sdcard_driver.h>
 #include <cctype>
 #include <cstring>
+#include <stm32spi.h>
+
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
