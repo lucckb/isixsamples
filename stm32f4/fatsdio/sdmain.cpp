@@ -12,6 +12,7 @@
 #include <stm32pwr.h>
 #include <fs/fat.h>
 #include <stm32sdio.h>
+#include <stm32spi.h>
 #include "sdio_sdcard_driver.h"
 #include <cctype>
 #include <cstring>
