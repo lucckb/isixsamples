@@ -130,7 +130,7 @@ protected:
 		UINT ccnt;
 		for(;;)
 		{
-			break;
+			//dbprintf("INITCODE=%i",stm32::drv::isix_spisd_card_driver_init());
 			bool card_state = stm32::drv::isix_spisd_card_driver_is_card_in_slot();
 			if (  card_state && !p_card_state )
 			{
