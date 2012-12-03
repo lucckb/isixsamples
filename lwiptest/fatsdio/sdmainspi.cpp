@@ -2,7 +2,7 @@
 #include <stm32lib.h>
 #include <dbglog.h>
 #include <usart_simple.h>
-#include "config.hpp"
+#include "config.h"
 #include <stm32system.h>
 #include <stm32rcc.h>
 #include <stm32gpio.h>
@@ -11,7 +11,10 @@
 #include <cctype>
 #include <cstring>
 #include <stm32spi.h>
-
+#include <mmc/mmc_host_spi.hpp>
+#include <mmc/immc_det_pin.hpp>
+#include <stm32gpio.h>
+#include <stm32_spi_master.hpp>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -27,8 +30,8 @@ const unsigned MHZ = 1000000;
  */
 uint32_t uc_periph_setup()
 {
-    stm32::rcc_flash_latency( config::HCLK_HZ );
-    const uint32_t freq = stm32::rcc_pll1_sysclk_setup( stm32::e_sysclk_hse_pll, config::XTAL_HZ , config::HCLK_HZ );
+    stm32::rcc_flash_latency( CONFIG_HCLK_HZ );
+    const uint32_t freq = stm32::rcc_pll1_sysclk_setup( stm32::e_sysclk_hse_pll, CONFIG_XTAL_HZ , CONFIG_HCLK_HZ );
     stm32::rcc_pclk2_config(  RCC_HCLK_Div1 );
     stm32::rcc_pclk1_config(  RCC_HCLK_Div2 );
     //Setup NVIC vector at begin of flash
@@ -189,6 +192,45 @@ private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
 };
+
+/* ------------------------------------------------------------------ */
+class stm32_gpio : public drv::immc_det_pin
+{
+public:
+	stm32_gpio()
+	{
+		using namespace stm32;
+		gpio_clock_enable( GPIOD, true );
+		gpio_abstract_config( GPIOD, 0, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
+	}
+	virtual bool get() const
+	{
+		return !stm32::gpio_get( GPIOD, 0 );
+	}
+};
+
+class mmc_host_tester : public isix::task_base
+{
+public:
+	mmc_host_tester()
+		: task_base(STACK_SIZE,TASK_PRIO),
+		  //spi_m( SPI1 ),
+		  spi_h( det_gpio, spi_m )
+	{}
+protected:
+	virtual void main()
+	{
+		//for(;;)
+		dbprintf("Read %p ", (void*)spi_h.get_card());
+	}
+private:
+		static const unsigned STACK_SIZE = 2048;
+		static const unsigned TASK_PRIO = 3;
+		stm32_gpio det_gpio;
+		stm32::drv::spi_master spi_m;
+		drv::mmc_host_spi spi_h;
+};
+
 /* ------------------------------------------------------------------ */
 
 }	//namespace app end
@@ -197,12 +239,13 @@ private:
 int main()
 {
 	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
-	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
+	    		USART2,115200,true, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
 	 dbprintf(" Exception presentation app using ISIXRTOS");
 	//The blinker class
 	static app::ledblink led_blinker;
 	//The ledkey class
-	static app::ledkey led_key;
+	//static app::ledkey led_key;
+	static app::mmc_host_tester ht;
 	isix::isix_wait_ms(1000);
 	//Start the isix scheduler
 	isix::isix_start_scheduler();

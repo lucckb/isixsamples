@@ -24,7 +24,7 @@ CPP_EXCEPTIONS = y
 #Common flags 
 COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros
 #only for f1 lib
-COMMON_FLAGS +=-DSTM32F10X_CL
+COMMON_FLAGS +=-DSTM32F10X_CL  -D_HAVE_CONFIG_H -I./include
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
