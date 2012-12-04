@@ -194,7 +194,7 @@ private:
 };
 
 /* ------------------------------------------------------------------ */
-class stm32_gpio : public drv::immc_det_pin
+class stm32_gpio : public drv::mmc::immc_det_pin
 {
 public:
 	stm32_gpio()
@@ -228,7 +228,7 @@ private:
 		static const unsigned TASK_PRIO = 3;
 		stm32_gpio det_gpio;
 		stm32::drv::spi_master spi_m;
-		drv::mmc_host_spi spi_h;
+		drv::mmc::mmc_host_spi spi_h;
 };
 
 /* ------------------------------------------------------------------ */
