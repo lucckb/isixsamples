@@ -145,7 +145,7 @@ protected:
 					stm32::drv::isix_spisd_card_driver_init();
 					stm32::drv::sdcard_info info;
 					int err = stm32::drv::isix_spisd_card_driver_get_info(&info, stm32::drv::sdcard_info_f_info );
-					dbprintf("Status = %i Card info blocksize: %lu capacity %u type: %i", err,
+					dbprintf("Status = %i Card info blocksize: %u capacity %u type: %i", err,
 							info.CardBlockSize, (unsigned)info.CardCapacity/1024/1024, info.CardType );
 				}
 				if( !err )
@@ -221,7 +221,7 @@ protected:
 	virtual void main()
 	{
 		//for(;;)
-		dbprintf("Read %p ", (void*)spi_h.get_card());
+		dbprintf("Read %p ", (void*)spi_h.get_card(0));
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
