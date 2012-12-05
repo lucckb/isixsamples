@@ -13,6 +13,7 @@
 #include <stm32spi.h>
 #include <mmc/mmc_host_spi.hpp>
 #include <mmc/immc_det_pin.hpp>
+#include <mmc/mmc_slot.hpp>
 #include <stm32gpio.h>
 #include <stm32_spi_master.hpp>
 /* ------------------------------------------------------------------ */
@@ -214,21 +215,24 @@ class mmc_host_tester : public isix::task_base
 public:
 	mmc_host_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
-		  //spi_m( SPI1 ),
-		  spi_h( det_gpio, spi_m )
+		  m_mmc_host( m_spi ), m_slot( m_mmc_host, m_pin )
 	{}
 protected:
 	virtual void main()
 	{
-		//for(;;)
-		dbprintf("Read %p ", (void*)spi_h.get_card(0));
+		for(;;)
+		{
+			drv::mmc::mmc_card *c;
+			dbprintf("Read %i %p", m_slot.get_card(c), (void*)c);
+		}
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
-		stm32_gpio det_gpio;
-		stm32::drv::spi_master spi_m;
-		drv::mmc::mmc_host_spi spi_h;
+		stm32::drv::spi_master m_spi;
+		drv::mmc::mmc_host_spi m_mmc_host;
+		stm32_gpio m_pin;
+		drv::mmc::mmc_slot m_slot;
 };
 
 /* ------------------------------------------------------------------ */

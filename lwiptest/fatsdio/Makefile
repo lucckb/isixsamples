@@ -19,7 +19,7 @@ MCU_MINOR_TYPE = 07VBT6
 MCU_SYSTEM_STACK_SIZE = 512
 
 #Enable exceptions support
-CPP_EXCEPTIONS = y
+CPP_EXCEPTIONS = n
 
 #Common flags 
 COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros
