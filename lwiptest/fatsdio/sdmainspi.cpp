@@ -14,6 +14,7 @@
 #include <mmc/mmc_host_spi.hpp>
 #include <mmc/immc_det_pin.hpp>
 #include <mmc/mmc_slot.hpp>
+#include <mmc/mmc_card.hpp>
 #include <stm32gpio.h>
 #include <stm32_spi_master.hpp>
 /* ------------------------------------------------------------------ */
@@ -226,7 +227,8 @@ protected:
 			if(  cstat == drv::mmc::mmc_slot::card_inserted )
 			{
 				drv::mmc::mmc_card *c;
-				dbprintf("Read %i %p", m_slot.get_card(c), (void*)c);
+				dbprintf("Open %i %p", m_slot.get_card(c), (void*)c);
+				c->write("ALA kot", 7777, 1 );
 			}
 			else
 			{
