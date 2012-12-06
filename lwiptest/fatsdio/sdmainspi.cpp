@@ -222,8 +222,16 @@ protected:
 	{
 		for(;;)
 		{
-			drv::mmc::mmc_card *c;
-			dbprintf("Read %i %p", m_slot.get_card(c), (void*)c);
+			const int cstat = m_slot.check();
+			if(  cstat == drv::mmc::mmc_slot::card_inserted )
+			{
+				drv::mmc::mmc_card *c;
+				dbprintf("Read %i %p", m_slot.get_card(c), (void*)c);
+			}
+			else
+			{
+				dbprintf("CSTAT=%i",cstat);
+			}
 		}
 	}
 private:
