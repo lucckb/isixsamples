@@ -226,9 +226,13 @@ protected:
 			const int cstat = m_slot.check();
 			if(  cstat == drv::mmc::mmc_slot::card_inserted )
 			{
+				static char buf[512] = { '\0' };
 				drv::mmc::mmc_card *c;
 				dbprintf("Open %i %p", m_slot.get_card(c), (void*)c);
-				c->write("ALA kot", 7777, 1 );
+				dbprintf("Write ret=%i",c->write("KUPA", 7777, 1 ));
+				//isix::isix_wait_ms(1000);
+				dbprintf( "Read ret=%i", c->read( buf, 7777, 1 ) );
+				dbprintf("GOT SSTR %s", buf );
 			}
 			else
 			{
