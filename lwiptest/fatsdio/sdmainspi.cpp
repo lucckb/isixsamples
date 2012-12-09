@@ -229,8 +229,17 @@ protected:
 				static char buf[512] = { '\0' };
 				drv::mmc::mmc_card *c;
 				dbprintf("Open %i %p", m_slot.get_card(c), (void*)c);
-				dbprintf("Write ret=%i",c->write("KUPA", 7777, 1 ));
+				dbprintf("Write ret=%i",c->write("ZUPA", 7777, 3 ));
 				//isix::isix_wait_ms(1000);
+				dbprintf( "Read ret=%i", c->read( buf, 7777, 1 ) );
+				dbprintf("GOT SSTR %s", buf );
+				static drv::mmc::cid cid;
+				dbprintf( "CIDST=%i",c->get_cid( cid ));
+				dbprintf("CIDS M=%s Y=%hi M=%hi" , cid.prod_name, cid.year, cid.month );
+				//Get sector count
+				uint32_t sectors;
+				dbprintf("SECTORS=%li %lu", c->get_sectors_count(sectors), sectors );
+				dbprintf("ERASESIZ=%li %lu", c->get_erase_size(sectors), sectors );
 				dbprintf( "Read ret=%i", c->read( buf, 7777, 1 ) );
 				dbprintf("GOT SSTR %s", buf );
 			}
