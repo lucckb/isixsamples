@@ -216,8 +216,30 @@ class mmc_host_tester : public isix::task_base
 public:
 	mmc_host_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
-		  m_mmc_host( m_spi, 6000 ), m_slot( m_mmc_host, m_pin )
+		  m_mmc_host( m_spi,12000 ), m_slot( m_mmc_host, m_pin )
 	{}
+private:
+	void transfer_read_test( drv::mmc::mmc_card *card, char *buf, size_t size )
+	{
+		const size_t N_sects = 1000;
+		int ret;
+		for(size_t bs=512; bs<=size; bs+=512 )
+		{
+			dbprintf("Read test block size %u", bs );
+			isix::tick_t begin = isix::isix_get_jiffies();
+			for(size_t c=0; c<N_sects; c+=(bs/512) )
+			{
+				ret = card->read( buf, c, bs/512 );
+				if( ret )
+				{
+					dbprintf("Read error with code %i", ret);
+					return;
+				}
+			}
+			isix::tick_t time = isix::isix_get_jiffies() - begin;
+			dbprintf("Time spent %u kb/s", (1000*(N_sects/2)) / time);
+		}
+	}
 protected:
 	virtual void main()
 	{
@@ -226,7 +248,7 @@ protected:
 			const int cstat = m_slot.check();
 			if(  cstat == drv::mmc::mmc_slot::card_inserted )
 			{
-				static char buf[512] = { '\0' };
+				static char buf[4096] = { '\0' };
 				drv::mmc::mmc_card *c;
 				int ret;
 				static drv::mmc::cid cid;
@@ -249,6 +271,8 @@ protected:
 				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
 				if( ret ) break;
 				dbprintf("GOT SSTR %s", buf );
+				//Check read speed
+				transfer_read_test(c,buf,sizeof(buf));
 			}
 			else
 			{
