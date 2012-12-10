@@ -216,7 +216,7 @@ class mmc_host_tester : public isix::task_base
 public:
 	mmc_host_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
-		  m_mmc_host( m_spi ), m_slot( m_mmc_host, m_pin )
+		  m_mmc_host( m_spi, 12000 ), m_slot( m_mmc_host, m_pin )
 	{}
 protected:
 	virtual void main()
@@ -238,7 +238,7 @@ protected:
 				dbprintf("CIDS M=%s Y=%hi M=%hi" , cid.prod_name, cid.year, cid.month );
 				//Get sector count
 				uint32_t sectors;
-				dbprintf("SECTORS=%li %lu", c->get_sectors_count(sectors), sectors );
+				dbprintf("SECTORS=%lu", c->get_sectors_count() );
 				dbprintf("ERASESIZ=%li %lu", c->get_erase_size(sectors), sectors );
 				dbprintf( "Read ret=%i", c->read( buf, 7777, 1 ) );
 				dbprintf("GOT SSTR %s", buf );
