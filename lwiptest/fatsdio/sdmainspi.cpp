@@ -216,7 +216,7 @@ class mmc_host_tester : public isix::task_base
 public:
 	mmc_host_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
-		  m_mmc_host( m_spi, 12000 ), m_slot( m_mmc_host, m_pin )
+		  m_mmc_host( m_spi, 6000 ), m_slot( m_mmc_host, m_pin )
 	{}
 protected:
 	virtual void main()
@@ -228,19 +228,26 @@ protected:
 			{
 				static char buf[512] = { '\0' };
 				drv::mmc::mmc_card *c;
-				dbprintf("Open %i %p", m_slot.get_card(c), (void*)c);
-				dbprintf("Write ret=%i",c->write("ZUPA", 7777, 3 ));
-				//isix::isix_wait_ms(1000);
-				dbprintf( "Read ret=%i", c->read( buf, 7777, 1 ) );
-				dbprintf("GOT SSTR %s", buf );
+				int ret;
 				static drv::mmc::cid cid;
-				dbprintf( "CIDST=%i",c->get_cid( cid ));
+				dbprintf("Open %i %p", (ret=m_slot.get_card(c)), (void*)c);
+				if( ret ) break;
+				dbprintf("Write ret=%i",(ret=c->write("ZUPA", 7777, 3 )));
+				if( ret ) break;
+				//isix::isix_wait_ms(100);
+				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
+				if( ret ) break;
+				dbprintf("GOT SSTR %s", buf );
+				dbprintf( "CIDST=%i",(ret=c->get_cid( cid )));
+				if( ret ) break;
 				dbprintf("CIDS M=%s Y=%hi M=%hi" , cid.prod_name, cid.year, cid.month );
 				//Get sector count
 				uint32_t sectors;
 				dbprintf("SECTORS=%lu", c->get_sectors_count() );
-				dbprintf("ERASESIZ=%li %lu", c->get_erase_size(sectors), sectors );
-				dbprintf( "Read ret=%i", c->read( buf, 7777, 1 ) );
+				dbprintf("ERASESIZ=%li %lu", (ret=c->get_erase_size(sectors)), sectors );
+				if( ret ) break;
+				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
+				if( ret ) break;
 				dbprintf("GOT SSTR %s", buf );
 			}
 			else
