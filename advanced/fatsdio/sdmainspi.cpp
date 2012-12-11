@@ -16,7 +16,7 @@
 #include <mmc/mmc_slot.hpp>
 #include <mmc/mmc_card.hpp>
 #include <stm32gpio.h>
-#include <stm32_spi_master.hpp>
+#include <stm32_spi_master_dma.hpp>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -283,7 +283,7 @@ protected:
 private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
-		stm32::drv::spi_master m_spi;
+		stm32::drv::spi_master_dma m_spi;
 		drv::mmc::mmc_host_spi m_mmc_host;
 		stm32_gpio m_pin;
 		drv::mmc::mmc_slot m_slot;
