@@ -237,7 +237,7 @@ private:
 				}
 			}
 			isix::tick_t time = isix::isix_get_jiffies() - begin;
-			dbprintf("Time spent %u kb/s", (1000*(N_sects/2)) / time);
+			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
 		}
 	}
 protected:
