@@ -216,7 +216,7 @@ class mmc_host_tester : public isix::task_base
 public:
 	mmc_host_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
-		  m_mmc_host( m_spi,12000 ), m_slot( m_mmc_host, m_pin )
+		  m_mmc_host( m_spi,6000 ), m_slot( m_mmc_host, m_pin )
 	{}
 private:
 	void transfer_read_test( drv::mmc::mmc_card *card, char *buf, size_t size )
@@ -282,7 +282,7 @@ protected:
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
-		static const unsigned TASK_PRIO = 3;
+		static const unsigned TASK_PRIO = 1;
 		stm32::drv::spi_master_dma m_spi;
 		drv::mmc::mmc_host_spi m_mmc_host;
 		stm32_gpio m_pin;
