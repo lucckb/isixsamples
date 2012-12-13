@@ -216,6 +216,7 @@ class mmc_host_tester : public isix::task_base
 public:
 	mmc_host_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
+		  m_spi(SPI1,CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ),
 		  m_mmc_host( m_spi,11000 ), m_slot( m_mmc_host, m_pin )
 	{}
 private:

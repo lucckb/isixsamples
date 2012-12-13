@@ -32,10 +32,8 @@
 #define  CONFIG_PCLK2_HZ (CONFIG_HCLK_HZ/2)
 #endif
 
-//Define PCLK HZ for SPI in single dev mode compiled
-#define CONFIG_ISIX_DRV_SPI_DEV_PCLK_HZ CONFIG_PCLK2_HZ
 //Enable DMA mode
 //#define CONFIG_ISIX_DRV_SPI_ENABLE_DMAIRQ_MASK ISIX_DRV_SPI_DMAIRQ_SPI1_ENABLE
-#define CONFIG_ISIX_DRV_SPI_ENABLE_DMAIRQ_MASK 0
+#define CONFIG_ISIX_DRV_SPI_ENABLE_DMAIRQ_MASK 1
 /* ------------------------------------------------------------------ */
 #endif /* CONFIG_HPP_ */
