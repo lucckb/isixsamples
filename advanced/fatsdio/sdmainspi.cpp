@@ -242,6 +242,27 @@ private:
 			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
 		}
 	}
+	void transfer_write_test( drv::mmc::mmc_card *card, char *buf, size_t size )
+	{
+		const size_t N_sects = 1000;
+		int ret;
+		for(size_t bs=512; bs<=size; bs+=512 )
+		{
+			dbprintf("Write test block size %u", bs );
+			isix::tick_t begin = isix::isix_get_jiffies();
+			for(size_t c=0; c<N_sects; c+=(bs/512) )
+			{
+				ret = card->write( buf, c, bs/512 );
+				if( ret )
+				{
+					dbprintf("Write error with code %i", ret);
+					return;
+				}
+			}
+			isix::tick_t time = isix::isix_get_jiffies() - begin;
+			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
+		}
+	}
 protected:
 	virtual void main()
 	{
@@ -275,6 +296,8 @@ protected:
 				dbprintf("GOT SSTR %s", buf );
 				//Check read speed
 				transfer_read_test(c,buf,sizeof(buf));
+				//Write test
+				transfer_write_test(c, buf, sizeof(buf));
 			}
 			else
 			{
