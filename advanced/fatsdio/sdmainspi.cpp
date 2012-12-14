@@ -7,7 +7,6 @@
 #include <stm32rcc.h>
 #include <stm32gpio.h>
 #include <fs/fat.h>
-#include <spi_sdcard_driver.h>
 #include <cctype>
 #include <cstring>
 #include <stm32spi.h>
@@ -126,6 +125,7 @@ protected:
 	//Main function
 	virtual void main()
 	{
+#if 0
 		isix::isix_wait_ms( 1000 );
 		bool p_card_state = false;
 		static char buf[513];
@@ -189,6 +189,7 @@ protected:
 			p_card_state = card_state;
 			isix::isix_wait_ms( 100 );
 		}
+#endif
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
