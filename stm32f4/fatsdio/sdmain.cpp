@@ -13,9 +13,13 @@
 #include <fs/fat.h>
 #include <stm32sdio.h>
 #include <stm32spi.h>
-#include "sdio_sdcard_driver.h"
 #include <cctype>
 #include <cstring>
+#include <stm32_sdio_mmc_host.hpp>
+#include <mmc/mmc_host_spi.hpp>
+#include <mmc/immc_det_pin.hpp>
+#include <mmc/mmc_slot.hpp>
+#include <mmc/mmc_card.hpp>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -112,12 +116,12 @@ private:
 	static const unsigned BLINK_TIME = 500;
 };
 /* ------------------------------------------------------------------ */
-
-class ledkey: public isix::task_base
+#if 0
+class fat_test: public isix::task_base
 {
 public:
 	//Constructor
-	ledkey()
+	fat_test()
 		: task_base(STACK_SIZE,TASK_PRIO)
 	{
 	}
@@ -192,6 +196,126 @@ private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
 };
+#endif
+
+/* ------------------------------------------------------------------ */
+class stm32_gpio : public drv::mmc::immc_det_pin
+{
+public:
+	stm32_gpio()
+	{
+		using namespace stm32;
+		gpio_clock_enable( GPIOC, true );
+		gpio_abstract_config( GPIOC, 13, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
+	}
+	virtual bool get() const
+	{
+		return !stm32::gpio_get( GPIOC, 13 );
+	}
+};
+
+
+class mmc_host_tester : public isix::task_base
+{
+public:
+	mmc_host_tester()
+		: task_base(STACK_SIZE,TASK_PRIO),
+		  m_mmc_host(config::PCLK2_HZ, 1000), m_slot( m_mmc_host, m_pin )
+	{}
+private:
+	void transfer_read_test( drv::mmc::mmc_card *card, char *buf, size_t size )
+	{
+		const size_t N_sects = 1000;
+		int ret;
+		for(size_t bs=512; bs<=size; bs+=512 )
+		{
+			dbprintf("Read test block size %u", bs );
+			isix::tick_t begin = isix::isix_get_jiffies();
+			for(size_t c=0; c<N_sects; c+=(bs/512) )
+			{
+				ret = card->read( buf, c, bs/512 );
+				if( ret )
+				{
+					dbprintf("Read error with code %i", ret);
+					return;
+				}
+			}
+			isix::tick_t time = isix::isix_get_jiffies() - begin;
+			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
+		}
+	}
+	void transfer_write_test( drv::mmc::mmc_card *card, char *buf, size_t size )
+	{
+		const size_t N_sects = 1000;
+		int ret;
+		for(size_t bs=512; bs<=size; bs+=512 )
+		{
+			dbprintf("Write test block size %u", bs );
+			isix::tick_t begin = isix::isix_get_jiffies();
+			for(size_t c=0; c<N_sects; c+=(bs/512) )
+			{
+				ret = card->write( buf, c, bs/512 );
+				if( ret )
+				{
+					dbprintf("Write error with code %i", ret);
+					return;
+				}
+			}
+			isix::tick_t time = isix::isix_get_jiffies() - begin;
+			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
+		}
+	}
+protected:
+	virtual void main()
+	{
+		for(;;)
+		{
+			const int cstat = m_slot.check();
+			if(  cstat == drv::mmc::mmc_slot::card_inserted )
+			{
+				static char buf[4096] = { '\0' };
+				drv::mmc::mmc_card *c;
+				int ret;
+				static drv::mmc::cid cid;
+				dbprintf("Open %i %p", (ret=m_slot.get_card(c)), (void*)c);
+				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
+				if( ret ) break;
+				if( ret ) break;
+				dbprintf("Write ret=%i",(ret=c->write("ZUPA", 7777, 3 )));
+				if( ret ) break;
+				//isix::isix_wait_ms(100);
+				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
+				if( ret ) break;
+				dbprintf("GOT SSTR %s", buf );
+				dbprintf( "CIDST=%i",(ret=c->get_cid( cid )));
+				if( ret ) break;
+				dbprintf("CIDS M=%s Y=%hi M=%hi" , cid.prod_name, cid.year, cid.month );
+				//Get sector count
+				uint32_t sectors;
+				dbprintf("SECTORS=%lu", c->get_sectors_count() );
+				dbprintf("ERASESIZ=%li %lu", (ret=c->get_erase_size(sectors)), sectors );
+				if( ret ) break;
+				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
+				if( ret ) break;
+				dbprintf("GOT SSTR %s", buf );
+				//Check read speed
+				transfer_read_test(c,buf,sizeof(buf));
+				//Write test
+				transfer_write_test(c, buf, sizeof(buf));
+			}
+			else
+			{
+				dbprintf("CSTAT=%i",cstat);
+			}
+		}
+	}
+private:
+		static const unsigned STACK_SIZE = 2048;
+		static const unsigned TASK_PRIO = 1;
+		stm32::drv::mmc_host_sdio m_mmc_host;
+		stm32_gpio m_pin;
+		drv::mmc::mmc_slot m_slot;
+};
 
 /* ------------------------------------------------------------------ */
 
@@ -202,11 +326,12 @@ int main()
 {
 	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
 	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
-	 dbprintf(" Exception presentation app using ISIXRTOS ");
+	 dbprintf(" SDIO test ");
 	//The blinker class
 	static app::ledblink led_blinker;
+	static app::mmc_host_tester mmc_tester;
 	//The ledkey class
-	static app::ledkey led_key;
+	//static app::fat_test led_key;
 	isix::isix_wait_ms(1000);
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
