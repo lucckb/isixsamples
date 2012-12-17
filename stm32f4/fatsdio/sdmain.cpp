@@ -220,7 +220,7 @@ class mmc_host_tester : public isix::task_base
 public:
 	mmc_host_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
-		  m_mmc_host(config::PCLK2_HZ, 8000), m_slot( m_mmc_host, m_pin )
+		  m_mmc_host(config::PCLK2_HZ, 6000), m_slot( m_mmc_host, m_pin )
 	{}
 private:
 	void transfer_read_test( drv::mmc::mmc_card *card, char *buf, size_t size )
@@ -273,16 +273,14 @@ protected:
 			const int cstat = m_slot.check();
 			if(  cstat == drv::mmc::mmc_slot::card_inserted )
 			{
-				static char buf[4096] = { '\0' };
+				static char buf[4096] = "Mam sraczke";
 				drv::mmc::mmc_card *c;
 				int ret;
 				static drv::mmc::cid cid;
 				dbprintf("Open %i %p", (ret=m_slot.get_card(c)), (void*)c);
 				if( ret ) break;
-				isix::isix_wait_ms(100);
-				dbprintf("Write ret=%i",(ret=c->write("DUPA CYCKI", 7777, 3 )));
+				dbprintf("Write ret=%i",(ret=c->write(buf, 7777, 3 )));
 				if( ret ) break;
-				//isix::isix_wait_ms(100);
 				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
 				if( ret ) break;
 				dbprintf("GOT SSTR %s", buf );
@@ -297,7 +295,6 @@ protected:
 				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
 				if( ret ) break;
 				dbprintf("GOT SSTR %s", buf );
-				break;
 				//Check read speed
 				transfer_read_test(c,buf,sizeof(buf));
 				//Write test
