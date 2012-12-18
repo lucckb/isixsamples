@@ -279,7 +279,7 @@ protected:
 				static drv::mmc::cid cid;
 				dbprintf("Open %i %p", (ret=m_slot.get_card(c)), (void*)c);
 				if( ret ) break;
-				dbprintf("Write ret=%i",(ret=c->write(buf, 7777, 3 )));
+				dbprintf("Write ret=%i",(ret=c->write("TAKI MALY TEST", 7777, 3 )));
 				if( ret ) break;
 				dbprintf( "Read ret=%i", (ret=c->read( buf, 7777, 1 )) );
 				if( ret ) break;
