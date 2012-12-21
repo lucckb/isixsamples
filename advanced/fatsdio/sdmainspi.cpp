@@ -113,43 +113,52 @@ private:
 };
 /* ------------------------------------------------------------------ */
 
-class ledkey: public isix::task_base
+class stm32_gpio : public drv::mmc::immc_det_pin
+{
+public:
+	stm32_gpio()
+	{
+		using namespace stm32;
+		gpio_clock_enable( GPIOD, true );
+		gpio_abstract_config( GPIOD, 0, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
+	}
+	virtual bool get() const
+	{
+		return !stm32::gpio_get( GPIOD, 0 );
+	}
+};
+
+/* ------------------------------------------------------------------ */
+
+class fat_tester: public isix::task_base
 {
 public:
 	//Constructor
-	ledkey()
-		: task_base(STACK_SIZE,TASK_PRIO)
+	fat_tester()
+		: task_base(STACK_SIZE,TASK_PRIO),
+		  m_spi(SPI1,CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ),
+		  m_mmc_host( m_spi,11000 ), m_slot( m_mmc_host, m_pin )
 	{
 	}
 protected:
 	//Main function
 	virtual void main()
 	{
-#if 0
-		isix::isix_wait_ms( 1000 );
-		bool p_card_state = false;
+		isix::isix_wait_ms( 100 );
 		static char buf[513];
 		FATFS fs;
 		int err;
 		FIL f;
 		UINT ccnt;
+		disk_add( 0, &m_slot );
 		for(;;)
 		{
-			//dbprintf("INITCODE=%i",stm32::drv::isix_spisd_card_driver_init());
-			bool card_state = stm32::drv::isix_spisd_card_driver_is_card_in_slot();
-			if (  card_state && !p_card_state )
+			const int cstat = m_slot.check();
+			if( cstat == drv::mmc::mmc_slot::card_inserted )
 			{
 				std::memset(buf, 0, sizeof(buf) );
 				err = f_mount(0, &fs);
 				dbprintf("Fat disk mount status %i", err );
-				//Print card info
-				{
-					stm32::drv::isix_spisd_card_driver_init();
-					stm32::drv::sdcard_info info;
-					int err = stm32::drv::isix_spisd_card_driver_get_info(&info, stm32::drv::sdcard_info_f_info );
-					dbprintf("Status = %i Card info blocksize: %u capacity %u type: %i", err,
-							info.CardBlockSize, (unsigned)info.CardCapacity/1024/1024, info.CardType );
-				}
 				if( !err )
 				{
 					int err = f_open(&f, "toread.txt", FA_READ );
@@ -186,31 +195,19 @@ protected:
 					}
 				}
 			}
-			p_card_state = card_state;
 			isix::isix_wait_ms( 100 );
 		}
-#endif
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
+		stm32::drv::spi_master_dma m_spi;
+		drv::mmc::mmc_host_spi m_mmc_host;
+		stm32_gpio m_pin;
+		drv::mmc::mmc_slot m_slot;
 };
 
 /* ------------------------------------------------------------------ */
-class stm32_gpio : public drv::mmc::immc_det_pin
-{
-public:
-	stm32_gpio()
-	{
-		using namespace stm32;
-		gpio_clock_enable( GPIOD, true );
-		gpio_abstract_config( GPIOD, 0, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
-	}
-	virtual bool get() const
-	{
-		return !stm32::gpio_get( GPIOD, 0 );
-	}
-};
 
 class mmc_host_tester : public isix::task_base
 {
@@ -327,8 +324,8 @@ int main()
 	//The blinker class
 	static app::ledblink led_blinker;
 	//The ledkey class
-	//static app::ledkey led_key;
-	static app::mmc_host_tester ht;
+	static app::fat_tester ft;
+	//static app::mmc_host_tester ht;
 	isix::isix_wait_ms(1000);
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
