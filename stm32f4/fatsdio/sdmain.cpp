@@ -115,14 +115,31 @@ private:
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
+
 /* ------------------------------------------------------------------ */
-#if 0
+class stm32_gpio : public drv::mmc::immc_det_pin
+{
+public:
+	stm32_gpio()
+	{
+		using namespace stm32;
+		gpio_clock_enable( GPIOC, true );
+		gpio_abstract_config( GPIOC, 13, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
+	}
+	virtual bool get() const
+	{
+		return !stm32::gpio_get( GPIOC, 13 );
+	}
+};
+
+/* ------------------------------------------------------------------ */
 class fat_test: public isix::task_base
 {
 public:
 	//Constructor
 	fat_test()
-		: task_base(STACK_SIZE,TASK_PRIO)
+		: task_base(STACK_SIZE,TASK_PRIO),
+		  m_mmc_host(config::PCLK2_HZ, 6000), m_slot( m_mmc_host, m_pin )
 	{
 	}
 protected:
@@ -130,27 +147,27 @@ protected:
 	virtual void main()
 	{
 		isix::isix_wait_ms( 1000 );
-		bool p_card_state = false;
 		static char buf[513];
 		FATFS fs;
 		int err;
 		FIL f;
 		UINT ccnt;
+		disk_add( 0, &m_slot );
 		for(;;)
 		{
-			bool card_state = stm32::drv::isix_sdio_card_driver_is_card_in_slot();
-			if (  card_state && !p_card_state )
+			const int cstat = m_slot.check();
+			if(  cstat == drv::mmc::mmc_slot::card_inserted )
 			{
 				std::memset(buf, 0, sizeof(buf) );
 				err = f_mount(0, &fs);
 				dbprintf("Fat disk mount status %i", err );
 				//Print card info
 				{
-					stm32::drv::isix_sdio_card_driver_init();
-					stm32::drv::sdcard_info info;
-					int err = stm32::drv::isix_sdio_card_driver_get_info(&info, stm32::drv::sdcard_info_f_info );
-					dbprintf("Status = %i Card info blocksize: %lu capacity %u type: %i", err,
-							info.CardBlockSize, (unsigned)info.CardCapacity/1024/1024, info.CardType );
+					//stm32::drv::isix_sdio_card_driver_init();
+					//stm32::drv::sdcard_info info;
+					//int err = stm32::drv::isix_sdio_card_driver_get_info(&info, stm32::drv::sdcard_info_f_info );
+					//dbprintf("Status = %i Card info blocksize: %lu capacity %u type: %i", err,
+					//		info.CardBlockSize, (unsigned)info.CardCapacity/1024/1024, info.CardType );
 				}
 				if( !err )
 				{
@@ -188,32 +205,17 @@ protected:
 					}
 				}
 			}
-			p_card_state = card_state;
-			isix::isix_wait_ms( 100 );
 		}
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
+		stm32::drv::mmc_host_sdio m_mmc_host;
+		stm32_gpio m_pin;
+		drv::mmc::mmc_slot m_slot;
 };
-#endif
 
 /* ------------------------------------------------------------------ */
-class stm32_gpio : public drv::mmc::immc_det_pin
-{
-public:
-	stm32_gpio()
-	{
-		using namespace stm32;
-		gpio_clock_enable( GPIOC, true );
-		gpio_abstract_config( GPIOC, 13, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
-	}
-	virtual bool get() const
-	{
-		return !stm32::gpio_get( GPIOC, 13 );
-	}
-};
-
 
 class mmc_host_tester : public isix::task_base
 {
@@ -308,7 +310,7 @@ protected:
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
-		static const unsigned TASK_PRIO = 1;
+		static const unsigned TASK_PRIO = 2;
 		stm32::drv::mmc_host_sdio m_mmc_host;
 		stm32_gpio m_pin;
 		drv::mmc::mmc_slot m_slot;
@@ -326,9 +328,9 @@ int main()
 	 dbprintf(" SDIO test ");
 	//The blinker class
 	static app::ledblink led_blinker;
-	static app::mmc_host_tester mmc_tester;
+	//static app::mmc_host_tester mmc_tester;
 	//The ledkey class
-	//static app::fat_test led_key;
+	static app::fat_test fat_tester;
 	isix::isix_wait_ms(1000);
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
