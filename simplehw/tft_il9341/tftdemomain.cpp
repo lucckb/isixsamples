@@ -9,6 +9,7 @@
 #include <cctype>
 #include <cstring>
 #include <stm32gpio.h>
+#include <stm32tim.h>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -114,19 +115,29 @@ public:
 	tft_tester()
 		: task_base(STACK_SIZE,TASK_PRIO)
 	{
+		//Configure and init TFT backlight
+		stm32::gpio_clock_enable( GPIOC, true );
+		stm32::rcc_apb2_periph_clock_cmd(RCC_APB2Periph_AFIO, true );
+		stm32::rcc_apb1_periph_clock_cmd( RCC_APB1Periph_TIM3 , true );
+		stm32::gpio_abstract_config( GPIOC, 6,  stm32::AGPIO_MODE_ALTERNATE_PP, stm32::AGPIO_SPEED_HALF );
+		AFIO->MAPR |= AFIO_MAPR_TIM3_REMAP_FULLREMAP;
+		stm32::tim_timebase_init( TIM3, 1, TIM_CounterMode_Up, 256, 0, 0 );
+		stm32::tim_oc_init( TIM3, stm32::tim_cc_chn1, TIM_OCMode_PWM1, 50,
+				TIM_OutputState_Enable, 0, TIM_OCPolarity_High, TIM_OCPolarity_High, 0, 0);
+		stm32::tim_arrp_reload_config(TIM3, true);
+		stm32::tim_cmd(TIM3, true );
 	}
 protected:
 	//Main function
 	virtual void main()
 	{
 
-			isix::isix_wait_ms( 1000 );
+		isix::isix_wait_ms( 1000 );
 	}
 private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
 };
-
 
 
 /* ------------------------------------------------------------------ */
