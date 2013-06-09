@@ -31,7 +31,7 @@ CFLAGS += $(COMMON_FLAGS)
 CFLAGS += -std=gnu99 
 
 #C++ compiler options 
-CXXFLAGS += $(COMMON_FLAGS)
+CXXFLAGS += $(COMMON_FLAGS) --std=c++11
 
 
 #Per file listing
