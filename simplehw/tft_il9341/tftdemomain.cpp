@@ -10,7 +10,7 @@
 #include <cstring>
 #include <stm32gpio.h>
 #include <stm32tim.h>
-
+#include <gfx/drivers/disp/ili9341.hpp>
 
 /* ------------------------------------------------------------------ */
 #define 	ILI9341_CMD_BACKLIGHT_CONTROL_1   0xB8
@@ -297,14 +297,110 @@ private:
 	bool m_wr_dir { false };
 };
 
+/* ------------------------------------------------------------------ */
+class ili_gpio_bus : public gfx::drv::disp_bus
+{
+	static constexpr auto CSL_BIT_CMD = 0;
+	static constexpr auto RS_BIT_CMD = 1;
+	static constexpr auto RST_BIT_CMD = 2;
+private:
+	static constexpr auto DATA_PORT = GPIOE;
+	static constexpr auto DATA_MASK = 0xff;
+	static constexpr auto CTL_PORT = GPIOC;
+	static constexpr auto CS_PIN =  4;
+	static constexpr auto RS_PIN =  5;
+	static constexpr auto WR_PIN =  7;
+	static constexpr auto RD_PIN =  8;
+	static constexpr auto RST_PIN = 9;
+	static constexpr unsigned bv( unsigned pin )
+	{
+		return 1<<pin;
+	}
+	enum class dir_t : bool
+	{
+		in,
+		out
+	};
 
+	void bus_dir( dir_t dir )
+	{
+		using namespace stm32;
+		if( dir==dir_t::out && m_dir==dir_t::in )
+			gpio_abstract_config_ext( DATA_PORT, DATA_MASK, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_FULL );
+		else if( dir==dir_t::in && m_dir==dir_t::out  )
+			gpio_abstract_config_ext( DATA_PORT, DATA_MASK, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_FULL );
+		m_dir = dir;
+	}
+public:
+	ili_gpio_bus()
+	{
+		using namespace stm32;
+		gpio_clock_enable( DATA_PORT, true );
+		gpio_clock_enable( CTL_PORT, true );
+		gpio_abstract_config_ext( DATA_PORT, DATA_MASK, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_FULL );
+		gpio_abstract_config_ext( CTL_PORT,
+			bv(CS_PIN)|bv(RS_PIN)|bv(WR_PIN)|bv(RD_PIN)|bv(RST_PIN), AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_FULL);
+		gpio_set_mask( CTL_PORT, bv(CS_PIN)|bv(WR_PIN)|bv(RD_PIN)|bv(RST_PIN) );
+	}
+	virtual ~ili_gpio_bus() {}
+	// Lock bus and set addres
+	virtual void set_ctlbits( int bit, bool val )
+	{
+		using namespace stm32;
+		const auto io_fn = val?(&gpio_set):(&gpio_clr);
+		if( val )
+		{
+			switch( bit )
+			{
+			case CSL_BIT_CMD: io_fn( CTL_PORT, CS_PIN ); break;
+			case RS_BIT_CMD:  io_fn( CTL_PORT, RS_PIN ); break;
+			case RST_BIT_CMD: io_fn( CTL_PORT, RST_PIN ); break;
+			}
+		}
+	}
+	/* Read transfer */
+	virtual void read( void *buf, std::size_t len )
+	{
+		using namespace stm32;
+		bus_dir( dir_t::in );
+		for( size_t l=0; l<len; ++l )
+		{
+			gpio_clr( CTL_PORT, RD_PIN );
+			nop();
+			*(reinterpret_cast<uint8_t*>(buf)+l) = gpio_get_mask( DATA_PORT, DATA_MASK );
+			gpio_set( CTL_PORT, RD_PIN );
+		}
+	}
+	/* Write transfer */
+	virtual void write( const void *buf, size_t len )
+	{
+		using namespace stm32;
+		bus_dir( dir_t::out );
+		for( size_t l=0; l<len; ++l )
+		{
+			//One write
+			gpio_set_clr_mask( DATA_PORT ,*(reinterpret_cast<const uint8_t*>(buf)+l), DATA_MASK );
+			gpio_clr( CTL_PORT, WR_PIN );	//WR down
+			gpio_set( CTL_PORT, WR_PIN );	//WR up
+		}
+	}
+	/* Wait ms long delay */
+	virtual void wait_ms( unsigned timeout )
+	{
+		isix::isix_wait_ms( timeout );
+	}
+private:
+	dir_t m_dir { dir_t::in };
+};
+/* ------------------------------------------------------------------ */
 
 class tft_tester: public isix::task_base
 {
 public:
 	//Constructor
 	tft_tester()
-		: task_base(STACK_SIZE,TASK_PRIO)
+		: task_base(STACK_SIZE,TASK_PRIO),
+		  gdisp( gbus )
 	{
 		//Configure and init TFT backlight
 		stm32::gpio_clock_enable( GPIOC, true );
@@ -602,7 +698,7 @@ protected:
 		{
 			isix::tick_t tbeg = isix::isix_get_jiffies();
 			ibus.command( ILI9341_CMD_MEMORY_WRITE );
-			uint16_t color = xcolor( 0xff, 0xff , 0 );
+			uint16_t color = xcolor( 0x32, 0x32 , 0x00 );
 			for(auto i=0;i<320*240;i++ )
 			{
 				ibus.write( color >> 8 );
@@ -637,6 +733,8 @@ private:
 	static const unsigned STACK_SIZE = 2048;
 	static const unsigned TASK_PRIO = 3;
 	ili_bus ibus;
+	ili_gpio_bus gbus;
+	gfx::drv::ili9341 gdisp;
 };
 
 
