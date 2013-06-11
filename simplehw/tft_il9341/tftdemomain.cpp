@@ -198,15 +198,20 @@ public:
 			gpio_set( CTL_PORT, WR_PIN );	//WR up
 		}
 	}
-	virtual void write(uint16_t v)
+	virtual void fill( unsigned value, size_t nelms )
 	{
 		using namespace stm32;
-		gpio_set_clr_mask( DATA_PORT ,v>>8, DATA_MASK );
-		gpio_clr( CTL_PORT, WR_PIN );	//WR down
-		gpio_set( CTL_PORT, WR_PIN );	//WR up
-		gpio_set_clr_mask( DATA_PORT ,v, DATA_MASK );
-		gpio_clr( CTL_PORT, WR_PIN );	//WR down
-		gpio_set( CTL_PORT, WR_PIN );	//WR up
+		bus_dir( dir_t::out );
+		for( size_t l=0; l<nelms; ++l )
+		{
+			//One write
+			gpio_set_clr_mask( DATA_PORT ,value>>8, DATA_MASK );
+			gpio_clr( CTL_PORT, WR_PIN );	//WR down
+			gpio_set( CTL_PORT, WR_PIN );	//WR up
+			gpio_set_clr_mask( DATA_PORT ,value, DATA_MASK );
+			gpio_clr( CTL_PORT, WR_PIN );	//WR down
+			gpio_set( CTL_PORT, WR_PIN );	//WR up
+		}
 	}
 	/* Wait ms long delay */
 	virtual void reset( )
