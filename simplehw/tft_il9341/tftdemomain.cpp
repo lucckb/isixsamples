@@ -11,7 +11,7 @@
 #include <stm32gpio.h>
 #include <stm32tim.h>
 #include <gfx/drivers/disp/ili9341.hpp>
-
+#include "photo1.h"
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -162,7 +162,6 @@ public:
 	// Lock bus and set address
 	virtual void set_ctlbits( int bit, bool val )
 	{
-		//dbprintf("ctl(bit=%i val=%i)", bit, val );
 		using namespace stm32;
 		const auto io_fn = val?(&gpio_set):(&gpio_clr);
 		switch( bit )
@@ -180,7 +179,7 @@ public:
 		for( size_t l=0; l<len; ++l )
 		{
 			gpio_clr( CTL_PORT, RD_PIN );
-			nop();
+			nop(); nop();
 			*(reinterpret_cast<uint8_t*>(buf)+l) = gpio_get_mask( DATA_PORT, DATA_MASK );
 			gpio_set( CTL_PORT, RD_PIN );
 		}
@@ -205,10 +204,10 @@ public:
 		for( size_t l=0; l<nelms; ++l )
 		{
 			//One write
-			gpio_set_clr_mask( DATA_PORT ,value>>8, DATA_MASK );
+			gpio_set_clr_mask( DATA_PORT ,value, DATA_MASK );
 			gpio_clr( CTL_PORT, WR_PIN );	//WR down
 			gpio_set( CTL_PORT, WR_PIN );	//WR up
-			gpio_set_clr_mask( DATA_PORT ,value, DATA_MASK );
+			gpio_set_clr_mask( DATA_PORT ,value>>8, DATA_MASK );
 			gpio_clr( CTL_PORT, WR_PIN );	//WR down
 			gpio_set( CTL_PORT, WR_PIN );	//WR up
 		}
@@ -251,10 +250,28 @@ public:
 protected:
 	virtual void main()
 	{
+		static uint16_t img[16*16];
+		for( int x=0;x<16;x++ )
+		for( int y=0;y<16;y++ )
+		{
+			if( y == 8 || y==0 || x==0 ||y==15||x==15)
+				img[x + 16*y ] = xcolor( 255 ,0, 255 );
+			else
+				img[x + 16*y ] = xcolor( 64,64,0 );
+		}
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
 		isix::tick_t tbeg = isix::isix_get_jiffies();
-		gdisp.clear( xcolor(255,0,0 ) );
+		gdisp.clear( 0 );
 		dbprintf("TIME=%u", isix::isix_get_jiffies() - tbeg );
+		for(int i=0;i<50;i++)
+			gdisp.set_pixel( i, 1, 0x1f );
+		gdisp.fill(50,50,30,30, xcolor(127,0,255));
+		//gdisp.blit( 10, 10, 16, 16, 0, 0, 16, img );
+		tbeg = isix::isix_get_jiffies();
+		gdisp.blit( 5, 10, gimp_image.width, gimp_image.height, 0, 0, gimp_image.width, (uint16_t*)gimp_image.pixel_data);
+		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
+		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) , xcolor(0,255,0)  );
+		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), xcolor(255,0,0) );
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
