@@ -214,14 +214,9 @@ public:
 		}
 	}
 	/* Wait ms long delay */
-	virtual void reset( )
+	virtual void delay( unsigned tout )
 	{
-		stm32::gpio_set( CTL_PORT, RST_PIN );
-		isix::isix_wait_ms( 10 );
-		stm32::gpio_clr( CTL_PORT, RST_PIN );
-		isix::isix_wait_ms( 10 );
-		stm32::gpio_set( CTL_PORT, RST_PIN );
-		isix::isix_wait_ms( 150 );
+		isix::isix_wait_ms( tout );
 	}
 private:
 	dir_t m_dir { dir_t::in };
