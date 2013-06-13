@@ -257,7 +257,7 @@ protected:
 			if( y == 8 || y==0 || x==0 ||y==15||x==15)
 				img[x + 16*y ] = xcolor( 255 ,0, 255 );
 			else
-				img[x + 16*y ] = xcolor( 64,64,0 );
+				img[x + 16*y ] = xcolor( 255,255,0 );
 		}
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
 		isix::tick_t tbeg = isix::isix_get_jiffies();
@@ -266,12 +266,13 @@ protected:
 		for(int i=0;i<50;i++)
 			gdisp.set_pixel( i, 1, 0x1f );
 		gdisp.fill(50,50,30,30, xcolor(127,0,255));
-		//gdisp.blit( 10, 10, 16, 16, 0, 0, 16, img );
+		gdisp.blit( 10, 10, 16, 16, 0, img );
 		tbeg = isix::isix_get_jiffies();
-		gdisp.blit( 5, 10, gimp_image.width, gimp_image.height, 0, 0, gimp_image.width, (uint16_t*)gimp_image.pixel_data);
+		//gdisp.blit( 5, 10, gimp_image.width, gimp_image.height, 0, (uint16_t*)gimp_image.pixel_data);
 		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
 		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) , xcolor(0,255,0)  );
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), xcolor(255,0,0) );
+		gdisp.vert_scroll(0,0,0,0,0,0);
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
