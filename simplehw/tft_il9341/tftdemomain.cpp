@@ -243,11 +243,6 @@ public:
 		stm32::tim_arrp_reload_config(TIM3, true);
 		stm32::tim_cmd(TIM3, true );
 	}
-
-	static constexpr uint16_t xcolor( uint8_t r, uint8_t g, uint8_t b )
-	{
-		return ((b>>3)<<(16-5)) | ((g>>2)<<(16-5-6) | (r>>3) );
-	}
 protected:
 	virtual void main()
 	{
@@ -256,9 +251,9 @@ protected:
 		for( int y=0;y<16;y++ )
 		{
 			if( y == 8 || y==0 || x==0 ||y==15||x==15)
-				img[x + 16*y ] = xcolor( 255 ,0, 255 );
+				img[x + 16*y ] = gfx::rgb( 255 ,0, 255 );
 			else
-				img[x + 16*y ] = xcolor( 255,255,0 );
+				img[x + 16*y ] = gfx::rgb( 255,255,0 );
 		}
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
 		isix::tick_t tbeg = isix::isix_get_jiffies();
@@ -266,13 +261,13 @@ protected:
 		dbprintf("TIME=%u", isix::isix_get_jiffies() - tbeg );
 		for(int i=0;i<50;i++)
 			gdisp.set_pixel( i, 1, 0x1f );
-		gdisp.fill(50,150,30,30, xcolor(127,0,255));
+		gdisp.fill(50,150,30,30, gfx::rgb(127,0,255));
 		gdisp.blit( 20, 40, 16, 16, 0, img );
 		tbeg = isix::isix_get_jiffies();
 		//gdisp.blit( 5, 10, gimp_image.width, gimp_image.height, 0, (uint16_t*)gimp_image.pixel_data);
 		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
-		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) , xcolor(0,255,0)  );
-		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), xcolor(255,0,0) );
+		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) ,  gfx::rgb(0,255,0)  );
+		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), gfx::rgb(255,0,0) );
 		gdisp.vert_scroll(0,0,0,0,0,0);
 		isix::isix_wait_ms( 2000 );
 		gdisp.power_ctl( gfx::drv::power_ctl_t::sleep );
