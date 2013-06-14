@@ -158,6 +158,20 @@ public:
 		gpio_abstract_config_ext( CTL_PORT,
 			bv(CS_PIN)|bv(RS_PIN)|bv(WR_PIN)|bv(RD_PIN)|bv(RST_PIN), AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_FULL);
 		gpio_set_mask( CTL_PORT, bv(CS_PIN)|bv(WR_PIN)|bv(RD_PIN)|bv(RST_PIN) );
+		/* PWM Configuration
+		 *
+		 */
+		//Configure and init TFT backlight
+		stm32::gpio_clock_enable( GPIOC, true );
+		stm32::rcc_apb2_periph_clock_cmd(RCC_APB2Periph_AFIO, true );
+		stm32::rcc_apb1_periph_clock_cmd( RCC_APB1Periph_TIM3 , true );
+		stm32::gpio_abstract_config( GPIOC, 6,  stm32::AGPIO_MODE_ALTERNATE_PP, stm32::AGPIO_SPEED_HALF );
+		AFIO->MAPR |= AFIO_MAPR_TIM3_REMAP_FULLREMAP;
+		stm32::tim_timebase_init( TIM3, 1, TIM_CounterMode_Up, 256, 0, 0 );
+		stm32::tim_oc_init( TIM3, stm32::tim_cc_chn1, TIM_OCMode_PWM1, 50,
+				TIM_OutputState_Enable, 0, TIM_OCPolarity_High, TIM_OCPolarity_High, 0, 0);
+		stm32::tim_arrp_reload_config(TIM3, true);
+		stm32::tim_cmd(TIM3, true );
 	}
 	virtual ~ili_gpio_bus() {}
 	// Lock bus and set address
@@ -218,6 +232,11 @@ public:
 	{
 		isix::isix_wait_ms( tout );
 	}
+	/* Set PWM  */
+	virtual void set_pwm( int percent )
+	{
+
+	}
 private:
 	dir_t m_dir { dir_t::in };
 };
@@ -231,17 +250,6 @@ public:
 		: task_base(STACK_SIZE,TASK_PRIO),
 		  gdisp( gbus )
 	{
-		//Configure and init TFT backlight
-		stm32::gpio_clock_enable( GPIOC, true );
-		stm32::rcc_apb2_periph_clock_cmd(RCC_APB2Periph_AFIO, true );
-		stm32::rcc_apb1_periph_clock_cmd( RCC_APB1Periph_TIM3 , true );
-		stm32::gpio_abstract_config( GPIOC, 6,  stm32::AGPIO_MODE_ALTERNATE_PP, stm32::AGPIO_SPEED_HALF );
-		AFIO->MAPR |= AFIO_MAPR_TIM3_REMAP_FULLREMAP;
-		stm32::tim_timebase_init( TIM3, 1, TIM_CounterMode_Up, 256, 0, 0 );
-		stm32::tim_oc_init( TIM3, stm32::tim_cc_chn1, TIM_OCMode_PWM1, 50,
-				TIM_OutputState_Enable, 0, TIM_OCPolarity_High, TIM_OCPolarity_High, 0, 0);
-		stm32::tim_arrp_reload_config(TIM3, true);
-		stm32::tim_cmd(TIM3, true );
 	}
 protected:
 	virtual void main()
