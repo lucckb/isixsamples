@@ -11,7 +11,8 @@
 #include <stm32gpio.h>
 #include <stm32tim.h>
 #include <gfx/drivers/disp/ili9341.hpp>
-#include "photo1.h"
+#include <gfx/types.hpp>
+//#include "photo1.h"
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -265,8 +266,8 @@ protected:
 		dbprintf("TIME=%u", isix::isix_get_jiffies() - tbeg );
 		for(int i=0;i<50;i++)
 			gdisp.set_pixel( i, 1, 0x1f );
-		gdisp.fill(50,50,30,30, xcolor(127,0,255));
-		gdisp.blit( 10, 10, 16, 16, 0, img );
+		gdisp.fill(50,150,30,30, xcolor(127,0,255));
+		gdisp.blit( 20, 40, 16, 16, 0, img );
 		tbeg = isix::isix_get_jiffies();
 		//gdisp.blit( 5, 10, gimp_image.width, gimp_image.height, 0, (uint16_t*)gimp_image.pixel_data);
 		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
