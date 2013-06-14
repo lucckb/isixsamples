@@ -276,8 +276,8 @@ protected:
 		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
 		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) ,  gfx::rgb(0,255,0)  );
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), gfx::rgb(255,0,0) );
-		isix::isix_wait_ms( 2000 );
-		gdisp.vert_scroll( 0, 0, 240/4, 320 ,-320/2, gfx::rgb(255,255,255));
+		//isix::isix_wait_ms( 2000 );
+		//gdisp.vert_scroll( 0, 0, 240/4, 320 ,-320/2, gfx::rgb(255,255,255));
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
