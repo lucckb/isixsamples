@@ -180,7 +180,7 @@ public:
 		for( size_t l=0; l<len; ++l )
 		{
 			gpio_clr( CTL_PORT, RD_PIN );
-			nop(); nop();
+			nop(); nop(); nop(); nop();
 			*(reinterpret_cast<uint8_t*>(buf)+l) = gpio_get_mask( DATA_PORT, DATA_MASK );
 			gpio_set( CTL_PORT, RD_PIN );
 		}
@@ -268,11 +268,8 @@ protected:
 		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
 		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) ,  gfx::rgb(0,255,0)  );
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), gfx::rgb(255,0,0) );
-		gdisp.vert_scroll(0,0,0,0,0,0);
 		isix::isix_wait_ms( 2000 );
-		gdisp.power_ctl( gfx::drv::power_ctl_t::sleep );
-		isix::isix_wait_ms( 2000 );
-		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
+		gdisp.vert_scroll( 0,20, 240, 220 , 20, gfx::rgb(255,255,255));
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
