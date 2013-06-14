@@ -274,6 +274,10 @@ protected:
 		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) , xcolor(0,255,0)  );
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), xcolor(255,0,0) );
 		gdisp.vert_scroll(0,0,0,0,0,0);
+		isix::isix_wait_ms( 2000 );
+		gdisp.power_ctl( gfx::drv::power_ctl_t::sleep );
+		isix::isix_wait_ms( 2000 );
+		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
