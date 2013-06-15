@@ -12,6 +12,7 @@
 #include <stm32tim.h>
 #include <gfx/drivers/disp/ili9341.hpp>
 #include <gfx/types.hpp>
+#include <gfx/disp/gdi.hpp>
 //#include "photo1.h"
 /* ------------------------------------------------------------------ */
 namespace {
@@ -278,6 +279,13 @@ protected:
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), gfx::rgb(255,0,0) );
 		//isix::isix_wait_ms( 2000 );
 		//gdisp.vert_scroll( 0, 0, 240/4, 320 ,-320/2, gfx::rgb(255,255,255));
+		gfx::disp::gdi gdi(gdisp);
+
+		constexpr char txt[] = "Ala testuje napis";
+		tbeg = isix::isix_get_jiffies();
+		for(int i=0;i<sizeof txt-1; ++i)
+			gdi.draw_char( i*10+6, 6, txt[i], gfx::disp::fonts::font_default, gfx::rgb(255,255,0), gfx::rgb(127,127,127));
+		dbprintf("string_time=%u", isix::isix_get_jiffies() - tbeg );
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
