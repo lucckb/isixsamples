@@ -281,7 +281,7 @@ protected:
 		//gdisp.vert_scroll( 0, 0, 240/4, 320 ,-320/2, gfx::rgb(255,255,255));
 		gfx::disp::gdi gdi(gdisp);
 		gdi.set_fg_color( gfx::rgb(64,255,45) );
-		constexpr char txt[] = "Ala testuje napis";
+		constexpr char txt[] = "Ala testuje napis a ciekawe co bedzie jak wyjdzie";
 		tbeg = isix::isix_get_jiffies();
 		gdi.draw_text(1,2, txt);
 		dbprintf("string_time=%u", isix::isix_get_jiffies() - tbeg );
