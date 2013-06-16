@@ -286,13 +286,13 @@ protected:
 		tbeg = isix::isix_get_jiffies();
 		gdi.draw_line( 1, 100, 100, 100 );
 		dbprintf("line_time=%u", isix::isix_get_jiffies() - tbeg );
-		//gdi.set_fill_background(false);
 		tbeg = isix::isix_get_jiffies();
 		gdi.draw_circle( 150, 150, 30 );
 		dbprintf("circle_time=%u", isix::isix_get_jiffies() - tbeg );
 		tbeg = isix::isix_get_jiffies();
 		gdi.draw_ellipse( 50, 150, 30, 40 );
 		dbprintf("ellipse_time=%u", isix::isix_get_jiffies() - tbeg );
+		dbprintf("text_width=%u", gdi.get_text_width(txt));
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
