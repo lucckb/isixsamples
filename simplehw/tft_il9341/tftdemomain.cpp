@@ -265,11 +265,10 @@ protected:
 				img[x + 16*y ] = gfx::rgb( 255,255,0 );
 		}
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
+		gfx::disp::gdi gdi(gdisp);
 		isix::tick_t tbeg = isix::isix_get_jiffies();
-		gdisp.clear( 0 );
+		gdi.clear();
 		dbprintf("TIME=%u", isix::isix_get_jiffies() - tbeg );
-		for(int i=0;i<50;i++)
-			gdisp.set_pixel( i, 1, 0x1f );
 		gdisp.fill(50,150,30,30, gfx::rgb(127,0,255));
 		gdisp.blit( 20, 40, 16, 16, 0, img );
 		tbeg = isix::isix_get_jiffies();
@@ -279,12 +278,15 @@ protected:
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), gfx::rgb(255,0,0) );
 		//isix::isix_wait_ms( 2000 );
 		//gdisp.vert_scroll( 0, 0, 240/4, 320 ,-320/2, gfx::rgb(255,255,255));
-		gfx::disp::gdi gdi(gdisp);
 		gdi.set_fg_color( gfx::rgb(64,255,45) );
 		constexpr char txt[] = "Ala testuje napis a ciekawe co bedzie jak wyjdzie";
 		tbeg = isix::isix_get_jiffies();
 		gdi.draw_text(1,2, txt);
 		dbprintf("string_time=%u", isix::isix_get_jiffies() - tbeg );
+		tbeg = isix::isix_get_jiffies();
+		gdi.draw_line( 1, 100, 100, 100 );
+		dbprintf("line_time=%u", isix::isix_get_jiffies() - tbeg );
+
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
