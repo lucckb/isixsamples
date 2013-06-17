@@ -14,6 +14,11 @@
 #include <gfx/types.hpp>
 #include <gfx/disp/gdi.hpp>
 //#include "photo1.h"
+
+namespace testimg {
+
+	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
+}
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -293,6 +298,7 @@ protected:
 		gdi.draw_ellipse( 50, 150, 30, 40 );
 		dbprintf("ellipse_time=%u", isix::isix_get_jiffies() - tbeg );
 		dbprintf("text_width=%u", gdi.get_text_width(txt));
+		gdi.draw_image(0, 0, testimg::isixlogo_png );
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
