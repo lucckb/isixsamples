@@ -13,7 +13,7 @@
 #include <gfx/drivers/disp/ili9341.hpp>
 #include <gfx/types.hpp>
 #include <gfx/disp/gdi.hpp>
-//#include "photo1.h"
+
 
 namespace testimg {
 	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
