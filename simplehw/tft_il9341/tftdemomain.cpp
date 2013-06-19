@@ -16,7 +16,6 @@
 //#include "photo1.h"
 
 namespace testimg {
-
 	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
 }
 /* ------------------------------------------------------------------ */
@@ -302,7 +301,6 @@ protected:
 		gdi.set_fg_color( gfx::rgb(255,0,0) );
 		gdi.set_bg_color( gfx::rgb(0,0,0) );
 		gdi.draw_image(40, 200, testimg::isixlogo_png );
-        //gdi.draw_image(0,9, testimg::ag_jpg );
 		dbprintf("drawimage_time=%u", isix::isix_get_jiffies() - tbeg );
 	}
 private:
