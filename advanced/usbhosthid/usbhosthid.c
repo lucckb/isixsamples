@@ -49,17 +49,6 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 }
 
 /* ------------------------------------------------------------------ */
-static ISIX_TASK_FUNC(cdc_task, entry_param)
-{
-	(void)entry_param;
-	for(;;)
-	{
-		isix_wait_ms(5);
-		stm32_usbhost_process();
-	}
-}
-
-/* ------------------------------------------------------------------ */
 //App main entry point
 int main(void)
 {
@@ -70,9 +59,6 @@ int main(void)
 	isix_task_create( blinking_task, NULL,
 			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
 	);
-	isix_task_create( cdc_task, NULL,
-				1024, BLINKING_TASK_PRIO
-		);
 	dbprintf("Hello from USBHOSTHID example");
 
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOD;
