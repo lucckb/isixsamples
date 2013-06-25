@@ -2,7 +2,7 @@
 /*
  * example1.c
  *
- * Blinking leds and Joystick with Nokia 3310 display
+ * USB HID host sample
  * ISIX RTOS C example 1
  *
  *  Created on: 18-09-2010
@@ -18,7 +18,8 @@
 #include <stm32system.h>
 #include <stm32gpio.h>
 #include <stdbool.h>
-#include <usbhost.h>
+#include <usbhidkbd.hpp>
+
 /* ------------------------------------------------------------------ */
 //Led Port
 #define LED_PORT GPIOE
@@ -46,6 +47,12 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 		//Wait time
 		isix_wait_ms( BLINK_TIME );
 	}
+}
+
+
+int _open( const char *a, int b )
+{
+	return 0;
 }
 
 /* ------------------------------------------------------------------ */
