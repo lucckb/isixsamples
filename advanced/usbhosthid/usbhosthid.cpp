@@ -51,7 +51,6 @@ static void blinking_task( void* entry_param )
 }
 
 
-
 /* ------------------------------------------------------------------ */
 //App main entry point
 int main(void)
@@ -70,8 +69,10 @@ int main(void)
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOD;
 	gpio_config(GPIOD,15,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	gpio_set( GPIOD, 15 );
-
-
+	{
+		const auto r = stm32::dev::usb_bus_initialize();
+		dbprintf("Host initialization result %i", r);
+	}
     //Start the isix scheduler
 	isix_start_scheduler();
 }
