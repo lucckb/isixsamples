@@ -31,8 +31,9 @@
 
 /* ------------------------------------------------------------------ */
 /** Blinking led task function */
-static ISIX_TASK_FUNC(blinking_task, entry_param)
+static void blinking_task( void* entry_param )
 {
+	using namespace stm32;
 	(void)entry_param;
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
@@ -41,24 +42,22 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 		//Enable LED
 		gpio_clr( LED_PORT, LED_PIN );
 		//Wait time
-		isix_wait_ms( BLINK_TIME );
+		isix::isix_wait_ms( BLINK_TIME );
 		//Disable LED
 		gpio_set( LED_PORT, LED_PIN );
 		//Wait time
-		isix_wait_ms( BLINK_TIME );
+		isix::isix_wait_ms( BLINK_TIME );
 	}
 }
 
 
-int _open( const char *a, int b )
-{
-	return 0;
-}
 
 /* ------------------------------------------------------------------ */
 //App main entry point
 int main(void)
 {
+	using namespace stm32;
+	using namespace isix;
 	dblog_init( usartsimple_putc, NULL, usartsimple_init,
 			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
 
@@ -71,8 +70,8 @@ int main(void)
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOD;
 	gpio_config(GPIOD,15,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	gpio_set( GPIOD, 15 );
-	/* Initialize the usb serial */
-	stm32_usbhost_init();
+
+
     //Start the isix scheduler
 	isix_start_scheduler();
 }
@@ -86,6 +85,8 @@ enum crash_mode
 /* ------------------------------------------------------------------ */
 static inline void crash_info(enum crash_mode crash_type, unsigned long * SP)
 {
+	using namespace stm32;
+	using namespace fnd;
 	//Disable interrupt
 	irq_disable();
 	//Initialize usart simple no interrupt
