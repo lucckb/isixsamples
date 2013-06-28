@@ -68,10 +68,12 @@ LIBFOUNDATION_DIR	:=  $(ISIX_PROJECT_DIR)/libfoundation
 LIBSTM32_DIR		:=	$(ISIX_PROJECT_DIR)/libstm32
 LIBTCPIP_DIR		:=	$(ISIX_PROJECT_DIR)/libtcpip
 LIBUSBSTM32_DIR		:=	$(ISIX_PROJECT_DIR)/libusbstm32
+LIBGFX_DIR			:=  $(ISIX_PROJECT_DIR)/libgfx
 
 
-include $(LIBUSBSTM32_DIR)/libusbstm32.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
+include $(LIBUSBSTM32_DIR)/libusbstm32.mk
+include $(LIBGFX_DIR)/libgfx.mk
 include $(ISIX_DIR)/isix.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(LIBSTM32_DIR)/libstm32.mk

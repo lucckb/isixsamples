@@ -19,7 +19,7 @@
 #include <stm32gpio.h>
 #include <stdbool.h>
 #include <usbhidkbd.hpp>
-
+#include <gfx/input/input.hpp>
 /* ------------------------------------------------------------------ */
 //Led Port
 #define LED_PORT GPIOE
@@ -40,13 +40,20 @@ static void blinking_task( void* entry_param )
 	for(;;)
 	{
 		//Enable LED
-		gpio_clr( LED_PORT, LED_PIN );
+		//gpio_clr( LED_PORT, LED_PIN );
 		//Wait time
-		isix::isix_wait_ms( BLINK_TIME );
+		//isix::isix_wait_ms( BLINK_TIME );
 		//Disable LED
-		gpio_set( LED_PORT, LED_PIN );
+		//gpio_set( LED_PORT, LED_PIN );
 		//Wait time
-		isix::isix_wait_ms( BLINK_TIME );
+		//isix::isix_wait_ms( BLINK_TIME );
+		gfx::inp::input::event ev;
+		const int r = gfx::inp::input_class::evt_wait( ev, isix::ISIX_TIME_INFINITE );
+		if( !r )
+		{
+			dbprintf("%02X %02X",ev.key.norm, ev.key.ctrl );
+		}
+
 	}
 }
 
@@ -62,17 +69,16 @@ int main(void)
 
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,
-			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
+			1024, BLINKING_TASK_PRIO
 	);
 	dbprintf("Hello from USBHOSTHID example");
 
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOD;
 	gpio_config(GPIOD,15,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	gpio_set( GPIOD, 15 );
-	{
-		const auto r = stm32::dev::usb_bus_initialize();
-		dbprintf("Host initialization result %i", r);
-	}
+	//Test
+	static isix::dev::usb_host host(0);
+
     //Start the isix scheduler
 	isix_start_scheduler();
 }

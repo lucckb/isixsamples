@@ -8,4 +8,6 @@ clean:
 	#$(MAKE) -C isix_c_examples clean
 	#$(MAKE) -C isix_cpp_examples clean 
 
+program:
+	$(MAKE) -C advanced/usbhosthid program
 
