@@ -47,13 +47,14 @@ static void blinking_task( void* entry_param )
 		//gpio_set( LED_PORT, LED_PIN );
 		//Wait time
 		//isix::isix_wait_ms( BLINK_TIME );
+#if 0
 		gfx::inp::input::event ev;
 		const int r = gfx::inp::input_class::evt_wait( ev, isix::ISIX_TIME_INFINITE );
 		if( !r )
 		{
 			dbprintf("%02X %02X",ev.key.norm, ev.key.ctrl );
 		}
-
+#endif
 	}
 }
 
