@@ -20,41 +20,40 @@
 #include <stdbool.h>
 #include <usbhidkbd.hpp>
 #include <gfx/input/input.hpp>
+#include <usb_device.hpp>
 /* ------------------------------------------------------------------ */
 //Led Port
-#define LED_PORT GPIOE
-#define LED_PIN 14
+static constexpr auto LED_PORT = GPIOE;
+static constexpr auto LED_PIN = 14;
+static constexpr auto BLINK_TIME = 500;
+static constexpr auto BLINKING_TASK_PRIO = 3;
 
-//Blinking time and prio
-#define BLINK_TIME 500
-#define BLINKING_TASK_PRIO 3
+/* ------------------------------------------------------------------ */
+static gfx::inp::input_queue_t queue(64);
+
+/* ------------------------------------------------------------------ */
+void usb_host_callback ( bool conn, std::shared_ptr<isix::dev::usb_device> dev )
+{
+	if( conn )
+		std::static_pointer_cast<usb_input_device>(dev)->set_queue( &queue );
+	dbprintf("Device conn status %i", conn );
+}
 
 /* ------------------------------------------------------------------ */
 /** Blinking led task function */
-static void blinking_task( void* entry_param )
+static void blinking_task( void* )
 {
-	using namespace stm32;
-	(void)entry_param;
-	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
-	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+
+	isix::dev::usb_host *host = new isix::dev::usb_host(0);
+	host->set_device_callback( usb_host_callback );
 	for(;;)
 	{
-		//Enable LED
-		//gpio_clr( LED_PORT, LED_PIN );
-		//Wait time
-		//isix::isix_wait_ms( BLINK_TIME );
-		//Disable LED
-		//gpio_set( LED_PORT, LED_PIN );
-		//Wait time
-		//isix::isix_wait_ms( BLINK_TIME );
-#if 0
 		gfx::inp::input::event ev;
-		const int r = gfx::inp::input_class::evt_wait( ev, isix::ISIX_TIME_INFINITE );
+		const int r = queue.pop( ev, isix::ISIX_TIME_INFINITE );
 		if( !r )
 		{
 			dbprintf("%02X %02X",ev.key.norm, ev.key.ctrl );
 		}
-#endif
 	}
 }
 
@@ -77,8 +76,6 @@ int main(void)
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOD;
 	gpio_config(GPIOD,15,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	gpio_set( GPIOD, 15 );
-	//Test
-	static isix::dev::usb_host host(0);
 
     //Start the isix scheduler
 	isix_start_scheduler();
