@@ -29,7 +29,7 @@ static constexpr auto BLINK_TIME = 500;
 static constexpr auto BLINKING_TASK_PRIO = 3;
 
 /* ------------------------------------------------------------------ */
-static gfx::inp::input_queue_t queue(64);
+static gfx::input::input_queue_t queue(64);
 
 /* ------------------------------------------------------------------ */
 void usb_host_callback ( bool conn, std::shared_ptr<isix::dev::usb_device> dev )
@@ -48,15 +48,14 @@ static void blinking_task( void* )
 	host->set_device_callback( usb_host_callback );
 	for(;;)
 	{
-		gfx::inp::input::event ev;
+		gfx::gui::event_info ev;
 		const int r = queue.pop( ev, isix::ISIX_TIME_INFINITE );
 		if( !r )
 		{
-			dbprintf("%02X %02X",ev.key.norm, ev.key.ctrl );
+			dbprintf("%02X %02X",ev.keyb.key, ev.keyb.ctrl );
 		}
 	}
 }
-
 
 /* ------------------------------------------------------------------ */
 //App main entry point
