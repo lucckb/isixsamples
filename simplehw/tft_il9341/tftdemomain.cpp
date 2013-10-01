@@ -270,9 +270,11 @@ private:
 	{
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
 		gfx::gui::frame frame(gdisp);
-		gfx::gui::window(10, 10, 20 , 20, frame );
-		gfx::gui::window(20, 20, 40 , 40, frame );
-		frame.repaint();
+		gfx::gui::window w1(10, 10, 20 , 20, frame );
+		gfx::gui::window w2(20, 20, 40 , 40, frame );
+		w1.set_color( gfx::rgb(255,0,0), gfx::rgb(0,255,0)  );
+		w2.set_color( gfx::rgb(255,255,0), gfx::rgb(255,0,0) );
+		frame.execute();
 	}
 	void gdi_test()
 	{
@@ -326,6 +328,40 @@ private:
 	//ili_bus ibus;
 	ili_gpio_bus gbus;
 	gfx::drv::ili9341 gdisp;
+};
+/* ------------------------------------------------------------------ */
+class gpio_keypad: public isix::task_base
+{
+	static constexpr unsigned _bv( unsigned x )
+	{
+		return 1<<x;
+	}
+	static constexpr auto j_port = GPIOE;
+	static constexpr auto j_ok = 8;
+	static constexpr auto j_up = 9;
+	static constexpr auto j_down = 10;
+	static constexpr auto j_right = 11;
+	static constexpr auto j_left = 12;
+public:
+	gpio_keypad()
+		: task_base(STACK_SIZE,TASK_PRIO)
+	{
+		stm32::gpio_clock_enable(j_port, true);
+		stm32::gpio_abstract_config_ext( j_port,
+				_bv(j_ok)|_bv(j_up)|_bv(j_down)|_bv(j_left)|_bv(j_right),
+				stm32::AGPIO_MODE_INPUT_PULLUP, stm32::AGPIO_SPEED_FULL
+		);
+	}
+	virtual void main()
+	{
+		for(;;)
+		{
+			isix::isix_wait_ms(10);
+		}
+	}
+private:
+	static const unsigned STACK_SIZE = 384;
+	static const unsigned TASK_PRIO = 3;
 };
 
 
