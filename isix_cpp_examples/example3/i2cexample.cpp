@@ -10,7 +10,7 @@
 #include <stm32lib.h>
 #include "the_application.hpp"
 #include <usart_simple.h>
-#include <tiny_printf.h>
+#include <foundation/tiny_printf.h>
 #include "config.hpp"
 
 namespace {

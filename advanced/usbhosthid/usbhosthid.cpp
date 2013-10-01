@@ -11,7 +11,7 @@
 /* ------------------------------------------------------------------ */
 #include <isix.h>
 #include <stm32lib.h>
-#include <dbglog.h>
+#include <foundation/dbglog.h>
 #include <usart_simple.h>
 #include "config.h"
 #include <stm32rcc.h>
@@ -28,14 +28,19 @@ static constexpr auto LED_PIN = 14;
 static constexpr auto BLINK_TIME = 500;
 static constexpr auto BLINKING_TASK_PRIO = 3;
 
-/* ------------------------------------------------------------------ */
-static gfx::input::input_queue_t queue(64);
 
 /* ------------------------------------------------------------------ */
+//Report key
+void report_key( const gfx::input::event_info &ev )
+{
+	dbprintf("%02X %02X",ev.keyb.key, ev.keyb.ctrl );
+}
+/* ------------------------------------------------------------------ */
+
 void usb_host_callback ( bool conn, std::shared_ptr<isix::dev::usb_device> dev )
 {
 	if( conn )
-		std::static_pointer_cast<usb_input_device>(dev)->set_queue( &queue );
+		std::static_pointer_cast<usb_input_device>(dev)->connect( report_key );
 	dbprintf("Device conn status %i", conn );
 }
 
@@ -48,12 +53,7 @@ static void blinking_task( void* )
 	host->set_device_callback( usb_host_callback );
 	for(;;)
 	{
-		gfx::gui::event_info ev;
-		const int r = queue.pop( ev, isix::ISIX_TIME_INFINITE );
-		if( !r )
-		{
-			dbprintf("%02X %02X",ev.keyb.key, ev.keyb.ctrl );
-		}
+		isix::isix_wait_ms(100);
 	}
 }
 

@@ -12,7 +12,7 @@
 #include <isix.h>
 #include <stm32lib.h>
 #include <lwip/init.h>
-#include <dbglog.h>
+#include <foundation/dbglog.h>
 #include <usart_simple.h>
 #include "config.h"
 #include <stm32rcc.h>

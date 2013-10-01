@@ -70,6 +70,10 @@ LIBSTM32_DIR		:=	$(ISIX_PROJECT_DIR)/libstm32
 LIBTCPIP_DIR		:=	$(ISIX_PROJECT_DIR)/libtcpip
 LIBUSBSTM32_DIR		:=	$(ISIX_PROJECT_DIR)/libusbstm32
 
+
+LIBUSBSTM32_NO_HOST = y
+
+
 include $(LIBTCPIP_DIR)/libtcpip.mk
 include $(LIBUSBSTM32_DIR)/libusbstm32.mk
 include $(ISIX_DIR)/isix.mk

@@ -1,7 +1,7 @@
 #include <isix.h>
 #include <stm32lib.h>
 #include <stm32system.h>
-#include <dbglog.h>
+#include <foundation/dbglog.h>
 #include <usart_simple.h>
 #include "config.hpp"
 #include <stdexcept>

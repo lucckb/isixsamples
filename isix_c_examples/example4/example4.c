@@ -8,7 +8,7 @@
 /* ------------------------------------------------------------------ */
 #include <isix.h>
 #include "nokia_lcd.h"
-#include <foundation.h>
+#include <foundation/foundation.h>
 #include <stm32system.h>
 /* ------------------------------------------------------------------ */
 #define LED_PORT GPIOE				/* Led port def */

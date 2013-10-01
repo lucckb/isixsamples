@@ -1,6 +1,6 @@
 #include <isix.h>
 #include <stm32lib.h>
-#include <dbglog.h>
+#include <foundation/dbglog.h>
 #include <usart_simple.h>
 #include "config.h"
 #include <stm32system.h>
@@ -13,6 +13,8 @@
 #include <gfx/drivers/disp/ili9341.hpp>
 #include <gfx/types.hpp>
 #include <gfx/disp/gdi.hpp>
+#include <gfx/gui/frame.hpp>
+#include <gfx/gui/window.hpp>
 
 
 namespace testimg {
@@ -258,6 +260,21 @@ public:
 	}
 protected:
 	virtual void main()
+	{
+		//gdi_test();
+		windows_test();
+	}
+private:
+
+	void windows_test()
+	{
+		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
+		gfx::gui::frame frame(gdisp);
+		gfx::gui::window(10, 10, 20 , 20, frame );
+		gfx::gui::window(20, 20, 40 , 40, frame );
+		frame.repaint();
+	}
+	void gdi_test()
 	{
 		static uint16_t img[16*16];
 		for( int x=0;x<16;x++ )
