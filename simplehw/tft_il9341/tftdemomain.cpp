@@ -256,8 +256,12 @@ public:
 	//Constructor
 	tft_tester()
 		: task_base(STACK_SIZE,TASK_PRIO),
-		  gdisp( gbus )
+		  gdisp( gbus ), frame(gdisp)
 	{
+	}
+	gfx::gui::frame& get_frame()
+	{
+		return frame;
 	}
 protected:
 	virtual void main()
@@ -266,15 +270,14 @@ protected:
 		windows_test();
 	}
 private:
-
 	void windows_test()
 	{
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
-		gfx::gui::frame frame(gdisp);
 		gfx::gui::window w1(10, 10, 20 , 20, frame );
 		gfx::gui::button w2(20, 20, 40 , 100, frame );
 		w1.set_color( gfx::rgb(255,0,0), gfx::rgb(0,255,0)  );
 		w2.set_color( gfx::rgb(255,255,0), gfx::rgb(255,0,0) );
+		w2.caption("ALA");
 		frame.execute();
 	}
 	void gdi_test()
@@ -329,6 +332,7 @@ private:
 	//ili_bus ibus;
 	ili_gpio_bus gbus;
 	gfx::drv::ili9341 gdisp;
+	gfx::gui::frame frame;
 };
 /* ------------------------------------------------------------------ */
 class gpio_keypad: public isix::task_base
@@ -425,6 +429,9 @@ int main()
 	static app::ledblink led_blinker;
 	//The ledkey class
 	static app::tft_tester ft;
+
+	static app::gpio_keypad kp( ft.get_frame() );
+
 	//static app::mmc_host_tester ht;
 	isix::isix_wait_ms(1000);
 	//Start the isix scheduler
