@@ -15,7 +15,8 @@
 #include <gfx/disp/gdi.hpp>
 #include <gfx/gui/frame.hpp>
 #include <gfx/gui/window.hpp>
-
+#include <gfx/gui/button.hpp>
+#include <gfx/input/event_info.hpp>
 
 namespace testimg {
 	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
@@ -271,7 +272,7 @@ private:
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
 		gfx::gui::frame frame(gdisp);
 		gfx::gui::window w1(10, 10, 20 , 20, frame );
-		gfx::gui::window w2(20, 20, 40 , 40, frame );
+		gfx::gui::button w2(20, 20, 40 , 100, frame );
 		w1.set_color( gfx::rgb(255,0,0), gfx::rgb(0,255,0)  );
 		w2.set_color( gfx::rgb(255,255,0), gfx::rgb(255,0,0) );
 		frame.execute();
@@ -342,9 +343,28 @@ class gpio_keypad: public isix::task_base
 	static constexpr auto j_down = 10;
 	static constexpr auto j_right = 11;
 	static constexpr auto j_left = 12;
+	bool io( unsigned pin )
+	{
+		return stm32::gpio_get( j_port, pin );
+	}
+	using ks = gfx::input::detail::keyboard_tag::status;
+	void report_key( char key , ks type )
+	{
+		const gfx::input::event_info ei
+		{
+			isix::isix_get_jiffies(),
+			gfx::input::event_info::evtype::EV_KEY,
+			{
+				type,
+				key,
+				0
+			}
+		};
+		m_frm.report_event( ei );
+	}
 public:
-	gpio_keypad()
-		: task_base(STACK_SIZE,TASK_PRIO)
+	gpio_keypad( gfx::gui::frame& frm )
+		: task_base(STACK_SIZE,TASK_PRIO), m_frm(frm)
 	{
 		stm32::gpio_clock_enable(j_port, true);
 		stm32::gpio_abstract_config_ext( j_port,
@@ -354,17 +374,43 @@ public:
 	}
 	virtual void main()
 	{
+		using keys = gfx::input::kbdcodes;
+		bool pok{}, pl{}, pr{}, pu{}, pd{};
 		for(;;)
 		{
-			isix::isix_wait_ms(10);
+			//ok
+			const bool ok = io(j_ok);
+			if( !ok && pok ) report_key( keys::enter, ks::DOWN );
+			else if( ok && !pok ) report_key( keys::enter, ks::UP );
+			pok = ok;
+			//left
+			const bool l = io(j_left);
+			if( !l && pl ) report_key( keys::os_arrow_left, ks::DOWN );
+			if( l && !pl ) report_key( keys::os_arrow_left, ks::UP );
+			pl = l;
+			//right
+			const bool r = io(j_right);
+			if( !r && pr ) report_key( keys::os_arrow_right, ks::DOWN );
+			if( r && !pr ) report_key( keys::os_arrow_right, ks::UP );
+			pr = r;
+			//right
+			const bool u = io(j_up);
+			if( !u && pu ) report_key( keys::os_arrow_up, ks::DOWN );
+			if( u && !pu ) report_key( keys::os_arrow_up, ks::UP );
+			pu = u;
+			//down
+			const bool d = io(j_down);
+			if( !d && pd ) report_key( keys::os_arrow_down, ks::DOWN );
+			if( d && !pd ) report_key( keys::os_arrow_down, ks::UP );
+			pd = d;
+			isix::isix_wait_ms(20);
 		}
 	}
 private:
 	static const unsigned STACK_SIZE = 384;
 	static const unsigned TASK_PRIO = 3;
+	gfx::gui::frame& m_frm;
 };
-
-
 /* ------------------------------------------------------------------ */
 
 }	//namespace app end
