@@ -272,11 +272,10 @@ protected:
 private:
 	void windows_test()
 	{
-		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
-		gfx::gui::window w1(10, 10, 20 , 20, frame );
-		gfx::gui::button w2(20, 20, 40 , 100, frame );
-		w1.set_color( gfx::rgb(255,0,0), gfx::rgb(0,255,0)  );
-		w2.set_color( gfx::rgb(255,255,0), gfx::rgb(255,0,0) );
+		using namespace gfx;
+		gdisp.power_ctl( drv::power_ctl_t::on );
+		gfx::gui::window w1( gui::rectangle(10, 10, 20 , 20), gui::layout(),frame );
+		gfx::gui::button w2( gui::rectangle(20, 20, 100 , 20),gui::layout(),frame );
 		w2.caption("ALA");
 		frame.execute();
 	}
