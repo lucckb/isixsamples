@@ -275,8 +275,10 @@ private:
 		using namespace gfx;
 		gdisp.power_ctl( drv::power_ctl_t::on );
 		gfx::gui::window w1( gui::rectangle(10, 10, 20 , 20), gui::layout(),frame );
-		gfx::gui::button w2( gui::rectangle(20, 20, 100 , 20),gui::layout(),frame );
+		gfx::gui::button w2( gui::rectangle(20, 20, 100 , 40),gui::layout(),frame );
 		w2.caption("ALA");
+		w2.set_pushkey( 13 );
+		w2.pushed( true );
 		frame.execute();
 	}
 	void gdi_test()
