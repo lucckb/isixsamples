@@ -14,7 +14,7 @@
 #include <gfx/types.hpp>
 #include <gfx/disp/gdi.hpp>
 #include <gfx/gui/frame.hpp>
-#include <gfx/gui/window.hpp>
+#include <gfx/gui/widget.hpp>
 #include <gfx/gui/button.hpp>
 #include <gfx/input/event_info.hpp>
 
@@ -272,13 +272,13 @@ protected:
 private:
 	void windows_test()
 	{
-		using namespace gfx;
-		gdisp.power_ctl( drv::power_ctl_t::on );
-		gfx::gui::window w1( gui::rectangle(10, 10, 20 , 20), gui::layout(),frame );
-		gfx::gui::button w2( gui::rectangle(20, 20, 100 , 40),gui::layout(),frame );
-		w2.caption("ALA");
-		w2.set_pushkey( 13 );
-		w2.pushed( true );
+		using namespace gfx::gui;
+		using namespace gfx::drv;
+		gdisp.power_ctl( power_ctl_t::on );
+		window win( rectangle( 0, 0, 200, 200), frame );
+		button btn( rectangle(20, 20, 100 , 40), layout(), win );
+		btn.caption("ALA");
+		btn.set_pushkey( 13 );
 		frame.execute();
 	}
 	void gdi_test()
