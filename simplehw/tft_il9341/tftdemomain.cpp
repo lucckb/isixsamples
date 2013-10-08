@@ -250,6 +250,11 @@ private:
 };
 /* ------------------------------------------------------------------ */
 
+void test( const gfx::gui::event &ev)
+{
+	dbprintf("Event from %p", ev.sender);
+}
+
 class tft_tester: public isix::task_base
 {
 public:
@@ -275,10 +280,11 @@ private:
 		using namespace gfx::gui;
 		using namespace gfx::drv;
 		gdisp.power_ctl( power_ctl_t::on );
-		window win( rectangle( 0, 0, 200, 200), frame );
+		window win( rectangle( 10, 10, 200, 200), frame, window::flags::border );
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
 		btn.caption("ALA");
 		btn.set_pushkey( 13 );
+		//win.m_signal.connect<test>();
 		frame.execute();
 	}
 	void gdi_test()
