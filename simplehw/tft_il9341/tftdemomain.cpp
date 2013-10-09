@@ -284,7 +284,7 @@ private:
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
 		btn.caption("ALA");
 		btn.set_pushkey( 13 );
-		//win.m_signal.connect<test>();
+		win.connect(test);
 		frame.execute();
 	}
 	void gdi_test()
