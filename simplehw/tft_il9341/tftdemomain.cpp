@@ -250,14 +250,38 @@ private:
 };
 /* ------------------------------------------------------------------ */
 
-bool test( const gfx::gui::event &ev)
-{
-	dbprintf("Event from %p", ev.sender);
-	return true;//	Need redraw
-}
 
 class tft_tester: public isix::task_base
 {
+private:
+	//A window calllback for select item
+	bool window_callback( const gfx::gui::event &ev )
+	{
+		using namespace gfx::input;
+		bool ret {};
+		//if( ev.keyb )
+		if( ev.keyb.stat == detail::keyboard_tag::status::DOWN )
+		{
+			auto win = static_cast<gfx::gui::window*>(ev.sender);
+			if( ev.keyb.key == kbdcodes::os_arrow_left )
+			{
+				win->select_prev();
+			}
+			else if( ev.keyb.key == kbdcodes::os_arrow_right )
+			{
+				win->select_next();
+			}
+			ret = true;
+		}
+		return ret;//	Need redraw
+	}
+	//Buttons callback
+	bool on_click( const gfx::gui::event &ev )
+	{
+		auto b = static_cast<gfx::gui::button*>(ev.sender);
+		dbprintf("Button %p clicked with desc %s", ev.sender, b->caption().c_str());
+		return false;
+	}
 public:
 	//Constructor
 	tft_tester()
@@ -276,16 +300,23 @@ protected:
 		windows_test();
 	}
 private:
+	//Base buttons and windows demo
 	void windows_test()
 	{
 		using namespace gfx::gui;
 		using namespace gfx::drv;
 		gdisp.power_ctl( power_ctl_t::on );
-		window win( rectangle( 10, 10, 200, 200), frame, window::flags::border );
+		window win( rectangle( 10, 10, 200, 200), frame, window::flags::border |window::flags::selectborder );
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
+		button btn1( rectangle(20, 65, 100 , 40), layout(), win );
 		btn.caption("ALA");
-		btn.set_pushkey( 13 );
-		win.connect(test);
+		btn.set_pushkey( gfx::input::kbdcodes::enter );
+		btn1.set_pushkey(  gfx::input::kbdcodes::enter );
+		btn1.caption("ELA");
+		//Connect windows callback to the main window
+		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1));
+		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
+		btn1.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
 		frame.execute();
 	}
 	void gdi_test()
