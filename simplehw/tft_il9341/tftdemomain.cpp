@@ -250,9 +250,10 @@ private:
 };
 /* ------------------------------------------------------------------ */
 
-void test( const gfx::gui::event &ev)
+bool test( const gfx::gui::event &ev)
 {
 	dbprintf("Event from %p", ev.sender);
+	return true;//	Need redraw
 }
 
 class tft_tester: public isix::task_base
