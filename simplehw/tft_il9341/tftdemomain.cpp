@@ -18,9 +18,11 @@
 #include <gfx/gui/button.hpp>
 #include <gfx/gui/label.hpp>
 #include <gfx/input/event_info.hpp>
+#include <gfx/gui/icon.hpp>
 
 namespace testimg {
 	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
+	extern const gfx::disp::cmem_bitmap_t bat_png;
 }
 /* ------------------------------------------------------------------ */
 namespace {
@@ -307,15 +309,17 @@ private:
 		using namespace gfx::gui;
 		using namespace gfx::drv;
 		gdisp.power_ctl( power_ctl_t::on );
-		window win( rectangle( 10, 10, 200, 200), frame, window::flags::border |window::flags::selectborder );
+		window win( rectangle( 10, 10, 200, 300), frame, window::flags::border |window::flags::selectborder );
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
 		button btn1( rectangle(20, 65, 100 , 40), layout(), win );
-		label lbl1( rectangle(20, 170, 100 , 40), layout(), win );
+		label lbl1( rectangle(20, 170, 50 , 12), layout(), win );
+		icon  ico1( rectangle(80, 170, 16 , 16), layout(), win );
 		btn.caption("ALA");
 		btn.set_pushkey( gfx::input::kbdcodes::enter );
 		btn1.set_pushkey(  gfx::input::kbdcodes::enter );
 		btn1.caption("ELA");
 		lbl1.caption("LABEL");
+		ico1.image( testimg::bat_png );
 		//Connect windows callback to the main window
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1));
 		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
