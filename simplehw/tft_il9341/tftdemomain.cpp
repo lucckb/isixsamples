@@ -313,7 +313,7 @@ private:
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
 		button btn1( rectangle(20, 65, 100 , 40), layout(), win );
 		label lbl1( rectangle(20, 170, 50 , 12), layout(), win );
-		icon  ico1( rectangle(80, 170, 16 , 25), layout(), win );
+		icon  ico1( rectangle(80, 170, 25 , 25), layout(), win );
 		btn.caption("ALA");
 		btn.pushkey( gfx::input::kbdcodes::enter );
 		btn1.pushkey(  gfx::input::kbdcodes::enter );
