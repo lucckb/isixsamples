@@ -16,6 +16,7 @@
 #include <gfx/gui/frame.hpp>
 #include <gfx/gui/widget.hpp>
 #include <gfx/gui/button.hpp>
+#include <gfx/gui/label.hpp>
 #include <gfx/input/event_info.hpp>
 
 namespace testimg {
@@ -309,6 +310,7 @@ private:
 		window win( rectangle( 10, 10, 200, 200), frame, window::flags::border |window::flags::selectborder );
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
 		button btn1( rectangle(20, 65, 100 , 40), layout(), win );
+		label lbl1( rectangle(20, 170, 100 , 40), layout(), win );
 		btn.caption("ALA");
 		btn.set_pushkey( gfx::input::kbdcodes::enter );
 		btn1.set_pushkey(  gfx::input::kbdcodes::enter );
