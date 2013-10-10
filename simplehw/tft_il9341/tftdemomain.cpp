@@ -315,6 +315,7 @@ private:
 		btn.set_pushkey( gfx::input::kbdcodes::enter );
 		btn1.set_pushkey(  gfx::input::kbdcodes::enter );
 		btn1.caption("ELA");
+		lbl1.caption("LABEL");
 		//Connect windows callback to the main window
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1));
 		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
