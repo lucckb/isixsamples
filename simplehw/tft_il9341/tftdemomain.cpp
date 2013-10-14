@@ -13,14 +13,7 @@
 #include <gfx/drivers/disp/ili9341.hpp>
 #include <gfx/types.hpp>
 #include <gfx/disp/gdi.hpp>
-#include <gfx/gui/frame.hpp>
-#include <gfx/gui/widget.hpp>
-#include <gfx/gui/button.hpp>
-#include <gfx/gui/label.hpp>
-#include <gfx/input/event_info.hpp>
-#include <gfx/gui/icon.hpp>
-#include <gfx/gui/choice_menu.hpp>
-
+#include <gfx/gui/gui.hpp>
 /* ------------------------------------------------------------------ */
 namespace testimg {
 	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
@@ -287,6 +280,13 @@ private:
 		dbprintf("Button %p clicked with desc %s", ev.sender, b->caption().c_str());
 		return false;
 	}
+	//On select item
+	bool on_select_item( const gfx::gui::event &ev )
+	{
+		auto b = static_cast<gfx::gui::choice_menu*>(ev.sender);
+		dbprintf("Button %p clicked with desc %i", ev.sender, b->selection());
+		return false;
+	}
 public:
 	//Constructor
 	tft_tester()
@@ -342,6 +342,7 @@ private:
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1));
 		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
 		btn1.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
+		choice1.connect(std::bind(&tft_tester::on_select_item,this,std::placeholders::_1));
 		frame.execute();
 	}
 	void gdi_test()
