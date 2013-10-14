@@ -14,6 +14,9 @@
 #include <gfx/types.hpp>
 #include <gfx/disp/gdi.hpp>
 #include <gfx/gui/gui.hpp>
+
+#include <string>
+#include <regex>
 /* ------------------------------------------------------------------ */
 namespace testimg {
 	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
@@ -315,12 +318,12 @@ private:
 				{ 1, "ala ma kota" },
 				{ 2, "kot ma ale" },
 				{ 3, "zenek ma VIPA" },
-				{ 4, "Kolejna linia 4" },
-				{ 5, "Kolejna linia 5" },
-				{ 6, "Kolejna linia 6" },
-				{ 7, "Kolejna linia 7" },
-				{ 8, "Kolejna linia 8" },
-				{ 9, "Kolejna linia 9" },
+				{ 4, "linia 4" },
+				{ 5, "inia 5" },
+				{ 6, "linia 6" },
+				{ 7, "linia 7" },
+				{ 8, "linia 8" },
+				{ 9, "linia 9" },
 				choice_menu::end	//Termination
 		};
 
@@ -330,7 +333,8 @@ private:
 		button btn1( rectangle(20, 65, 100 , 40), layout(), win );
 		label lbl1( rectangle(20, 120, 50 , 12), layout(), win );
 		icon  ico1( rectangle(80, 120, 25 , 25), layout(), win );
-		choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win );
+
+		choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win, choice_menu::style::select );
 		btn.caption("ALA");
 		btn.pushkey( gfx::input::kbdcodes::enter );
 		btn1.pushkey( gfx::input::kbdcodes::enter );
@@ -483,6 +487,7 @@ private:
 /* ------------------------------------------------------------------ */
 
 }	//namespace app end
+
 /* ------------------------------------------------------------------ */
 //App main entry point
 int main()
