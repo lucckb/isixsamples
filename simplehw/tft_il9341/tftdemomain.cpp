@@ -287,12 +287,13 @@ private:
 	bool on_select_item( const gfx::gui::event &ev )
 	{
 		auto b = static_cast<gfx::gui::choice_menu*>(ev.sender);
-		dbprintf("Button %p clicked with desc %i", ev.sender, b->selection());
+		dbprintf("Sel %p clicked with item %i", ev.sender, b->selection());
 		return false;
 	}
 	bool on_seek_change( const gfx::gui::event &ev )
 	{
-		dbprintf("Seek event");
+		auto b = static_cast<gfx::gui::seekbar*>(ev.sender);
+		dbprintf("Seek event pos %i", b->value());
 		return false;
 	}
 public:
@@ -351,6 +352,7 @@ private:
 		//Connect windows callback to the main window
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1));
 		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
+		btn.pushkey( gfx::input::kbdcodes::enter);
 		//btn1.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
 		choice1.connect(std::bind(&tft_tester::on_select_item,this,std::placeholders::_1));
 		seek.connect(std::bind(&tft_tester::on_seek_change,this,std::placeholders::_1));
