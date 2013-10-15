@@ -290,6 +290,11 @@ private:
 		dbprintf("Button %p clicked with desc %i", ev.sender, b->selection());
 		return false;
 	}
+	bool on_seek_change( const gfx::gui::event &ev )
+	{
+		dbprintf("Seek event");
+		return false;
+	}
 public:
 	//Constructor
 	tft_tester()
@@ -332,23 +337,23 @@ private:
 		gdisp.power_ctl( power_ctl_t::on );
 		window win( rectangle( 10, 10, 200, 300), frame, window::flags::border |window::flags::selectborder );
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
-		button btn1( rectangle(20, 65, 100 , 40), layout(), win );
+		//button btn1( rectangle(20, 65, 100 , 40), layout(), win );
 		label lbl1( rectangle(20, 120, 50 , 12), layout(), win );
 		icon  ico1( rectangle(80, 120, 25 , 25), layout(), win );
-
 		choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win, choice_menu::style::normal );
+		seekbar seek( rectangle(20, 65, 160 , 20), layout(), win );
+		seek.value( 50 );
 		btn.caption("ALA");
-		btn.pushkey( gfx::input::kbdcodes::enter );
-		btn1.pushkey( gfx::input::kbdcodes::enter );
-		btn1.caption("ELA");
+		//btn1.caption("ELA");
 		lbl1.caption("LABEL");
 		ico1.image( testimg::bat_png );
 		choice1.items( menu1 );
 		//Connect windows callback to the main window
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1));
 		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
-		btn1.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
+		//btn1.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
 		choice1.connect(std::bind(&tft_tester::on_select_item,this,std::placeholders::_1));
+		seek.connect(std::bind(&tft_tester::on_seek_change,this,std::placeholders::_1));
 		frame.execute();
 	}
 	void gdi_test()
