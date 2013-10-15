@@ -350,12 +350,12 @@ private:
 		ico1.image( testimg::bat_png );
 		choice1.items( menu1 );
 		//Connect windows callback to the main window
-		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1));
-		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
+		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1), event::evtype::EV_KEY);
+		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1),event::evtype::EV_CLICK);
 		btn.pushkey( gfx::input::kbdcodes::enter);
 		//btn1.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
-		choice1.connect(std::bind(&tft_tester::on_select_item,this,std::placeholders::_1));
-		seek.connect(std::bind(&tft_tester::on_seek_change,this,std::placeholders::_1));
+		choice1.connect(std::bind(&tft_tester::on_select_item,this,std::placeholders::_1),event::evtype::EV_CLICK);
+		seek.connect(std::bind(&tft_tester::on_seek_change,this,std::placeholders::_1),event::evtype::EV_CLICK);
 		frame.execute();
 	}
 	void gdi_test()
