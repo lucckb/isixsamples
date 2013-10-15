@@ -319,11 +319,13 @@ private:
 				{ 2, "kot ma ale" },
 				{ 3, "zenek ma VIPA" },
 				{ 4, "linia 4" },
-				{ 5, "inia 5" },
+				{ 5, "linia 5" },
 				{ 6, "linia 6" },
 				{ 7, "linia 7" },
 				{ 8, "linia 8" },
 				{ 9, "linia 9" },
+				{ 9, "linia 10" },
+				{ 9, "linia 11" },
 				choice_menu::end	//Termination
 		};
 
@@ -334,7 +336,7 @@ private:
 		label lbl1( rectangle(20, 120, 50 , 12), layout(), win );
 		icon  ico1( rectangle(80, 120, 25 , 25), layout(), win );
 
-		choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win, choice_menu::style::select );
+		choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win, choice_menu::style::normal );
 		btn.caption("ALA");
 		btn.pushkey( gfx::input::kbdcodes::enter );
 		btn1.pushkey( gfx::input::kbdcodes::enter );
