@@ -242,7 +242,7 @@ public:
 		isix::isix_wait_ms( tout );
 	}
 	/* Set PWM  */
-	virtual void set_pwm( int percent )
+	virtual void set_pwm( int /*percent*/ )
 	{
 
 	}
@@ -260,19 +260,25 @@ private:
 	{
 		using namespace gfx::input;
 		bool ret {};
-		//if( ev.keyb )
 		if( ev.keyb.stat == detail::keyboard_tag::status::DOWN )
 		{
 			auto win = static_cast<gfx::gui::window*>(ev.sender);
-			if( ev.keyb.key == kbdcodes::os_arrow_left )
+			if( ev.keyb.key == kbdcodes::os_arrow_left && !m_edit_mode)
 			{
 				win->select_prev();
+				ret = true;
 			}
-			else if( ev.keyb.key == kbdcodes::os_arrow_right )
+			else if( ev.keyb.key == kbdcodes::os_arrow_right && !m_edit_mode)
 			{
 				win->select_next();
+				ret = true;
 			}
-			ret = true;
+			if( ev.keyb.key == kbdcodes::enter && m_edit == win->current_widget())
+			{
+				m_edit_mode = !m_edit_mode;
+				m_edit->readonly( !m_edit_mode );
+				dbprintf("Toggle edit mode %i", m_edit_mode );
+			}
 		}
 		return ret;//	Need redraw
 	}
@@ -339,15 +345,19 @@ private:
 		window win( rectangle( 10, 10, 200, 300), frame, window::flags::border |window::flags::selectborder );
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
 		//button btn1( rectangle(20, 65, 100 , 40), layout(), win );
-		label lbl1( rectangle(20, 120, 50 , 12), layout(), win );
-		icon  ico1( rectangle(80, 120, 25 , 25), layout(), win );
+		//label lbl1( rectangle(20, 120, 50 , 12), layout(), win );
+		//icon  ico1( rectangle(80, 120, 25 , 25), layout(), win );
 		choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win, choice_menu::style::normal );
 		seekbar seek( rectangle(20, 65, 160 , 20), layout(), win );
+		editbox edit( rectangle(20, 110, 160 , 30), layout(), win );
+		edit.readonly(true);
+		m_edit = &edit;
 		seek.value( 50 );
 		btn.caption("ALA");
+		edit.value("dupa ala i pierdziala i koniec");
 		//btn1.caption("ELA");
-		lbl1.caption("LABEL");
-		ico1.image( testimg::bat_png );
+		//lbl1.caption("LABEL");
+		//ico1.image( testimg::bat_png );
 		choice1.items( menu1 );
 		//Connect windows callback to the main window
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1), event::evtype::EV_KEY);
@@ -411,6 +421,8 @@ private:
 	ili_gpio_bus gbus;
 	gfx::drv::ili9341 gdisp;
 	gfx::gui::frame frame;
+	gfx::gui::editbox* m_edit {};
+	bool m_edit_mode = false;
 };
 /* ------------------------------------------------------------------ */
 class gpio_keypad: public isix::task_base
