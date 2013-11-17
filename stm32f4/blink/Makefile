@@ -11,12 +11,12 @@ FORMAT	= elf
 OPT 	?= 2
 
 #MCU variant
-MCU_MAJOR_TYPE = f4
-MCU_MINOR_TYPE = 17VGT6
+#MCU_MAJOR_TYPE = f4
+#MCU_MINOR_TYPE = 17VGT6
 #MCU_MAJOR_TYPE = f1
 #MCU_MINOR_TYPE = 07VBT6
-#MCU_MAJOR_TYPE = f2
-#MCU_MINOR_TYPE = 17VG
+MCU_MAJOR_TYPE = f2
+MCU_MINOR_TYPE = 17VG
 
 #System stack size interrupts etc
 MCU_SYSTEM_STACK_SIZE = 512
@@ -36,7 +36,7 @@ CFLAGS += $(COMMON_FLAGS)
 CFLAGS += -std=gnu99 
 
 #C++ compiler options 
-CXXFLAGS += $(COMMON_FLAGS)
+CXXFLAGS += $(COMMON_FLAGS) -std=c++11
 
 #Disable safe constructors
 #CXXFLAGS +=  -fno-threadsafe-statics
