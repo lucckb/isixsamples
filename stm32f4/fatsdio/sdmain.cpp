@@ -267,7 +267,7 @@ protected:
 			const int cstat = m_slot.check();
 			if(  cstat == drv::mmc::mmc_slot::card_inserted )
 			{
-				static char buf[4096] = "Mam sraczke";
+				static char buf[4096] = "Internal buffer test";
 				drv::mmc::mmc_card *c;
 				int ret;
 				static drv::mmc::cid cid;
