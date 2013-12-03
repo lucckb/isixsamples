@@ -93,7 +93,7 @@ public:
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
 	}
 protected:
-	//Main functionQMonikQ
+	//Main function
 	virtual void main()
 	{
 		while(true)

@@ -37,6 +37,7 @@ void uc_periph_setup()
 extern "C"
 {
 
+void fputest_fill_and_add();
 /* ------------------------------------------------------------------ */
 //! This function is called just before call global constructors
 void _external_startup(void)
@@ -128,6 +129,7 @@ protected:
 			isix::isix_wait( isix::isix_ms2tick(600) );
 			ala_j += 12.0;
 			dbprintf("VAR2=%d", (int)ala_j);
+			fputest_fill_and_add();
 		}
 	}
 private:
