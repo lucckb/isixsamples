@@ -10,6 +10,10 @@
 .text 
 
 // -------------------------------------------------
+.align 4
+fone: .float 1.0
+
+// -------------------------------------------------
 .global fputest_fill_and_add
 .func fputest_fill_and_add
 fputest_fill_and_add:
@@ -86,14 +90,23 @@ fputest_fill_and_add:
     vcvt.s32.f32 s31, s31
 	bx lr
 .endfunc
+// -------------------------------------------------
+.macro ccmp sreg
+    vmov r1, s\sreg
+    cmp r1, r0
+    beq ok_1
+    mov r0,r1
+    b fail_1
+.endm
 
+// -------------------------------------------------
 .macro vcmp sreg
     vmov r1, s\sreg
     add.w r0, #1
     cmp r1,r0
-    beq ok$
+    beq ok_2
     mov r0,r1
-    b fail$
+    b fail_2
 .endm
 // -------------------------------------------------
 .global fputest_fill_and_add_check
@@ -130,16 +143,53 @@ fputest_fill_and_add_check:
     vcmp 30
     vcmp 31
     vcmp 0
-ok$:
+ok_1:
     mov r0, #0
     bx lr
-fail$:
+fail_1:
     bx lr
 .endfunc
 // -------------------------------------------------
-.align 4
-fone: .float 1.0
-
+.global fpuirq_base_regs_fill
+.func fpuirq_base_regs_fill
+fpuirq_base_regs_fill:
+    vmov d0, r0, r0
+	vmov d1, r0, r0
+	vmov d2, r0, r0
+	vmov d3, r0, r0
+	vmov d4, r0, r0
+	vmov d5, r0, r0
+	vmov d6, r0, r0
+	vmov d7, r0, r0
+	bx lr
+.endfunc
+// -------------------------------------------------
+.global fpuirq_base_regs_check
+.func   fpuirq_base_regs_check
+fpuirq_base_regs_check:
+    ccmp 0
+    ccmp 1
+    ccmp 2
+    ccmp 3
+    ccmp 4
+    ccmp 5
+    ccmp 6
+    ccmp 7
+    ccmp 8
+    ccmp 9
+    ccmp 10
+    ccmp 11
+    ccmp 12
+    ccmp 13
+    ccmp 14
+    ccmp 15
+ok_2:
+    mov r0, #0
+    bx lr
+fail_2:
+    bx lr  
+.endfunc
+// -------------------------------------------------
 
 .end
 

@@ -39,7 +39,8 @@ extern "C"
 
 void fputest_fill_and_add(int start );
 int fputest_fill_and_add_check(int start );
-
+void fpuirq_base_regs_fill( int start );
+int fpuirq_base_regs_check( int start );
 /* ------------------------------------------------------------------ */
 //! This function is called just before call global constructors
 void _external_startup(void)
@@ -89,7 +90,7 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		volatile float ala_z = 1.2;
+		volatile float ala_z = 1.0;
 		while(true)
 		{
 			//Enable LED
@@ -100,7 +101,7 @@ protected:
 			stm32::gpio_set( LED_PORT, LED_PIN );
 			//Wait time
 			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
-			ala_z += 1.1;
+			ala_z += 1.0;
 			dbprintf("VAR1=%d", (int)ala_z);
 		}
 	}
@@ -158,6 +159,36 @@ namespace {
     }
 }
 /* ------------------------------------------------------------------ */
+namespace {
+    //! Interrupt FPU context on the lower possible level
+    void tim3_setup() {
+        using namespace stm32;
+        rcc_apb1_periph_clock_cmd( RCC_APB1Periph_TIM3, true );
+        nvic_set_priority( TIM3_IRQn , 1, 1 );
+        tim_timebase_init( TIM3, 0, TIM_CounterMode_Up, 65535, 0, 0 );
+        tim_it_config( TIM3, TIM_IT_Update, true );
+        tim_cmd( TIM3, true );
+        nvic_irq_enable( TIM3_IRQn, true );
+        nvic_set_priority( TIM2_IRQn, 0, 7 );
+        nvic_irq_enable( TIM2_IRQn, true );
+    }
+extern "C" {
+    void __attribute__((interrupt)) tim3_isr_vector() {
+       stm32::tim_clear_it_pending_bit( TIM3, TIM_IT_Update );
+       fpuirq_base_regs_fill( 55 );
+       stm32::nvic_irq_set_pending(  TIM2_IRQn ); 
+       if( fpuirq_base_regs_check( 55 ) ) {
+            for(;;);
+       }
+    }
+    void __attribute__((interrupt)) tim2_isr_vector() {
+         fpuirq_base_regs_fill( 100 );
+            if( fpuirq_base_regs_check( 100 ) ) {
+            for(;;);
+        }
+    }
+}}
+/* ------------------------------------------------------------------ */
 //App main entry point
 int main()
 {
@@ -175,7 +206,9 @@ int main()
     static app::math_task t4(40);
     static app::math_task t5(50);
     static app::math_task t6(60);
+ //   FPU->FPCCR &= ~( (1<<31U)|(1<<30));
 	//Start the isix scheduler
+    tim3_setup();
 	isix::isix_start_scheduler();
 }
 

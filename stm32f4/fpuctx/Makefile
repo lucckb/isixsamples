@@ -1,7 +1,7 @@
 #4 Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = fpuctx
+TARGET	   = fpuctxtest
 
 #Output format (elf,hex,bin)
 FORMAT	= elf
