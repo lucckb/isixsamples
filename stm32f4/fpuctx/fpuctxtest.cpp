@@ -37,7 +37,9 @@ void uc_periph_setup()
 extern "C"
 {
 
-void fputest_fill_and_add();
+void fputest_fill_and_add(int start );
+int fputest_fill_and_add_check(int start );
+
 /* ------------------------------------------------------------------ */
 //! This function is called just before call global constructors
 void _external_startup(void)
@@ -98,7 +100,7 @@ protected:
 			stm32::gpio_set( LED_PORT, LED_PIN );
 			//Wait time
 			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
-			ala_z *= 1.1;
+			ala_z += 1.1;
 			dbprintf("VAR1=%d", (int)ala_z);
 		}
 	}
@@ -111,46 +113,68 @@ private:
 };
 /* ------------------------------------------------------------------ */
 
-class ledkey: public isix::task_base
+class math_task: public isix::task_base
 {
 public:
 	//Constructor
-	ledkey()
-		: task_base(STACK_SIZE,TASK_PRIO)
+	math_task(int begin )
+		: task_base(STACK_SIZE,TASK_PRIO),
+        m_begin( begin )
 	{
-	}
+    }
 protected:
 	//Main function
 	virtual void main()
 	{
-		volatile float ala_j = 1.2;
-		for(;;)
+        fputest_fill_and_add(m_begin);
+        for(unsigned it=0;;++it)
 		{
-			isix::isix_wait( isix::isix_ms2tick(600) );
-			ala_j += 12.0;
-			dbprintf("VAR2=%d", (int)ala_j);
-			fputest_fill_and_add();
+            const int fret =  fputest_fill_and_add_check(m_begin);
+            if( fret ) {
+                dbprintf("Assert failed at %i in %i iteration %i", fret, m_begin, it );
+                break;
+            }
 		}
 	}
 private:
-		static const unsigned STACK_SIZE = 2048;
+		static const unsigned STACK_SIZE = 512;
 		static const unsigned TASK_PRIO = 3;
+        int m_begin {};
 };
+
 
 /* ------------------------------------------------------------------ */
 
 }	//namespace app end
 /* ------------------------------------------------------------------ */
+namespace {
+    
+    isix::semaphore usem(1, 1);
+    void usart_lock() {
+        usem.wait(isix::ISIX_TIME_INFINITE);
+    }
+    void usart_unlock() {
+        usem.signal();
+    }
+}
+/* ------------------------------------------------------------------ */
 //App main entry point
 int main()
 {
-	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
-	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
+#ifdef PDEBUG
+    stm32::usartsimple_init( USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
+#endif
+    dblog_init_putc_locked( stm32::usartsimple_putc, NULL, usart_lock, usart_unlock );
 	 dbprintf(" Exception presentation app using ISIXRTOS ");
 	//The blinker class
 	static app::ledblink led_blinker;
 	//The ledkey class
-	static app::ledkey led_key;
+	static app::math_task t1(10);
+	static app::math_task t2(20);
+    static app::math_task t3(30);
+    static app::math_task t4(40);
+    static app::math_task t5(50);
+    static app::math_task t6(60);
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }
