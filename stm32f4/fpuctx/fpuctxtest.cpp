@@ -36,11 +36,15 @@ void uc_periph_setup()
 /* ------------------------------------------------------------------ */
 extern "C"
 {
+	//Save all fpu regs inc initial by one
+	void fputest_fill_and_add( int start );
+	// Test context checking after adding ones
+	int fputest_fill_and_add_check(int start );
+	// Fill basics regs from irq
+	void fpuirq_base_regs_fill( int start );
+	//Check basic regs filling from irq
+	int fpuirq_base_regs_check( int start );
 
-void fputest_fill_and_add(int start );
-int fputest_fill_and_add_check(int start );
-void fpuirq_base_regs_fill( int start );
-int fpuirq_base_regs_check( int start );
 /* ------------------------------------------------------------------ */
 //! This function is called just before call global constructors
 void _external_startup(void)
