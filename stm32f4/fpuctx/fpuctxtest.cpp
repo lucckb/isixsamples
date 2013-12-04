@@ -208,7 +208,7 @@ int main()
     stm32::usartsimple_init( USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
 #endif
     dblog_init_putc_locked( stm32::usartsimple_putc, NULL, usart_lock, usart_unlock );
-	 dbprintf(" Exception presentation app using ISIXRTOS ");
+	 dbprintf("FPU context save and restore test ISIXRTOS ");
 	//The blinker class
 	static app::ledblink led_blinker;
 	//The ledkey class
