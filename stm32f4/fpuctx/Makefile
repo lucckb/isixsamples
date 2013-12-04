@@ -25,7 +25,8 @@ MCU_SYSTEM_STACK_SIZE = 512
 CPP_EXCEPTIONS = y
 
 #Common flags 
-COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
+COMMON_FLAGS = -Wall -pedantic -Wextra  -Wno-variadic-macros  
+COMMON_FLAGS+= -D_HAVE_CONFIG_H -I./include -DFUNCTION_MAIN_RETURN
 
 #Include
 #only for f1 lib

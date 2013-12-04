@@ -113,7 +113,40 @@ private:
 	static const unsigned BLINK_TIME = 500;
 };
 /* ------------------------------------------------------------------ */
+namespace {
+    //! Interrupt FPU context on the lower possible level
+    void prepare_fpu_irq_tests() {
+        using namespace stm32;
+        rcc_apb1_periph_clock_cmd( RCC_APB1Periph_TIM3, true );
+        nvic_set_priority( TIM3_IRQn , 1, 1 );
+        tim_timebase_init( TIM3, 0, TIM_CounterMode_Up, 65535, 0, 0 );
+        tim_it_config( TIM3, TIM_IT_Update, true );
+        tim_cmd( TIM3, true );
+        nvic_irq_enable( TIM3_IRQn, true );
+        nvic_set_priority( TIM2_IRQn, 0, 7 );
+        nvic_irq_enable( TIM2_IRQn, true );
+    }
+    volatile int check_irq_failed = 0;
 
+ //Interrrupt handlers
+ extern "C" {
+    void __attribute__((interrupt)) tim3_isr_vector() {
+       stm32::tim_clear_it_pending_bit( TIM3, TIM_IT_Update );
+       fpuirq_base_regs_fill( 55 );
+       stm32::nvic_irq_set_pending(  TIM2_IRQn );
+       const int irqcr = fpuirq_base_regs_check( 55 );
+       if( irqcr ) {
+            check_irq_failed = irqcr;
+       }
+    }
+    void __attribute__((interrupt)) tim2_isr_vector() {
+         fpuirq_base_regs_fill( 100 );
+            if( fpuirq_base_regs_check( 100 ) ) {
+            	check_irq_failed = true;
+        }
+    }
+}}
+/* ------------------------------------------------------------------ */
 class math_task: public isix::task_base
 {
 public:
@@ -123,6 +156,9 @@ public:
         m_begin( begin )
 	{
     }
+	~math_task() {
+		dbprintf("Math task finished");
+	}
 protected:
 	//Main function
 	virtual void main()
@@ -133,7 +169,13 @@ protected:
             const int fret =  fputest_fill_and_add_check(m_begin);
             if( fret ) {
                 dbprintf("Assert failed at %i in %i iteration %i", fret, m_begin, it );
+                isix::isix_shutdown_scheduler();
                 break;
+            }
+            if( check_irq_failed ) {
+            	 dbprintf("Assert IRQFAILED %i", check_irq_failed );
+            	  isix::isix_shutdown_scheduler();
+            	 break;
             }
 		}
 	}
@@ -159,36 +201,6 @@ namespace {
     }
 }
 /* ------------------------------------------------------------------ */
-namespace {
-    //! Interrupt FPU context on the lower possible level
-    void tim3_setup() {
-        using namespace stm32;
-        rcc_apb1_periph_clock_cmd( RCC_APB1Periph_TIM3, true );
-        nvic_set_priority( TIM3_IRQn , 1, 1 );
-        tim_timebase_init( TIM3, 0, TIM_CounterMode_Up, 65535, 0, 0 );
-        tim_it_config( TIM3, TIM_IT_Update, true );
-        tim_cmd( TIM3, true );
-        nvic_irq_enable( TIM3_IRQn, true );
-        nvic_set_priority( TIM2_IRQn, 0, 7 );
-        nvic_irq_enable( TIM2_IRQn, true );
-    }
-extern "C" {
-    void __attribute__((interrupt)) tim3_isr_vector() {
-       stm32::tim_clear_it_pending_bit( TIM3, TIM_IT_Update );
-       fpuirq_base_regs_fill( 55 );
-       stm32::nvic_irq_set_pending(  TIM2_IRQn ); 
-       if( fpuirq_base_regs_check( 55 ) ) {
-            for(;;);
-       }
-    }
-    void __attribute__((interrupt)) tim2_isr_vector() {
-         fpuirq_base_regs_fill( 100 );
-            if( fpuirq_base_regs_check( 100 ) ) {
-            for(;;);
-        }
-    }
-}}
-/* ------------------------------------------------------------------ */
 //App main entry point
 int main()
 {
@@ -206,9 +218,10 @@ int main()
     static app::math_task t4(40);
     static app::math_task t5(50);
     static app::math_task t6(60);
- //   FPU->FPCCR &= ~( (1<<31U)|(1<<30));
+    //Simulate failure disable stack preserve
+    //FPU->FPCCR &= ~( (1<<31U)|(1<<30));
 	//Start the isix scheduler
-    tim3_setup();
+    app::prepare_fpu_irq_tests();
 	isix::isix_start_scheduler();
 }
 
