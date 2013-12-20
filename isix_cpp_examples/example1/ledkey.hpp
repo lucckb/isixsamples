@@ -17,6 +17,9 @@ class ledkey: public isix::task_base
 {
 public:
 	ledkey();
+	void start() {
+		start_thread( STACK_SIZE, TASK_PRIO );
+	}
 protected:
 	virtual void main();
 

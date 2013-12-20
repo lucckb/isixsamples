@@ -22,6 +22,12 @@ class the_application
 public:
 	//Constructor
 	the_application();
+	//Start
+	void start() {
+		led_blinker.start();
+		dsrv.start();
+		rtcr.start();
+	}
 private:
 	//The blinker class
 	ledblink led_blinker;

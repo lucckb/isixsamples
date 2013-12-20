@@ -53,7 +53,7 @@ namespace
 /* ------------------------------------------------------------------ */
 //Constructor
 key_transmitter::key_transmitter(stm32::dev::usart_buffered &_serial) :
-		task_base(STACK_SIZE,TASK_PRIO),serial(_serial)
+	serial(_serial)
 {
 	 using namespace stm32;
 	 //Enable PE in APB2

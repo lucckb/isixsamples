@@ -14,7 +14,8 @@ namespace app
 {
 /* ------------------------------------------------------------------ */
 //Constructor
-display_server::display_server():task_base(STACK_SIZE, TASK_PRIO),io_fifo(QUEUE_CAPACITY)
+display_server::display_server()
+	: io_fifo(QUEUE_CAPACITY)
 {
 
 }

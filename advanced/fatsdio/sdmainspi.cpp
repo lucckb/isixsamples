@@ -82,11 +82,12 @@ class ledblink: public isix::task_base
 {
 public:
 	//Constructor
-	ledblink() : task_base(STACK_SIZE,TASK_PRIO), LED_PORT(GPIOE)
+	ledblink() :  LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		gpio_clock_enable( LED_PORT, true);
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
+		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 protected:
 	//Main functionQMonikQ
@@ -135,10 +136,10 @@ class fat_tester: public isix::task_base
 public:
 	//Constructor
 	fat_tester()
-		: task_base(STACK_SIZE,TASK_PRIO),
-		  m_spi(SPI1,CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ),
+		: m_spi(SPI1,CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ),
 		  m_mmc_host( m_spi,11000 ), m_slot( m_mmc_host, m_pin )
 	{
+		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 protected:
 	//Main function
@@ -213,10 +214,11 @@ class mmc_host_tester : public isix::task_base
 {
 public:
 	mmc_host_tester()
-		: task_base(STACK_SIZE,TASK_PRIO),
-		  m_spi(SPI1,CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ),
+		: m_spi(SPI1,CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ),
 		  m_mmc_host( m_spi,11000 ), m_slot( m_mmc_host, m_pin )
-	{}
+	{
+		start_thread( STACK_SIZE, TASK_PRIO );
+	}
 private:
 	void transfer_read_test( drv::mmc::mmc_card *card, char *buf, size_t size )
 	{

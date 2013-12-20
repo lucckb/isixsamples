@@ -25,6 +25,9 @@ class led_receiver: public isix::task_base
 public:
 	//Constructor
 	led_receiver(stm32::dev::usart_buffered &_serial);
+	void start() {
+		start_thread( STACK_SIZE, TASK_PRIO );
+	}
 protected:
 	//Main thread method
 	virtual void main();

@@ -31,6 +31,9 @@ public:
 	{
 		io_fifo.push(&msg);
 	}
+	void start() {
+		start_thread( STACK_SIZE, TASK_PRIO );
+	}
 protected:
 	//Thread/task method
 	virtual void main();

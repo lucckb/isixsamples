@@ -76,11 +76,12 @@ class ledblink: public isix::task_base
 {
 public:
 	//Constructor
-	ledblink() : task_base(STACK_SIZE,TASK_PRIO), LED_PORT(GPIOE)
+	ledblink() :  LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		gpio_clock_enable( LED_PORT, true);
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
+		start_thread( STACK_SIZE, TASK_PRIO);
 	}
 protected:
 	//Main function
@@ -115,8 +116,8 @@ class ledkey: public isix::task_base
 public:
 	//Constructor
 	ledkey()
-		: task_base(STACK_SIZE,TASK_PRIO)
 	{
+		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 protected:
 	//Main function

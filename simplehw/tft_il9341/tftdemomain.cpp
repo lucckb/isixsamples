@@ -88,11 +88,13 @@ class ledblink: public isix::task_base
 {
 public:
 	//Constructor
-	ledblink() : task_base(STACK_SIZE,TASK_PRIO), LED_PORT(GPIOE)
+	ledblink( ) 
+		: LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		gpio_clock_enable( LED_PORT, true);
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
+		start_thread(STACK_SIZE, TASK_PRIO);
 	}
 protected:
 	//Main functionQMonikQ
@@ -305,9 +307,9 @@ private:
 public:
 	//Constructor
 	tft_tester()
-		: task_base(STACK_SIZE,TASK_PRIO),
-		  gdisp( gbus ), frame(gdisp)
+		: gdisp( gbus ), frame(gdisp)
 	{
+		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 	gfx::gui::frame& get_frame()
 	{
@@ -458,13 +460,14 @@ class gpio_keypad: public isix::task_base
 	}
 public:
 	gpio_keypad( gfx::gui::frame& frm )
-		: task_base(STACK_SIZE,TASK_PRIO), m_frm(frm)
+		:  m_frm(frm)
 	{
 		stm32::gpio_clock_enable(j_port, true);
 		stm32::gpio_abstract_config_ext( j_port,
 				_bv(j_ok)|_bv(j_up)|_bv(j_down)|_bv(j_left)|_bv(j_right),
 				stm32::AGPIO_MODE_INPUT_PULLUP, stm32::AGPIO_SPEED_FULL
 		);
+		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 	virtual void main()
 	{

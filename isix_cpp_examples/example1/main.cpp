@@ -124,7 +124,9 @@ int main()
 	static app::ledblink led_blinker;
 	//The ledkey class
 	static app::ledkey led_key;
-
+	
+	led_blinker.start();
+	led_key.start();
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }

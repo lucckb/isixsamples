@@ -25,7 +25,8 @@ namespace
 
 /* ------------------------------------------------------------------ */
 //Default constructor initialize GPIO and var
-ledkey::ledkey():task_base(STACK_SIZE,TASK_PRIO),is_enabled(false)
+ledkey::ledkey()
+	:	is_enabled(false)
 {
 	using namespace stm32;
 	//Enable PE in APB2

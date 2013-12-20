@@ -21,6 +21,9 @@ class rtc_reader : public isix::task_base
 {
 public:
 	rtc_reader(display_server &disp_srv_);
+	void start() {
+		start_thread( STACK_SIZE, TASK_PRIO );
+	}
 protected:
 	//Thread/task method
 	virtual void main();

@@ -19,6 +19,9 @@ class ledblink: public isix::task_base
 {
 public:
 	ledblink();
+	void start() {
+		start_thread(STACK_SIZE, TASK_PRIO);
+	}
 protected:
 	virtual void main();
 private:

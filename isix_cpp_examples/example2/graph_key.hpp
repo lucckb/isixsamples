@@ -27,6 +27,9 @@ class graph_key: public isix::task_base
 public:
 	//Constructor
 	graph_key(display_server &_srv);
+	void start() {
+		start_thread( STACK_SIZE, TASK_PRIO );
+	}
 protected:
 	//The task/thread
 	virtual void main();

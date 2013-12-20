@@ -125,12 +125,15 @@ class ledblink: public isix::task_base
 {
 public:
 	//Constructor
-	ledblink() : task_base(STACK_SIZE,TASK_PRIO), LED_PORT(GPIOE)
+	ledblink() : LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		//Enable PE in APB2
 		RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 		gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	}
+	void start() {
+		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 protected:
 	//Main function
@@ -162,7 +165,7 @@ class ledkey: public isix::task_base
 public:
 	//Constructor
 	ledkey()
-		: task_base(STACK_SIZE,TASK_PRIO), is_enabled(false),
+		:  is_enabled(false),
 		  KEY_PORT(GPIOE), LED_PORT(GPIOE)
 	{
 		using namespace stm32;
@@ -170,6 +173,9 @@ public:
 		RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 		gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 		gpio_config(LED_PORT,NOTIFY_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	}
+	void start() {
+		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 protected:
 	//Main function
@@ -256,6 +262,8 @@ int main()
 	static app::ledblink led_blinker;
 	//The ledkey class
 	static app::ledkey led_key;
+	led_blinker.start();
+	led_key.start();
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }

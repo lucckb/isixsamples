@@ -136,7 +136,7 @@ int main()
 {
 	//Application object
 	static app::the_application application;
-
+	application.start();
 	//Start scheduler
 	isix::isix_start_scheduler();
 

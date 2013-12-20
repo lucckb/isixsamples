@@ -23,7 +23,7 @@ namespace
 
 /* ------------------------------------------------------------------ */
 //Default constructor, construct base object
-ledblink::ledblink():task_base(STACK_SIZE,TASK_PRIO)
+ledblink::ledblink()
 {
 	using namespace stm32;
 	//Enable PE in APB2

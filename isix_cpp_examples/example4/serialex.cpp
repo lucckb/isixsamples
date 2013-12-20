@@ -118,6 +118,7 @@ int main()
 {
 	//The application object
 	static app::the_serialapp app;
+	app.start();
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
 }
