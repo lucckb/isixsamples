@@ -1,7 +1,7 @@
 # Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = usbdemo
+TARGET	   = usbhosttest
 
 #Output format (elf,hex,bin)
 FORMAT	= elf
