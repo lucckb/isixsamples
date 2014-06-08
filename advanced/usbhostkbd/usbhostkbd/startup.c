@@ -34,8 +34,7 @@ void uc_periph_setup()
     //Enable high speed oscilator
     RCC->CR  |= RCC_CR_HSEON;
     //Wait for setup HSE
-    while(1)
-    {
+    while(1) {
         if(RCC->CR & RCC_CR_HSERDY) break;
     }
     //Configure flash: Prefetch enable and 1 wait state
@@ -55,10 +54,8 @@ void uc_periph_setup()
     RCC->CR |= RCC_CR_PLLON;
 
     //Wait for PLL sync
-    while(1)
-    {
-	    if(RCC->CR & RCC_CR_PLLRDY)
-	    {
+    while(1) {
+	    if(RCC->CR & RCC_CR_PLLRDY) {
 	        //PLL as system clock
 	        RCC->CFGR |=  RCC_CFGR_SW_PLL;
 	        break;
@@ -73,7 +70,7 @@ void uc_periph_setup()
 //Setup the systick timer at ISIX_HZ (default 1000HZ)
 void timer_setup()
 {
-	SysTick->LOAD = ISIX_HZ * (HCLK_HZ/(8*MHZ));
+	SysTick->LOAD = ISIX_HZ * (CONFIG_HCLK_HZ/(8*MHZ));
 	SysTick->CTRL |= CTRL_TICKINT_Set;
 	//System counter enable
 	SysTick->CTRL |= SysTick_Counter_Enable;

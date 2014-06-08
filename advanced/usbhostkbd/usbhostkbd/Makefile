@@ -1,7 +1,7 @@
-#4 Automatic makefile for GNUARM (C/C++)
+# Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
-TARGET	   = example1cpp
+TARGET	   = usbdemo
 
 #Output format (elf,hex,bin)
 FORMAT	= elf
@@ -11,21 +11,24 @@ FORMAT	= elf
 OPT 	?= 2
 
 #MCU variant
-MCU_VARIANT = f107VBT6
+MCU_MAJOR_TYPE = f1
+MCU_MINOR_TYPE = 07VBT6
 
-#Enable exceptions support
-CPP_EXCEPTIONS = n
 
 #System stack size interrupts etc
 MCU_SYSTEM_STACK_SIZE = 512
 
+#Enable exceptions support
+CPP_EXCEPTIONS = n
+
+#USB driver type
+ISIX_USBDRV_TYPE = stm32f1_host
+
 #Common flags 
-COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
-
-#Include
-COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
-COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
-
+COMMON_FLAGS = -Wall -Wextra  -Wno-variadic-macros
+#Configuration flags
+COMMON_FLAGS += -D_HAVE_CONFIG_H 
+COMMON_FLAGS += -I./include
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
@@ -34,8 +37,6 @@ CFLAGS += -std=gnu99
 #C++ compiler options 
 CXXFLAGS += $(COMMON_FLAGS)
 
-#Disable safe constructors
-#CXXFLAGS +=  -fno-threadsafe-statics
 
 #Per file listing
 LISTING = n
@@ -53,14 +54,16 @@ CPPSRC += $(wildcard *.cpp)
 #Source ASM files
 ASRC += $(wildcard *.S)
 
-ISIX_DIR=../../isixrtos/libisix
-ISIX_ARCH=arm-cm3
-ISIXDRV_DIR=../../isixrtos/libisixdrvstm32
-LIBFOUNDATION_DIR=../../isixrtos/libfoundation
-LIBSTM32_DIR=../../isixrtos/libstm32
+ISIX_BASE_DIR=../../isixrtos
+ISIX_DIR=$(ISIX_BASE_DIR)/libisix
+ISIXDRV_DIR=$(ISIX_BASE_DIR)/libisixdrvstm32
+LIBFOUNDATION_DIR=$(ISIX_BASE_DIR)/libfoundation
+LIBSTM32_DIR=$(ISIX_BASE_DIR)/libstm32
+LIBUSB_DIR=$(ISIX_BASE_DIR)/libusb
+
 include $(ISIX_DIR)/isix.mk
+include $(LIBSTM32_DIR)/libstm32.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
-include $(LIBSTM32_DIR)/libstm32.mk
+include $(LIBUSB_DIR)/libusb.mk
 include $(LIBSTM32_DIR)/scripts/stm32.mk
-
