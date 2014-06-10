@@ -9,22 +9,12 @@
 #include <stm32gpio.h>
 #include <string>
 #include <usb/host/internal.h>
-#include <usb/core/hid_parser.h>
 #include <usb/host/controller.h>
 #include <usb/drivers/hostdev/hid_keyboard.h>
 #include <usb/drivers/hostdev/hid_joystick.h>
 #include <algorithm>
 #include "blinker.hpp"
 /* ------------------------------------------------------------------ */
-namespace app
-{
-/* ------------------------------------------------------------------ */
-//! TFT tester 
-
-/* ------------------------------------------------------------------ */
-
-}	//namespace app end
-
 //Anonymous namespace for special keyboard handler
 namespace {
 	void  kbd_connected( const usbh_keyb_hid_context_t* id ) {
