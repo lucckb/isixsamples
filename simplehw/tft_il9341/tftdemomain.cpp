@@ -446,14 +446,11 @@ class gpio_keypad: public isix::task_base
 	using ks = gfx::input::detail::keyboard_tag::status;
 	void report_key( char key , ks type )
 	{
-		const gfx::input::event_info ei
-		{
+		const gfx::input::event_info ei {
 			isix::isix_get_jiffies(),
 			gfx::input::event_info::evtype::EV_KEY,
-			{
-				type,
-				key,
-				0
+			nullptr, {
+				type, key, 0, 0
 			}
 		};
 		m_frm.report_event( ei );
