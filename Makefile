@@ -1,7 +1,7 @@
 all:
 	$(MAKE) -C isix_c_examples
 	$(MAKE) -C isix_cpp_examples
-	$(MAKE) -C advanced/usbhosthid
+	$(MAKE) -C advanced/usbhostkbd
 
 clean:
 	$(MAKE) -C advanced/usbhosthid clean
@@ -9,5 +9,5 @@ clean:
 	$(MAKE) -C isix_cpp_examples clean 
 
 program:
-	$(MAKE) -C advanced/usbhosthid program
+	$(MAKE) -C advanced/usbhostkbd program
 
