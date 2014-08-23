@@ -97,7 +97,7 @@ public:
 		start_thread(STACK_SIZE, TASK_PRIO);
 	}
 protected:
-	//Main functionQMonikQ
+	//Main function
 	virtual void main()
 	{
 		while(true)
@@ -329,9 +329,9 @@ private:
 		using namespace gfx::drv;
 		//Menu for choice
 		static constexpr choice_menu::item menu1[] = {
-				{ 1, "ala ma kota" },
-				{ 2, "kot ma ale" },
-				{ 3, "zenek ma VIPA" },
+				{ 1, "linia 1" },
+				{ 2, "linia 2" },
+				{ 3, "linia 3" },
 				{ 4, "linia 4" },
 				{ 5, "linia 5" },
 				{ 6, "linia 6" },
@@ -346,9 +346,6 @@ private:
 		gdisp.power_ctl( power_ctl_t::on );
 		window win( rectangle( 10, 10, 200, 300), frame, window::flags::border |window::flags::selectborder );
 		button btn( rectangle(20, 20, 100 , 40), layout(), win );
-		//button btn1( rectangle(20, 65, 100 , 40), layout(), win );
-		//label lbl1( rectangle(20, 120, 50 , 12), layout(), win );
-		//icon  ico1( rectangle(80, 120, 25 , 25), layout(), win );
 		choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win, choice_menu::style::normal );
 		seekbar seek( rectangle(20, 65, 160 , 20), layout(), win );
 		editbox edit( rectangle(20, 110, 160 , 30), layout(), win );
@@ -356,10 +353,7 @@ private:
 		m_edit = &edit;
 		seek.value( 50 );
 		btn.caption("ALA");
-		edit.value("dupa ala i pierdziala i koniec");
-		//btn1.caption("ELA");
-		//lbl1.caption("LABEL");
-		//ico1.image( testimg::bat_png );
+		edit.value("Text edit value");
 		choice1.items( menu1 );
 		//Connect windows callback to the main window
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1), event::evtype::EV_KEY);
@@ -389,14 +383,11 @@ private:
 		gdisp.fill(50,150,30,30, gfx::rgb(127,0,255));
 		gdisp.blit( 20, 40, 16, 16, 0, img );
 		tbeg = isix::isix_get_jiffies();
-		//gdisp.blit( 5, 10, gimp_image.width, gimp_image.height, 0, (uint16_t*)gimp_image.pixel_data);
 		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
 		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) ,  gfx::rgb(0,255,0)  );
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), gfx::rgb(255,0,0) );
-		//isix::isix_wait_ms( 2000 );
-		//gdisp.vert_scroll( 0, 0, 240/4, 320 ,-320/2, gfx::rgb(255,255,255));
 		gdi.set_fg_color( gfx::rgb(64,255,45) );
-		constexpr char txt[] = "Ala testuje napis a ciekawe co bedzie jak wyjdzie";
+		constexpr char txt[] = "Przykladowy napis";
 		tbeg = isix::isix_get_jiffies();
 		gdi.draw_text(1,2, txt);
 		dbprintf("string_time=%u", isix::isix_get_jiffies() - tbeg );
@@ -413,7 +404,6 @@ private:
 		tbeg = isix::isix_get_jiffies();
 		gdi.set_fg_color( gfx::rgb(255,0,0) );
 		gdi.set_bg_color( gfx::rgb(0,0,0) );
-		//gdi.draw_image(40, 200, testimg::isixlogo_png );
 		dbprintf("drawimage_time=%u", isix::isix_get_jiffies() - tbeg );
 	}
 private:
@@ -515,15 +505,14 @@ int main()
 {
 	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
 	    		USART2,115200,true, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
-	dbprintf("TFT Tester. Good Morning");
+	dbprintf("TFT Tester");
 	//The blinker class
 	static app::ledblink led_blinker;
+
 	//The ledkey class
 	static app::tft_tester ft;
 
 	static app::gpio_keypad kp( ft.get_frame() );
-
-	//static app::mmc_host_tester ht;
 	isix::isix_wait_ms(1000);
 	//Start the isix scheduler
 	isix::isix_start_scheduler();
