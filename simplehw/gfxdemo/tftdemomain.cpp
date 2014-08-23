@@ -352,16 +352,16 @@ private:
 		edit.readonly(true);
 		m_edit = &edit;
 		seek.value( 50 );
-		btn.caption("ALA");
+		btn.caption("Button");
 		edit.value("Text edit value");
 		choice1.items( menu1 );
 		//Connect windows callback to the main window
 		win.connect(std::bind(&tft_tester::window_callback,this,std::placeholders::_1), event::evtype::EV_KEY);
 		btn.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1),event::evtype::EV_CLICK);
 		btn.pushkey( gfx::input::kbdcodes::enter);
-		//btn1.connect(std::bind(&tft_tester::on_click,this,std::placeholders::_1));
 		choice1.connect(std::bind(&tft_tester::on_select_item,this,std::placeholders::_1),event::evtype::EV_CLICK);
 		seek.connect(std::bind(&tft_tester::on_seek_change,this,std::placeholders::_1),event::evtype::EV_CLICK);
+		frame.set_focus( &win );
 		frame.execute();
 	}
 	void gdi_test()
