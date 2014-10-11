@@ -4,7 +4,7 @@ all:
 	$(MAKE) -C advanced/usbhostkbd
 
 clean:
-	$(MAKE) -C advanced/usbhosthid clean
+	$(MAKE) -C advanced/usbhostkbd clean
 	$(MAKE) -C isix_c_examples clean
 	$(MAKE) -C isix_cpp_examples clean 
 
