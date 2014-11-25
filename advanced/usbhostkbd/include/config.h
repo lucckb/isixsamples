@@ -19,6 +19,7 @@
 #define CONFIG_USBHOST_VBUS_GPIO_N  D
 #define CONFIG_USBHOST_VBUS_PIN   14
 #define CONFIG_USBHOST_VBUS_ON      1
+#define CONFIG_USBHOST_VBUS_OTYPE  GPIO_CNF_GPIO_PP
 #define CONFIG_USBLIB_US_TIM_N 2
 #define CONFIG_USBHOST_USB_IRQ_MASK_VALUE 1
 /* ------------------------------------------------------------------ */

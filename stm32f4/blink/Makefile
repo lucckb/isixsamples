@@ -4,19 +4,19 @@
 TARGET	   = blinkf4
 
 #Output format (elf,hex,bin)
-FORMAT	= bin
+FORMAT	= hex
 
 #Optimalization [0,1,2,3,s]
 # 0 - none optimalization, s - size optimalization 3 - most optimized
 OPT 	?= 2
 
 #MCU variant
-#MCU_MAJOR_TYPE = f4
-#MCU_MINOR_TYPE = 17VGT6
+MCU_MAJOR_TYPE = f4
+MCU_MINOR_TYPE = 17VGT6
 #MCU_MAJOR_TYPE = f1
 #MCU_MINOR_TYPE = 07VBT6
-MCU_MAJOR_TYPE = f2
-MCU_MINOR_TYPE = 05VCT6
+#MCU_MAJOR_TYPE = f2
+#MCU_MINOR_TYPE = 05VCT6
 
 
 #For bootloader
