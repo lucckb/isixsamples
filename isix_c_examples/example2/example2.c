@@ -151,7 +151,7 @@ int main(void)
 {
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,
-			ISIX_PORT_SCHED_MIN_STACK_DEPTH, TASK_PRIO_LED
+			ISIX_PORT_SCHED_MIN_STACK_DEPTH, TASK_PRIO_LED, 0
 	);
 	//Create fifo msgs
 	fifo_t *temp_fifo = isix_fifo_create( 10, sizeof(struct msg) );
@@ -160,8 +160,8 @@ int main(void)
 	if(temp_fifo)
 	{
 		//Create isix tasks (temp and disp)
-		isix_task_create(temp_read_task,temp_fifo,TASK_STK_SIZE,TASK_PRIO_TEMP);
-		isix_task_create(display_srv_task,temp_fifo,TASK_STK_SIZE,TASK_PRIO_TEMP);
+		isix_task_create(temp_read_task,temp_fifo,TASK_STK_SIZE,TASK_PRIO_TEMP,0);
+		isix_task_create(display_srv_task,temp_fifo,TASK_STK_SIZE,TASK_PRIO_TEMP,0);
 	}
 	isix_start_scheduler();
 	//Start the sheduler

@@ -17,7 +17,7 @@ MCU_VARIANT = f107VBT6
 CPP_EXCEPTIONS = n
 
 #Common flags 
-COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
+COMMON_FLAGS = -Wall -DSTM32F10X_CL -Wextra  -Wno-variadic-macros  -fshort-enums
 
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH

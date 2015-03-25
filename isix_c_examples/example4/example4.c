@@ -167,14 +167,14 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 int main(void)
 {
 	//Create ISIX blinking task
-	isix_task_create( blinking_task, NULL,ISIX_PORT_SCHED_MIN_STACK_DEPTH, TASK_PRIO_LED);
+	isix_task_create( blinking_task, NULL,ISIX_PORT_SCHED_MIN_STACK_DEPTH, TASK_PRIO_LED,0);
 	//Create fifo msgs
 	fifo_t *key_fifo = isix_fifo_create( 10, sizeof(key_t) );
 	if(key_fifo)
 	{
 		//Create isix tasks (key and disp)
-		isix_task_create(kbd_task,key_fifo,TASK_STK_SIZE,TASK_PRIO_KEY);
-		isix_task_create(display_srv_task,key_fifo,TASK_STK_SIZE,TASK_PRIO_DISP);
+		isix_task_create(kbd_task,key_fifo,TASK_STK_SIZE,TASK_PRIO_KEY,0);
+		isix_task_create(display_srv_task,key_fifo,TASK_STK_SIZE,TASK_PRIO_DISP,0);
 	}
 	isix_start_scheduler();
 	//Start the sheduler

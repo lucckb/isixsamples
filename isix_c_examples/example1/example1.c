@@ -149,16 +149,16 @@ int main(void)
 {
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,
-			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
+			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO, 0
 	);
 	fifo_t *kbd_fifo = isix_fifo_create( 10, sizeof(key_t) );
 	if(kbd_fifo)
 	{
 		//Create the display serwer task
-		isix_task_create(display_srv_task,kbd_fifo,DISPLAY_TASK_STACK_SIZE,DISPLAY_TASK_PRIO);
+		isix_task_create(display_srv_task,kbd_fifo,DISPLAY_TASK_STACK_SIZE,DISPLAY_TASK_PRIO,0);
 
 		//Create the keyboyard task
-		isix_task_create(keyboard_srv_task, kbd_fifo, KBD_TASK_STACK_SIZE, KBD_TASK_PRIO);
+		isix_task_create(keyboard_srv_task, kbd_fifo, KBD_TASK_STACK_SIZE, KBD_TASK_PRIO,0);
 	}
 	//Start the isix scheduler
 	isix_start_scheduler();
