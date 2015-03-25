@@ -87,10 +87,10 @@ int main(void)
 
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,
-			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO
+			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO, 0
 	);
 	isix_task_create( cdc_task, NULL,
-				1024, BLINKING_TASK_PRIO
+				1024, BLINKING_TASK_PRIO, 0
 		);
 	dbprintf("Hello from CDCACM usb example");
 
