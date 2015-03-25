@@ -25,7 +25,7 @@ CPP_EXCEPTIONS = n
 
 #Common flags
 COMMON_FLAGS = -Iinclude -D_HAVE_CONFIG_H
-COMMON_FLAGS += -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros
+COMMON_FLAGS += -Wall -DSTM32F10X_CL -Wextra  -Wno-variadic-macros
 
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH

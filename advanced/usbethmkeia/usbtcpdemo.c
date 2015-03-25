@@ -180,9 +180,9 @@ int main(void)
 	dblog_init( usartsimple_putc, NULL, usartsimple_init,
 			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
 	//Create ISIX blinking task
-	isix_task_create( blinking_task, NULL, ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO);
+	isix_task_create( blinking_task, NULL, ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO, 0 );
 	//Create USB CDC class task
-	isix_task_create( cdc_task, NULL, 1024, BLINKING_TASK_PRIO );
+	isix_task_create( cdc_task, NULL, 1024, BLINKING_TASK_PRIO, 0 );
 	dbprintf("Hello from USB+TCP sample");
 	//Initialize the tcpip library
 	tcp_eth_init();
