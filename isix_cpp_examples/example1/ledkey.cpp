@@ -53,7 +53,7 @@ void ledkey::main()
 		if(is_enabled) stm32::gpio_clr( LED_PORT, LED_PIN );
         else stm32::gpio_set( LED_PORT, LED_PIN );
 		//Wait short time
-		isix::isix_wait( isix::isix_ms2tick(DELAY_TIME) );
+		isix::wait_ms( DELAY_TIME );
 	}
 }
 

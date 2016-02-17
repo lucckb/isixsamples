@@ -20,7 +20,7 @@ CPP_EXCEPTIONS = n
 MCU_SYSTEM_STACK_SIZE = 512
 
 #Common flags 
-COMMON_FLAGS = -Wall -DSTM32F10X_CL -pedantic -Wextra  -Wno-variadic-macros  -fshort-enums
+COMMON_FLAGS = -Wall -DSTM32F10X_CL -Wextra  -Wno-variadic-macros  -fshort-enums
 
 #Include
 COMMON_FLAGS += -DCOMPILED_UNDER_ISIX -DISIX_CONFIG_STACK_GROWTH
@@ -29,7 +29,7 @@ COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
-CFLAGS += -std=gnu99 
+CFLAGS += -std=gnu11
 
 #C++ compiler options 
 CXXFLAGS += $(COMMON_FLAGS)
