@@ -62,9 +62,9 @@ void _external_startup(void)
 	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Initialize isix
-	isix::isix_init(ISIX_NUM_PRIORITIES);
+	isix::init(ISIX_NUM_PRIORITIES);
 
-	stm32::systick_config( isix::ISIX_HZ * (config::HCLK_HZ/(8*MHZ)) );
+	stm32::systick_config( ISIX_HZ * (config::HCLK_HZ/(8*MHZ)) );
 }
 /* ------------------------------------------------------------------ */
 } /* extern C */
@@ -97,11 +97,11 @@ protected:
 			//Enable LED
 			stm32::gpio_clr( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 			//Disable LED
 			stm32::gpio_set( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 			ala_z *= 1.1;
 			dbprintf("VAR1=%d", (int)ala_z);
 		}
@@ -130,7 +130,7 @@ protected:
 		volatile float ala_j = 1.2;
 		for(;;)
 		{
-			isix::isix_wait( isix::isix_ms2tick(600) );
+			isix::wait_ms( 600 );
 			ala_j += 12.0;
 			dbprintf("VAR2=%d", (int)ala_j);
 		}
@@ -155,7 +155,7 @@ int main()
 	//The ledkey class
 	static app::ledkey led_key;
 	//Start the isix scheduler
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 }
 
 /* ------------------------------------------------------------------ */
