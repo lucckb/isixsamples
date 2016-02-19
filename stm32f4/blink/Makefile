@@ -18,6 +18,9 @@ OPT 	?= 2
 MCU_MAJOR_TYPE = f2
 MCU_MINOR_TYPE = 05VCT6
 
+#USE SWD interface
+PGM_SWD=y
+
 
 #For bootloader
 USE_SBL_BOOTLOADER = n
