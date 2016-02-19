@@ -20,6 +20,7 @@ MCU_MINOR_TYPE = 05VCT6
 
 #USE SWD interface
 PGM_SWD=y
+PGM_SPEED_KHZ=3000
 
 
 #For bootloader
