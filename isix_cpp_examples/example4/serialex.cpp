@@ -70,7 +70,7 @@ void uc_periph_setup()
 //Setup the systick timer at ISIX_HZ (default 1000HZ)
 void timer_setup()
 {
-	SysTick->LOAD = isix::ISIX_HZ * (config::HCLK_HZ/(8*MHZ));
+	SysTick->LOAD = ISIX_HZ * (config::HCLK_HZ/(8*MHZ));
 	SysTick->CTRL |= CTRL_TICKINT_Set;
 	//System counter enable
 	SysTick->CTRL |= SysTick_Counter_Enable;
@@ -101,7 +101,7 @@ void _external_startup(void)
 	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Initialize isix
-	isix::isix_init(ISIX_NUM_PRIORITIES);
+	isix::init(ISIX_NUM_PRIORITIES);
 
 	//Setup the systick timer
 	timer_setup();
@@ -120,7 +120,7 @@ int main()
 	static app::the_serialapp app;
 	app.start();
 	//Start the isix scheduler
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 }
 
 /* ------------------------------------------------------------------ */

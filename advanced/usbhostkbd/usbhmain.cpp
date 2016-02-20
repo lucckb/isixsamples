@@ -104,7 +104,7 @@ int main()
 	usbh_controller_attach_driver( usbh_hid_joystick_init(&joy_ops) );
 	dbprintf("Joystick and KBD initialized and completed");
 	//Start the isix scheduler
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 
 	dbprintf("Scheduler exit");
 }

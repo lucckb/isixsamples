@@ -257,7 +257,7 @@ void nokia_display::lcd_init()
 
     //Display reset
     res_pin(0);
-    isix::isix_wait_ms(250);
+    isix::wait_ms(250);
     res_pin(1);
 
     //Initial state

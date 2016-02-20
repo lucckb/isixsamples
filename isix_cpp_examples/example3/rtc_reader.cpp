@@ -68,7 +68,7 @@ void rtc_reader::main()
 		//Send message to the i2c device
 		disp_srv.send_message(tmsg);
 		//Refresh screen ratio
-		isix::isix_wait(200);
+		isix::wait_ms(200);
 	}
 }
 

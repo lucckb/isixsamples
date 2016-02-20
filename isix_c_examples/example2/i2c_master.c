@@ -82,9 +82,9 @@ static const uint8_t *tx_buf;
 //Rx buffer pointer
 static uint8_t *rx_buf;
 //Busy semaphore
-static sem_t *sem_lock;
-//Read semaphore
-static sem_t *sem_irq;
+static ossem_t sem_lock;
+//Read semaphor
+static ossem_t sem_irq;
 //Bus address
 static volatile uint8_t bus_addr;
 //Bus error flags

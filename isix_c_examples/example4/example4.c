@@ -104,7 +104,7 @@ ISIX_TASK_FUNC(kbd_task,entry_params)
 	//Initialize gpio port keyscan
 	keyscan_init();
 	//Fifo pointer
-	fifo_t *key_fifo = (fifo_t*)entry_params;
+	osfifo_t key_fifo = (osfifo_t)entry_params;
 	//Main loop
 	for(;;)
 	for(int row=KEYSCAN_FIRST_ROW;row<=KEYSCAN_LAST_ROW ;row<<=1)
@@ -128,7 +128,7 @@ ISIX_TASK_FUNC(kbd_task,entry_params)
 /** Display server task */
 static ISIX_TASK_FUNC(display_srv_task, entry_params)
 {
-	fifo_t *temp_fifo = (fifo_t*)entry_params;
+	osfifo_t temp_fifo = (osfifo_t)entry_params;
 	key_t key;
 	nlcd_init();			//Initialize LCD
 	//Put welcome string
@@ -148,8 +148,9 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 /** Blinking led task function */
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
+	(void)entry_param;
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
- gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
+	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	for(;;)
 	{
 		//Enable LED
@@ -169,7 +170,7 @@ int main(void)
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,ISIX_PORT_SCHED_MIN_STACK_DEPTH, TASK_PRIO_LED,0);
 	//Create fifo msgs
-	fifo_t *key_fifo = isix_fifo_create( 10, sizeof(key_t) );
+	osfifo_t key_fifo = isix_fifo_create( 10, sizeof(key_t) );
 	if(key_fifo)
 	{
 		//Create isix tasks (key and disp)

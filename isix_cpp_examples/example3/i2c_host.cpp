@@ -197,7 +197,7 @@ void i2c_host::set_speed(unsigned speed)
 int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
-	if( (ret=sem_lock.wait(isix::ISIX_TIME_INFINITE))<0 )
+	if( (ret=sem_lock.wait(ISIX_TIME_INFINITE))<0 )
 	{
 		return ret;
 	}
@@ -227,7 +227,7 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 	//Sem read lock
 	if( (ret=sem_irq.wait(TRANSFER_TIMEOUT)) <0  )
 	{
-		if(ret==isix::ISIX_ETIMEOUT)
+		if(ret==ISIX_ETIMEOUT)
 		{
 			devirq_on(false);
 			sem_lock.signal();

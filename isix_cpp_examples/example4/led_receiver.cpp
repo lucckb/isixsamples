@@ -46,7 +46,7 @@ void led_receiver::main()
 	{
 		char c;
 		//Receive data from serial
-		if(serial.getchar(c)==isix::ISIX_EOK)
+		if(serial.getchar(c)==ISIX_EOK)
 		{
 			//Check for received char
 			switch(c)

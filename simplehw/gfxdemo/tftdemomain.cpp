@@ -70,9 +70,9 @@ void _external_startup(void)
 	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Initialize isix
-	isix::isix_init(ISIX_NUM_PRIORITIES);
+	isix::init(ISIX_NUM_PRIORITIES);
 
-	stm32::systick_config( isix::ISIX_HZ * (freq/(8*MHZ)) );
+	stm32::systick_config( ISIX_HZ * (freq/(8*MHZ)) );
 }
 /* ------------------------------------------------------------------ */
 } /* extern C */
@@ -105,11 +105,11 @@ protected:
 			//Enable LED
 			stm32::gpio_clr( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 			//Disable LED
 			stm32::gpio_set( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 		}
 	}
 private:
@@ -241,7 +241,7 @@ public:
 	/* Wait ms long delay */
 	virtual void delay( unsigned tout )
 	{
-		isix::isix_wait_ms( tout );
+		isix::wait_ms( tout );
 	}
 	/* Set PWM  */
 	virtual void set_pwm( int /*percent*/ )
@@ -377,34 +377,34 @@ private:
 		}
 		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
 		gfx::disp::gdi gdi(gdisp);
-		isix::tick_t tbeg = isix::isix_get_jiffies();
+		ostick_t tbeg = isix::get_jiffies();
 		gdi.clear();
-		dbprintf("TIME=%u", isix::isix_get_jiffies() - tbeg );
+		dbprintf("TIME=%u", isix::get_jiffies() - tbeg );
 		gdisp.fill(50,150,30,30, gfx::rgb(127,0,255));
 		gdisp.blit( 20, 40, 16, 16, 0, img );
-		tbeg = isix::isix_get_jiffies();
-		dbprintf("BLIT=%u", isix::isix_get_jiffies() - tbeg );
+		tbeg = isix::get_jiffies();
+		dbprintf("BLIT=%u", isix::get_jiffies() - tbeg );
 		dbprintf( "PIX1=%04X %04x", gdisp.get_pixel( 1, 1 ) ,  gfx::rgb(0,255,0)  );
 		dbprintf( "PIX2=%04X %04x", gdisp.get_pixel(140,140 ), gfx::rgb(255,0,0) );
 		gdi.set_fg_color( gfx::rgb(64,255,45) );
 		constexpr char txt[] = "Przykladowy napis";
-		tbeg = isix::isix_get_jiffies();
+		tbeg = isix::get_jiffies();
 		gdi.draw_text(1,2, txt);
-		dbprintf("string_time=%u", isix::isix_get_jiffies() - tbeg );
-		tbeg = isix::isix_get_jiffies();
+		dbprintf("string_time=%u", isix::get_jiffies() - tbeg );
+		tbeg = isix::get_jiffies();
 		gdi.draw_line( 1, 100, 100, 100 );
-		dbprintf("line_time=%u", isix::isix_get_jiffies() - tbeg );
-		tbeg = isix::isix_get_jiffies();
+		dbprintf("line_time=%u", isix::get_jiffies() - tbeg );
+		tbeg = isix::get_jiffies();
 		gdi.draw_circle( 150, 150, 30 );
-		dbprintf("circle_time=%u", isix::isix_get_jiffies() - tbeg );
-		tbeg = isix::isix_get_jiffies();
+		dbprintf("circle_time=%u", isix::get_jiffies() - tbeg );
+		tbeg = isix::get_jiffies();
 		gdi.draw_ellipse( 50, 150, 30, 40 );
-		dbprintf("ellipse_time=%u", isix::isix_get_jiffies() - tbeg );
+		dbprintf("ellipse_time=%u", isix::get_jiffies() - tbeg );
 		dbprintf("text_width=%u", gdi.get_text_width(txt));
-		tbeg = isix::isix_get_jiffies();
+		tbeg = isix::get_jiffies();
 		gdi.set_fg_color( gfx::rgb(255,0,0) );
 		gdi.set_bg_color( gfx::rgb(0,0,0) );
-		dbprintf("drawimage_time=%u", isix::isix_get_jiffies() - tbeg );
+		dbprintf("drawimage_time=%u", isix::get_jiffies() - tbeg );
 	}
 private:
 	static const unsigned STACK_SIZE = 2048;
@@ -437,7 +437,7 @@ class gpio_keypad: public isix::task_base
 	void report_key( char key , ks type )
 	{
 		const gfx::input::event_info ei {
-			isix::isix_get_jiffies(),
+			isix::get_jiffies(),
 			gfx::input::event_info::evtype::EV_KEY,
 			nullptr, {
 				type, key, 0, 0
@@ -487,7 +487,7 @@ public:
 			if( !d && pd ) report_key( keys::os_arrow_down, ks::DOWN );
 			if( d && !pd ) report_key( keys::os_arrow_down, ks::UP );
 			pd = d;
-			isix::isix_wait_ms(20);
+			isix::wait_ms(20);
 		}
 	}
 private:
@@ -513,9 +513,9 @@ int main()
 	static app::tft_tester ft;
 
 	static app::gpio_keypad kp( ft.get_frame() );
-	isix::isix_wait_ms(1000);
+	isix::wait_ms(1000);
 	//Start the isix scheduler
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 }
 
 /* ------------------------------------------------------------------ */

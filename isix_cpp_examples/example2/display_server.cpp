@@ -28,7 +28,7 @@ void display_server::main()
 	for(;;)
 	{
 		//Try read message from the fifo
-		if(io_fifo.pop(msg) == isix::ISIX_EOK)
+		if(io_fifo.pop(msg) == ISIX_EOK)
 		{
 			//Validate message
 			if( msg )

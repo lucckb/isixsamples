@@ -29,7 +29,7 @@ LDFLAGS += -Wl,--defsym=_sys_stack_size=384
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
-CFLAGS += -std=gnu99 
+CFLAGS += -std=gnu11
 
 #C++ compiler options 
 CXXFLAGS += $(COMMON_FLAGS)

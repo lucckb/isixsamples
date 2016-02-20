@@ -113,7 +113,7 @@ void graph_key::main()
 		//Previous key assignement
 		p_key = key;
 		//Wait short time
-		isix::isix_wait( isix::isix_ms2tick(DELAY_TIME) );
+		isix::wait_ms( DELAY_TIME );
 	}
 }
 /* ------------------------------------------------------------------ */

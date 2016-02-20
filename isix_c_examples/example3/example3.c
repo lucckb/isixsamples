@@ -99,14 +99,14 @@ static int rgb_set_color (unsigned c)
 /** Temperature read task */
 ISIX_TASK_FUNC(temp_read_task,entry_params)
 {
-	fifo_t *temp_fifo = (fifo_t*)entry_params;
+	osfifo_t temp_fifo = (osfifo_t)entry_params;
 	struct msg msg;
 	msg.errno = tempsensor_init();	//Init temp sensor
 	if(msg.errno<0)	//If cfg fail
 	{
 		//Push error message and destroy task
 		isix_fifo_write( temp_fifo, &msg, ISIX_TIME_INFINITE );
-		isix_task_delete(NULL);
+		isix_task_kill(NULL);
 	}
 	for(;;)
 	{
@@ -129,12 +129,12 @@ ISIX_TASK_FUNC(temp_read_task,entry_params)
 /** Display server task */
 static ISIX_TASK_FUNC(display_srv_task, entry_params)
 {
-	fifo_t *temp_fifo = (fifo_t*)entry_params;
+	osfifo_t temp_fifo = (osfifo_t)entry_params;
 	struct msg msg;			//Message structure
 	//If init rgb fail terminate task
 	if(rgb_init()<0)
 	{
-		isix_task_delete(NULL);
+		isix_task_kill(NULL);
 	}
 	unsigned pcolor = 0;
 	for(;;)
@@ -168,6 +168,7 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 /** Blinking led task function */
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
+	(void)entry_param;
 	RCC->APB2ENR |= RCC_APB2Periph_GPIOE;
 	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 	for(;;)
@@ -189,7 +190,7 @@ int main(void)
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,ISIX_PORT_SCHED_MIN_STACK_DEPTH, TASK_PRIO_LED,0);
 	//Create fifo msgs
-	fifo_t *temp_fifo = isix_fifo_create( 10, sizeof(struct msg) );
+	osfifo_t temp_fifo = isix_fifo_create( 10, sizeof(struct msg) );
 	//Initialize i2c bus
 	i2cm_init(I2C_SPEED);
 	if(temp_fifo)
