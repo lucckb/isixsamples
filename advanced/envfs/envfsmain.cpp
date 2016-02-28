@@ -26,7 +26,7 @@ protected:
 		auto err = setenv( envid_test, val );
 		dbprintf("Setenv code %i", err );
 		//! Read the env
-		isix::isix_wait_ms( 2000 );
+		isix::wait_ms( 2000 );
 		int val2 {};
 		err = getenv( envid_test, val2 );
 		dbprintf("Getenv code %i value %08x", err, val2 );
@@ -49,7 +49,7 @@ int main()
 	static app::env_tester etest;
 	dbprintf("Env FS test");
 	//Start the isix scheduler
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 	dbprintf("Scheduler exit");
 }
 

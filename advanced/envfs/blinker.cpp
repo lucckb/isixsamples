@@ -42,11 +42,11 @@ void ledblink::main()
 		//Enable LED
 		stm32::gpio_clr( LED_PORT, LED_PIN );
 		//Wait time
-		isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+		isix::wait_ms( BLINK_TIME );
 		//Disable LED
         stm32::gpio_set( LED_PORT, LED_PIN );
 		//Wait time
-		isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+		isix::wait_ms( BLINK_TIME );
 	}
 }
 /* ------------------------------------------------------------------ */
