@@ -41,7 +41,6 @@ COMMON_FLAGS = -Wall -Wextra  -Wno-variadic-macros  -fshort-enums
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
-CFLAGS += -std=gnu11
 
 #C++ compiler options 
 CXXFLAGS += $(COMMON_FLAGS) -std=c++11

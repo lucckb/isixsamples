@@ -29,7 +29,6 @@ COMMON_FLAGS +=  $(LIBFOUNDATION_INC) $(ISIX_INC) $(ISIXDRV_INC) $(LIBSTM32_INC)
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
-CFLAGS += -std=gnu11
 
 #C++ compiler options 
 CXXFLAGS += $(COMMON_FLAGS)
