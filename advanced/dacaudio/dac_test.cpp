@@ -69,10 +69,10 @@ int main() {
 	dbprintf( "PSK core application started" );
 	
 	//! Crete psk application object
-	isix::isix_task_create( dac_gen, nullptr, 2048, isix::isix_get_min_priority(), 0 );
+	isix::task_create( dac_gen, nullptr, 2048, isix::get_min_priority(), 0 );
 
 	//! Start isix scheduler
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 	
 	//ISIX scheduler exit
 	dbprintf( "PSK application scheduler exit" );

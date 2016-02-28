@@ -32,7 +32,7 @@ COMMON_FLAGS += -I./include
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
-CFLAGS += -std=gnu99 
+CFLAGS += -std=gnu11
 
 #C++ compiler options 
 CXXFLAGS += $(COMMON_FLAGS)
@@ -65,11 +65,11 @@ LIBGFX_DIR=$(ISIX_BASE_DIR)/libgfx
 LIBUSB_DIR=$(ISIX_BASE_DIR)/libusb
 LIBFSFAT_DIR=$(ISIX_BASE_DIR)/libfsfat
 
-include $(ISIX_DIR)/isix.mk
 include $(LIBSTM32_DIR)/libstm32.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBGFX_DIR)/libgfx.mk
 include $(LIBUSB_DIR)/libusb.mk
+include $(ISIX_DIR)/isix.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(LIBFSFAT_DIR)/libfsfat.mk
 include $(LIBSTM32_DIR)/scripts/stm32.mk

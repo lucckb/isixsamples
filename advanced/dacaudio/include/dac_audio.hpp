@@ -59,20 +59,20 @@ public:
 	 * @param[in] timeout Wait timeout
 	 * @return Error code @see error
 	 */
-	int stop( isix::tick_t timeout = isix::ISIX_TIME_INFINITE );
+	int stop( ostick_t timeout = ISIX_TIME_INFINITE );
 	/** Get the audio buffer for preparation 
 	 * @return buffer pointer or null if failed 
 	 */
 	uint16_t* reserve_buffer() {
 		return reinterpret_cast<uint16_t*> 
-			( isix::isix_mempool_alloc( m_mempool ) );
+			( isix::mempool_alloc( m_mempool ) );
 	}
 	/** Commit filled buffe to the output audio engine 
 	 * @param[in] buf Buffer pointer
 	 * @param[in] tout Optional timeout
 	 * @return Error code @see errora
 	 */
-	int commit_buffer( uint16_t* buf, isix::tick_t tout = isix::ISIX_TIME_INFINITE );
+	int commit_buffer( uint16_t* buf, ostick_t tout = ISIX_TIME_INFINITE );
 	//! Get chunk size
 	size_t buflen() const {
 		return m_mempool_len;
@@ -84,12 +84,12 @@ public:
 private:
 	//Free used bufer
 	void free_buffer( void* buf ) {
-		isix::isix_mempool_free( m_mempool, buf );
+		isix::mempool_free( m_mempool, buf );
 	}
 	//Get new buffer
 	void* get_buffer() {
 		void* ret;
-		if( (m_errno=m_fifo.pop_isr( ret ))== isix::ISIX_EOK ) {
+		if( (m_errno=m_fifo.pop_isr( ret ))== ISIX_EOK ) {
 			return ret;
 		} else {
 			return nullptr;
@@ -106,8 +106,8 @@ private:
 	//! Flush buffers
 	void flush_buffers() {
 		void* ret;
-		while( m_fifo.pop_isr(ret) == isix::ISIX_EOK ) {
-			isix::isix_mempool_free( m_mempool, ret );
+		while( m_fifo.pop_isr(ret) == ISIX_EOK ) {
+			isix::mempool_free( m_mempool, ret );
 		}
 	}
 private:
@@ -119,7 +119,7 @@ private:
 		stop_wait				//! Wait for app stop
 	};
 private:
-	isix::isix_mempool_t m_mempool; 		//! Internal mempool for buffer
+	osmempool_t m_mempool; 		//! Internal mempool for buffer
 	isix::fifo<void*> m_fifo;				//! Fin notify fifo
 	isix::semaphore m_done_sem;				//! Transfer finish sem
 	const unsigned short m_mempool_len;	//! Internal mempool size
