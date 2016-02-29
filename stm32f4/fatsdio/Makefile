@@ -22,9 +22,7 @@ MCU_SYSTEM_STACK_SIZE = 512
 CPP_EXCEPTIONS = y
 
 #Common flags 
-COMMON_FLAGS = -Wall -Wextra  -Wno-variadic-macros
-#only for f1 lib
-#COMMON_FLAGS +=-DSTM32F10X_CL
+COMMON_FLAGS = -Wall -Wextra -Wno-variadic-macros
 
 #C compiler options
 CFLAGS += $(COMMON_FLAGS)
@@ -56,10 +54,10 @@ ISIXDRV_DIR=$(ISIX_BASE_DIR)/libisixdrvstm32
 LIBFOUNDATION_DIR=$(ISIX_BASE_DIR)/libfoundation
 LIBSTM32_DIR=$(ISIX_BASE_DIR)/libstm32
 
-include $(ISIX_DIR)/isix.mk
 include $(LIBFSFAT_DIR)/libfsfat.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(LIBSTM32_DIR)/libstm32.mk
+include $(ISIX_DIR)/isix.mk
 include $(LIBSTM32_DIR)/scripts/stm32.mk
 

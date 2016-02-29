@@ -60,9 +60,9 @@ LIBFOUNDATION_DIR=$(ISIX_BASE_DIR)/libfoundation
 LIBSTM32_DIR=$(ISIX_BASE_DIR)/libstm32
 LIBUSB_DIR=$(ISIX_BASE_DIR)/libusb
 
-include $(ISIX_DIR)/isix.mk
 include $(LIBSTM32_DIR)/libstm32.mk
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(LIBUSB_DIR)/libusb.mk
+include $(ISIX_DIR)/isix.mk
 include $(LIBSTM32_DIR)/scripts/stm32.mk

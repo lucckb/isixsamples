@@ -64,9 +64,9 @@ void _external_startup(void)
 	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Initialize isix
-	isix::isix_init(ISIX_NUM_PRIORITIES);
+	isix::init(ISIX_NUM_PRIORITIES);
 
-	stm32::systick_config( isix::ISIX_HZ * (freq/(8*MHZ)) );
+	stm32::systick_config( ISIX_HZ * (freq/(8*MHZ)) );
 }
 /* ------------------------------------------------------------------ */
 } /* extern C */
@@ -98,11 +98,11 @@ protected:
 			//Enable LED
 			stm32::gpio_clr( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 			//Disable LED
 			stm32::gpio_set( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 		}
 	}
 private:
@@ -145,7 +145,7 @@ protected:
 	//Main function
 	virtual void main()
 	{
-		isix::isix_wait_ms( 100 );
+		isix::wait_ms( 100 );
 		static char buf[513];
 		FATFS fs;
 		int err;
@@ -196,7 +196,7 @@ protected:
 					}
 				}
 			}
-			isix::isix_wait_ms( 100 );
+			isix::wait_ms( 100 );
 		}
 	}
 private:
@@ -227,7 +227,7 @@ private:
 		for(size_t bs=512; bs<=size; bs+=512 )
 		{
 			dbprintf("Read test block size %u", bs );
-			isix::tick_t begin = isix::isix_get_jiffies();
+			ostick_t begin = isix::get_jiffies();
 			for(size_t c=0; c<N_sects; c+=(bs/512) )
 			{
 				ret = card->read( buf, c, bs/512 );
@@ -237,7 +237,7 @@ private:
 					return;
 				}
 			}
-			isix::tick_t time = isix::isix_get_jiffies() - begin;
+			ostick_t time = isix::get_jiffies() - begin;
 			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
 		}
 	}
@@ -248,7 +248,7 @@ private:
 		for(size_t bs=512; bs<=size; bs+=512 )
 		{
 			dbprintf("Write test block size %u", bs );
-			isix::tick_t begin = isix::isix_get_jiffies();
+			ostick_t begin = isix::get_jiffies();
 			for(size_t c=0; c<N_sects; c+=(bs/512) )
 			{
 				ret = card->write( buf, c, bs/512 );
@@ -258,7 +258,7 @@ private:
 					return;
 				}
 			}
-			isix::tick_t time = isix::isix_get_jiffies() - begin;
+			ostick_t time = isix::get_jiffies() - begin;
 			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
 		}
 	}
@@ -328,9 +328,9 @@ int main()
 	//The ledkey class
 	static app::fat_tester ft;
 	//static app::mmc_host_tester ht;
-	isix::isix_wait_ms(1000);
+	isix::wait_ms(1000);
 	//Start the isix scheduler
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 }
 
 /* ------------------------------------------------------------------ */
