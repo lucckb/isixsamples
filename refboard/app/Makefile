@@ -57,10 +57,12 @@ ISIX_BASE_DIR=../../isixrtos
 ISIX_DIR=$(ISIX_BASE_DIR)/libisix
 ISIXDRV_DIR=$(ISIX_BASE_DIR)/libisixdrvstm32
 LIBFOUNDATION_DIR=$(ISIX_BASE_DIR)/libfoundation
+LIBGFX_DIR=$(ISIX_BASE_DIR)/libgfx
 LIBSTM32_DIR=$(ISIX_BASE_DIR)/libstm32
 
 include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBSTM32_DIR)/libstm32.mk
-include $(ISIX_DIR)/isix.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
+include $(LIBGFX_DIR)/libgfx.mk
+include $(ISIX_DIR)/isix.mk
 include $(LIBSTM32_DIR)/scripts/stm32.mk
