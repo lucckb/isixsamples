@@ -29,7 +29,7 @@ constexpr auto PLL_Q = 7;	//48MHz for USB clk
 
 
 const auto MCO1_PORT =  GPIOA;
-const auto MCO1_PIN = 8;
+constexpr auto MCO1_PIN = 8;
 
 
 /** Cortex stm32 System setup

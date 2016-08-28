@@ -21,6 +21,7 @@
 #include <usart_simple.h>
 #include <stm32gpio.h>
 #include <isix.h>
+#include "tftdemo.hpp"
 
 static const auto LED_PORT = GPIOG;
 
@@ -45,11 +46,13 @@ void led_blink( void* ) {
 	using namespace stm32;
 	gpio_config_ext( LED_PORT, 0xf0, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
 	 for(int r=0;;r++) {
-		dbprintf(" SDIO test %i", r );
-		gpio_set_clr_mask( LED_PORT, ~gpio_get_mask(GPIOF,0xf000)>>8, 0xf0 );
+		//dbprintf(" SDIO test %i", r );
+		gpio_set_clr_mask( LED_PORT, r<<4, 0xf0 );
 		isix::wait_ms( 500 );
 	}
 }
+
+
 
 
 
@@ -57,6 +60,9 @@ int main() {
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
 			usart_debug::unlock, stm32::usartsimple_init,
 			USART1,115200, false, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
+	//The ledkey class
+	static app::tft_tester ft;
+	static dev::keypad kp( ft.get_frame() );
 	isix::task_create( led_blink, nullptr, 512, isix::get_min_priority() );
 	isix::start_scheduler();
 	return 0;

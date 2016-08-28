@@ -32,7 +32,7 @@ namespace dev {
 		using ks = gfx::input::detail::keyboard_tag::status;
 		void thread() noexcept;
 		static constexpr auto _bv( unsigned x ) {
-c_keypad_delayreturn 1<<x;
+			return 1<<x;
 		}
 		void report_key( char key , ks type );
 	private:
