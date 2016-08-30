@@ -27,6 +27,11 @@
 #include <board/si5351.hpp>
 
 static const auto LED_PORT = GPIOG;
+namespace app {
+namespace tcp {
+	void init();
+
+}}
 
 #ifdef PDEBUG
 namespace {
@@ -92,6 +97,7 @@ int main() {
 	static stm32::drv::i2c_bus m_i2c { stm32::drv::i2c_bus::busid::i2c1_alt , 400000 };
 	app::initenv( m_i2c );
 	static  Si5351 si5351( m_i2c );
+	app::tcp::init();
 	//Blink task create
 	isix::task_create( led_blink, &si5351, 2048, isix::get_min_priority() );
 	isix::start_scheduler();

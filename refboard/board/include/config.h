@@ -32,3 +32,11 @@
 //! Define log level for application
 #define FOUNDATION_CONFIG_LOGLEVEL FOUNDATION_DBGLOG_DEBUG
 #define ISIX_CONFIG_NUM_PRIORITIES 4
+
+// ---- Ethernet specific config ----
+#define ETH_DRV_USE_RMII  1
+#define PHY_INT_USE_INTERRUPT 0
+#define PHY_INT_EXTI_LINE_IRQ_N EXTI0_IRQn
+#define PHY_INT_GPIO_PORT A
+#define PHY_INT_EXTI_NUM 0
+#define ETH_DRV_PHY_ADDR 7

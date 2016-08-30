@@ -43,7 +43,7 @@ CXXFLAGS += $(COMMON_FLAGS)
 
 
 #Source C files
-SRC += $(wildcard *.c)
+SRC += $(wildcard *.c) $(wildcard tcpecho/*.c)
 
 #Source C++ files
 CPPSRC += $(wildcard ../board/*.cpp)
@@ -59,9 +59,11 @@ ISIXDRV_DIR=$(ISIX_BASE_DIR)/libisixdrvstm32
 LIBFOUNDATION_DIR=$(ISIX_BASE_DIR)/libfoundation
 LIBGFX_DIR=$(ISIX_BASE_DIR)/libgfx
 LIBSTM32_DIR=$(ISIX_BASE_DIR)/libstm32
+LIBTCPIP_DIR=$(ISIX_BASE_DIR)/libtcpip
 
-include $(ISIXDRV_DIR)/isixdrv.mk
+include $(LIBTCPIP_DIR)/libtcpip.mk
 include $(LIBSTM32_DIR)/libstm32.mk
+include $(ISIXDRV_DIR)/isixdrv.mk
 include $(LIBGFX_DIR)/libgfx.mk
 include $(LIBFOUNDATION_DIR)/libfoundation.mk
 include $(ISIX_DIR)/isix.mk
