@@ -40,3 +40,4 @@
 #define PHY_INT_GPIO_PORT A
 #define PHY_INT_EXTI_NUM 0
 #define ETH_DRV_PHY_ADDR 7
+#define ETH_PHY_DRIVER_NAME _ethernetif_phy_dp83848_drv_

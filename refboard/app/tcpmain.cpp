@@ -22,7 +22,7 @@
 #include <stm32_eth.h>
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>
-#include "ethernetif.h"
+#include <eth/ethernetif.h>
 #include "tcpecho/tcpecho.h"
 
 
@@ -63,7 +63,8 @@ void tcp_eth_init(void)
   struct netif *netif =  stm32_emac_netif_create( macaddress );
   if(!netif)
   {
-	  isix_bug("Unable to create network interface");
+	  dbg_err("Unable to create network interface");
+	  abort();
   }
 #if LWIP_DHCP
   ipaddr.addr = 0;

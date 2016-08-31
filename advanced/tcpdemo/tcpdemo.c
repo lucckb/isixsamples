@@ -21,7 +21,7 @@
 #include <stm32_eth.h>
 #include <stdbool.h>
 #include "tcpecho/tcpecho.h"
-#include "ethernetif.h"
+#include <eth/ethernetif.h>
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>
 /* ------------------------------------------------------------------ */
@@ -136,7 +136,7 @@ static void tcp_eth_init(void)
 int main(void)
 {
 	dblog_init( usartsimple_putc, NULL, usartsimple_init,
-			USART2,115200,true, PCLK1_HZ, PCLK2_HZ );
+			USART2,115200,true, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
 	//receive_test();
 
 	//Create ISIX blinking task
