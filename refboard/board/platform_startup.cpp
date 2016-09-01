@@ -94,8 +94,9 @@ void periph_config()
 		RCC_AHB1Periph_GPIOF|RCC_AHB1Periph_GPIOG|RCC_AHB1Periph_GPIOH, true );
 
 	//Configure MCO1 as master clock output for external devs
-	gpio_config( MCO1_PORT, MCO1_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_PULLUP, GPIO_SPEED_100MHZ );
+	gpio_config( MCO1_PORT, MCO1_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_PULLUP, GPIO_SPEED_25MHZ );
 	rcc_mco1_config( RCC_MCO1Source_HSE, RCC_MCO1Div_1 );
+
 
 }
 
