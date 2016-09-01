@@ -62,7 +62,8 @@ void ili_fsmc_bus::fsmc_gpio_setup()
 	auto gpio_fsmc =
 	[]( GPIO_TypeDef* port, uint16_t pin ) {
 		using namespace stm32;
-		gpio_config( port, pin, GPIO_MODE_ALTERNATE, GPIO_PUPD_PULLUP, GPIO_SPEED_100MHZ, GPIO_OTYPE_PP );
+		gpio_config( port, pin, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE,
+				GPIO_SPEED_25MHZ, GPIO_OTYPE_PP );
 	};
 	// PortD
 	gpio_pin_AF_config( GPIOD, GPIO_PinSource0, GPIO_AF_FSMC ); gpio_fsmc( GPIOD, 0 );

@@ -24,6 +24,7 @@
 #include <gfx/gui/gui.hpp>
 #include <gfx/drivers/disp/ili9341.hpp>
 #include <board/ili_fsmc_bus.hpp>
+#include <board/ili_gpio_bus.hpp>
 
 namespace app {
 

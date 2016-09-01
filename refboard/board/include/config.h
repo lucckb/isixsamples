@@ -35,9 +35,9 @@
 
 // ---- Ethernet specific config ----
 #define ETH_DRV_USE_RMII  1
-#define PHY_INT_USE_INTERRUPT 0
+#define PHY_INT_USE_INTERRUPT 1
 #define PHY_INT_EXTI_LINE_IRQ_N EXTI0_IRQn
 #define PHY_INT_GPIO_PORT A
 #define PHY_INT_EXTI_NUM 0
-#define ETH_DRV_PHY_ADDR 7
-#define ETH_PHY_DRIVER_NAME _ethernetif_phy_dp83848_drv_
+#define ETH_DRV_PHY_ADDR 0
+#define ETH_PHY_DRIVER_NAME _ethernetif_phy_ksz8081_drv_
