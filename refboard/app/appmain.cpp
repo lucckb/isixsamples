@@ -28,6 +28,7 @@
 
 static const auto LED_PORT = GPIOG;
 namespace app {
+	void codec_task( fnd::bus::ibus& bus );
 namespace tcp {
 	void init();
 
@@ -74,6 +75,7 @@ void led_blink( void*  arg ) {
 	si.set_freq(  710000000ULL, 0ULL, SI5351_CLK1 );
 	si.set_freq(  810000000ULL, 0ULL, SI5351_CLK2 );
 
+
 	// Test the APP environment
 	 for(int r=0;;r++) {
 		//dbprintf(" SDIO test %i", r );
@@ -84,7 +86,16 @@ void led_blink( void*  arg ) {
 
 
 
-
+void codec_test_setup()
+{
+	///Isix thread for I2c bus
+	static stm32::drv::i2c_bus m_i2c2 { stm32::drv::i2c_bus::busid::i2c2_alt, 100000 };
+	static isix::thread m_thr { isix::thread_create_and_run(
+			2048, 3, isix_task_flag_newlib,
+			std::bind( &app::codec_task, std::ref(m_i2c2) )
+		)
+	};
+}
 
 int main() {
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
@@ -95,11 +106,13 @@ int main() {
 	static dev::keypad kp( ft.get_frame() );
 	//I2c bus  temporary for tests
 	static stm32::drv::i2c_bus m_i2c { stm32::drv::i2c_bus::busid::i2c1_alt , 400000 };
-	app::initenv( m_i2c );
-	static  Si5351 si5351( m_i2c );
+	//FIXME: Temporary disabled due to conflict in the DMA with I2S3
+	//app::initenv( m_i2c );
+	//static  Si5351 si5351( m_i2c );
 	app::tcp::init();
+	codec_test_setup();
 	//Blink task create
-	isix::task_create( led_blink, &si5351, 2048, isix::get_min_priority() );
+	//isix::task_create( led_blink, &si5351, 2048, isix::get_min_priority() );
 	isix::start_scheduler();
 	return 0;
 }
