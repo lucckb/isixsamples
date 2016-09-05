@@ -50,10 +50,8 @@ namespace usart_debug {
 #endif
 
 
-void led_blink( void*  arg ) {
+void i2c1bus_test( void*  arg ) {
 
-	using namespace stm32;
-	gpio_config_ext( LED_PORT, 0xf0, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
 
 	//Test for environment dupa
 	int res;
@@ -76,20 +74,27 @@ void led_blink( void*  arg ) {
 	si.set_freq(  810000000ULL, 0ULL, SI5351_CLK2 );
 
 
-	// Test the APP environment
-	 for(int r=0;;r++) {
-		//dbprintf(" SDIO test %i", r );
-		gpio_set_clr_mask( LED_PORT, r<<4, 0xf0 );
-		isix::wait_ms( 500 );
-	}
 }
 
+
+
+void pulse_test(void* ) {
+	using namespace stm32;
+	gpio_config_ext( LED_PORT, 0xf0, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
+	// Test the APP environment
+	 for(int r=0;;r++) {
+		gpio_set_clr_mask( LED_PORT, r, 0x20 );
+		gpio_set_clr_mask( LED_PORT, ~gpio_get_mask(GPIOB,0xC0), 0xc0 );
+		gpio_set_clr_mask( LED_PORT, gpio_get(GPIOE,0)?1<<4:0, 0x10 );
+		isix::wait_ms( 10 );
+	}
+}
 
 
 void codec_test_setup()
 {
 	///Isix thread for I2c bus
-	static stm32::drv::i2c_bus m_i2c2 { stm32::drv::i2c_bus::busid::i2c2_alt, 100000 };
+	static stm32::drv::i2c_bus m_i2c2 { stm32::drv::i2c_bus::busid::i2c2_alt, 400000 };
 	static isix::thread m_thr { isix::thread_create_and_run(
 			2048, 3, isix_task_flag_newlib,
 			std::bind( &app::codec_task, std::ref(m_i2c2) )
@@ -98,6 +103,7 @@ void codec_test_setup()
 }
 
 int main() {
+	isix::wait_ms(1000);
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
 			usart_debug::unlock, stm32::usartsimple_init,
 			USART1,115200, false, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
@@ -105,14 +111,21 @@ int main() {
 	static app::tft_tester ft;
 	static dev::keypad kp( ft.get_frame() );
 	//I2c bus  temporary for tests
-	static stm32::drv::i2c_bus m_i2c { stm32::drv::i2c_bus::busid::i2c1_alt , 400000 };
+	//static stm32::drv::i2c_bus m_i2c { stm32::drv::i2c_bus::busid::i2c1_alt , 400000 };
 	//FIXME: Temporary disabled due to conflict in the DMA with I2S3
 	//app::initenv( m_i2c );
 	//static  Si5351 si5351( m_i2c );
 	app::tcp::init();
 	codec_test_setup();
 	//Blink task create
-	//isix::task_create( led_blink, &si5351, 2048, isix::get_min_priority() );
+	//isix::task_create( i2c1bus_test, &si5351, 2048, isix::get_min_priority() );
+	isix::task_create( pulse_test, nullptr, 512, isix::get_min_priority() );
+	//Enable 5V USB
+	{
+		using namespace stm32;
+		gpio_config( GPIOE, 3, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
+		gpio_set( GPIOE, 3 );
+	}
 	isix::start_scheduler();
 	return 0;
 }

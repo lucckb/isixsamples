@@ -94,17 +94,18 @@ int codec_reset(  fnd::bus::ibus& bus  )
 		dbg_err( "CODEC unable to write codec data %i", ret );
 		return ret;
 	}
+	//Get some time for device reset
+	isix::wait_ms(100);
 	for( size_t reg = 0; reg<sizeof(w8731_init_data)/sizeof(w8731_init_data[0]); ++reg ) {
 		if ( (ret=codec_write_register(bus,reg,w8731_init_data[reg])) ) {
 			dbg_err("CODEC wr reg %lu err %i", reg, ret );
-			break;
 		}
 	}
 	return ret;
 }
 
 
-void i2s_init() 
+void i2s_init()
 {
 
 	using namespace stm32;
@@ -169,37 +170,25 @@ void i2s_init()
 }
 
 
-static constexpr auto sin_size = 64U;
-static float sintable[ sin_size ];
+namespace {
+	//Global buffer for float ops
+	float fBuf[BUFFER_SIZE];
+	float phase_acc = 0;
+	constexpr auto sin_size = 64U;
+	float sintable[ sin_size ];
+	constexpr float FREQ = 1000;
+	constexpr float SAMPLE_RATE = 48000;
+	constexpr float PHI =  FREQ / SAMPLE_RATE * sin_size;
+	constexpr float AMPL = 1<<16;
 
-static constexpr float FREQ = 1000;
-static constexpr float SAMPLE_RATE = 48000;
-static constexpr float PHI =  FREQ / SAMPLE_RATE * sin_size;
-static constexpr float AMPL = 1<<16;
-
-
-void codec_task( fnd::bus::ibus& bus )
-{
-	//Generate sine table
-	for( size_t i=0; i<sin_size; ++i) {
-		sintable[i] = std::sin( 2.0f * M_PI * float(i) / float(sin_size) ) + 1.0f;
-	}
-	if( codec_reset( bus ) ) {
-		dbg_err("Codec Reset failed I2S config skipped");
-		return;
-	}
-	i2s_init();
 }
 
 
-static constexpr auto MONO_BUFSIZE = BUFFER_SIZE/2;
-//Global buffer for float ops
-static float fBuf[BUFFER_SIZE];
-
-static float phase_acc = 0;
 
 
 
+
+#if 1
 extern "C"
 void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_vector(void)
 {
@@ -210,7 +199,6 @@ void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_ve
 
 		slBuf1 = slBuf2 = (dma_get_current_memory_target(DMA1_Stream0)) ? buf1 : buf2;
 
-#if 1
 		for(unsigned long i = 0; i < BUFFER_SIZE; i++)
 		{
 			signed long tmp = *slBuf1++;
@@ -250,7 +238,6 @@ void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_ve
 
 			*slBuf2++ = tmp;
 		}
-#endif
 		dma_clear_flag(DMA1_Stream0, DMA_FLAG_TCIF0);
 	} else 	if(dma_get_flag_status(DMA1_Stream0, DMA_FLAG_TEIF0)) {
 		dbg_err("IS error abort");
@@ -261,7 +248,27 @@ void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_ve
 		abort();
 	}
 }
+#endif
 
+
+void codec_task( fnd::bus::ibus& bus )
+{
+	//Generate sine table
+	for( size_t i=0; i<sin_size; ++i) {
+		sintable[i] = std::sin( 2.0f * M_PI * float(i) / float(sin_size) ) + 1.0f;
+	}
+	//Test codec reprogram 100 times
+	//for( int i=0; i<100; ++i ) {
+	if(1) {
+		if( codec_reset( bus ) ) {
+			dbg_err("Codec Reset failed I2S config skipped");
+			isix_wait_ms(100);
+			return;
+		}
+		isix_wait_ms(10);
+	}
+	i2s_init();
+}
 
 
 }
