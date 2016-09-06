@@ -29,6 +29,7 @@
 static const auto LED_PORT = GPIOG;
 namespace app {
 	void codec_task( fnd::bus::ibus& bus );
+	void stdio_test_task(  );
 namespace tcp {
 	void init();
 
@@ -91,6 +92,13 @@ void pulse_test(void* ) {
 }
 
 
+void sdio_test_setup()
+{
+	static isix::thread m_thr {
+		isix::thread_create_and_run( 2048, 3, isix_task_flag_newlib, &app::stdio_test_task )
+	};
+}
+
 void codec_test_setup()
 {
 	///Isix thread for I2c bus
@@ -103,7 +111,7 @@ void codec_test_setup()
 }
 
 int main() {
-	isix::wait_ms(1000);
+	isix::wait_ms( 500 );
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
 			usart_debug::unlock, stm32::usartsimple_init,
 			USART1,115200, false, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
@@ -117,6 +125,7 @@ int main() {
 	//static  Si5351 si5351( m_i2c );
 	app::tcp::init();
 	codec_test_setup();
+	sdio_test_setup();
 	//Blink task create
 	//isix::task_create( i2c1bus_test, &si5351, 2048, isix::get_min_priority() );
 	isix::task_create( pulse_test, nullptr, 512, isix::get_min_priority() );

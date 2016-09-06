@@ -41,3 +41,8 @@
 #define PHY_INT_EXTI_NUM 0
 #define ETH_DRV_PHY_ADDR 0
 #define ETH_PHY_DRIVER_NAME _ethernetif_phy_ksz8081_drv_
+
+// Configure SD_DET_PIN
+#define CONFIG_SD_DET_PORT GPIOC
+#define CONFIG_SD_DET_PIN 6
+#define CONFIG_SDIO_HOST_CLK_KHZ 24000
