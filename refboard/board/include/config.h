@@ -46,3 +46,8 @@
 #define CONFIG_SD_DET_PORT GPIOC
 #define CONFIG_SD_DET_PIN 6
 #define CONFIG_SDIO_HOST_CLK_KHZ 24000
+
+
+// FIXME I2C driver without DMA (due to conflict with DMA channel on transfer data)
+#define CONFIG_ISIXDRV_I2C_USE_FIXED_I2C CONFIG_ISIXDRV_I2C_2
+

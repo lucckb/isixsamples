@@ -24,6 +24,10 @@
 #include <stm32system.h>
 #include <cmath>
 
+
+// FIXME: Conflict on DMA stream 0 and 5 with I2C1_RX
+//   Update STM32 driver without DMA on the interrupt mode only
+
 namespace app {
 
 namespace {
@@ -103,7 +107,7 @@ int codec_reset(  fnd::bus::ibus& bus  )
 	}
 	return ret;
 }
-
+ 
 
 void i2s_init()
 {
