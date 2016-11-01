@@ -34,7 +34,7 @@ class i2c_host
 	friend void i2c1_ev_isr_vector(void);
 	friend void i2c1_er_isr_vector(void);
 public:
-	enum errno
+	enum eerrno
 	{
 		ERR_OK = 0,						//All is ok
 		ERR_BUS = -5000,				//Bus error
