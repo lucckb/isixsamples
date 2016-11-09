@@ -78,8 +78,8 @@ public:
 		return m_mempool_len;
 	}
 	//! Get errno
-	int errno() const {
-		return m_errno;
+	int error() const {
+		return m_error;
 	}
 private:
 	//Free used bufer
@@ -89,7 +89,7 @@ private:
 	//Get new buffer
 	void* get_buffer() {
 		void* ret;
-		if( (m_errno=m_fifo.pop_isr( ret ))== ISIX_EOK ) {
+		if( (m_error=m_fifo.pop_isr( ret ))== ISIX_EOK ) {
 			return ret;
 		} else {
 			return nullptr;
@@ -123,7 +123,7 @@ private:
 	isix::fifo<void*> m_fifo;				//! Fin notify fifo
 	isix::semaphore m_done_sem;				//! Transfer finish sem
 	const unsigned short m_mempool_len;	//! Internal mempool size
-	volatile short m_errno {};				//! Last errno
+	volatile short m_error {};				//! Last errno
 	volatile state m_state { state::idle };	//! Internal application state
 };
 

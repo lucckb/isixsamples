@@ -20,6 +20,10 @@
 #define ETH_DRV_CONFIGURE_MCO_OUTPUT 1
 //EXTI line IRQ number
 #define PHY_INT_EXTI_LINE_IRQ_N EXTI0_IRQn
+//Default phy address
+//Phy driver name
+#define ETH_PHY_DRIVER_NAME _ethernetif_phy_dp83848_drv_
+#define ETH_DRV_PHY_ADDR 1
 //PHI interrupt pin number
 #define PHY_INT_EXTI_NUM 0
 //Exti port

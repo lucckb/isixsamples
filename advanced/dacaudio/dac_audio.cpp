@@ -39,14 +39,14 @@ namespace {
 #endif
 	}
 	//!Configuration DATA
-	static constexpr auto DAC_GPIO_PORT = GPIOA;
+	static const auto DAC_GPIO_PORT = GPIOA;
 	static constexpr auto DAC_GPIO_PIN = 4;
-	static constexpr auto AUDIO_TIMER = TIM6;
+	static const auto AUDIO_TIMER = TIM6;
 	static constexpr auto AUDIO_TIMER_RCC =  RCC_APB1Periph_TIM6;
 	static constexpr auto DAC_DMA_RCC = RCC_AHB1Periph_DMA1;
 	static constexpr auto DAC_TRIGER = DAC_Trigger_T6_TRGO;
 	static constexpr auto DAC_CHANNEL = DAC_Channel_1;
-	static constexpr auto DAC_DMA_STREAM = DMA1_Stream5;
+	static const auto DAC_DMA_STREAM = DMA1_Stream5;
 	static constexpr auto DAC_DMA_CHANNEL = DMA_Channel_7;
 	static constexpr auto DAC_DMA_STREAM_IRQN = DMA1_Stream5_IRQn;
 	// Pointer to the dac audio for interrupt
@@ -70,8 +70,8 @@ dac_audio::dac_audio( size_t audio_buf_len, size_t num_buffers )
 	if( !m_fifo.is_valid() ) {
 		terminate();
 	}
-	m_errno = hardware_setup();
-	if( m_errno ) {
+	m_error = hardware_setup();
+	if( m_error ) {
 		terminate();
 	}
 	g_dac_audio = this;
@@ -107,21 +107,21 @@ int dac_audio::play( unsigned short fs )
 {
 	if( m_state != state::idle ) {
 		dbprintf("Already playing");
-		m_errno = err_playing;
-		return m_errno;
+		m_error = err_playing;
+		return m_error;
 	}
 	//Configure the timer
 	static const auto val =  CONFIG_PCLK1_HZ / (fs / 2);
 	if( CONFIG_PCLK1_HZ % fs ) {
 		dbprintf("Fractional divide error %i", val );
-		m_errno = err_fract;
-		return m_errno;
+		m_error = err_fract;
+		return m_error;
 	}
 	dbprintf("Fract divide factor %i", val );
 	stm32::tim_timebase_init( AUDIO_TIMER, 0, TIM_CounterMode_Up, val, 0, 0 );
 	stm32::tim_select_output_trigger( AUDIO_TIMER, TIM_TRGOSource_Update );
 	m_state = state::start_wait;
-	return m_errno;
+	return m_error;
 }
 /* ------------------------------------------------------------------ */ 
 //! Underflow error
@@ -129,13 +129,13 @@ void dac_audio::transfer_error( int err )
 {
 	do_stop();
 	if( m_state == state::stop_wait ) {
-		m_errno = err_success;
+		m_error = err_success;
 	} else {
-		m_errno = err;
+		m_error = err;
 	}
 	const auto iret = m_done_sem.signal_isr();
 	if( iret != ISIX_EOK ) {
-		m_errno = iret;
+		m_error = iret;
 	}
 	m_state = state::idle;
 }
@@ -146,7 +146,7 @@ int dac_audio::stop( ostick_t timeout )
 	if( m_state == state::sampling ) {
 		m_state = state::stop_wait;
 		m_done_sem.wait( timeout );
-		m_errno = err_success;
+		m_error = err_success;
 		m_state = state::idle;
 		flush_buffers();
 		dbprintf("Successfully flushed and stop");
@@ -154,13 +154,13 @@ int dac_audio::stop( ostick_t timeout )
 	else if( m_state == state::start_wait ) {
 		flush_buffers();
 		m_state = state::idle;
-		m_errno = err_success;
+		m_error = err_success;
 		dbprintf("Flush buffer before play");
 	} else {
 		dbprintf("No playing");
-		m_errno = err_not_playing;
+		m_error = err_not_playing;
 	}
-	return m_errno;
+	return m_error;
 }
 /* ------------------------------------------------------------------ */
 //! Raw hardware stop 
@@ -180,20 +180,20 @@ int dac_audio::do_play()
 	using namespace stm32;
 	if( m_state != state::start_wait ) {
 		dbprintf("Invalid state");
-		m_errno = err_not_playing;
-		return m_errno;
+		m_error = err_not_playing;
+		return m_error;
 	}
 	void *abuf;
-	m_errno = m_fifo.pop_isr( abuf );
-	if( m_errno != ISIX_EOK ) {
-		dbprintf("Buffer probably not prepared err %i", m_errno );
-		return m_errno;
+	m_error = m_fifo.pop_isr( abuf );
+	if( m_error != ISIX_EOK ) {
+		dbprintf("Buffer probably not prepared err %i", m_error );
+		return m_error;
 	}
 	void *abuf1;
-	m_errno = m_fifo.pop_isr( abuf1 );
-	if( m_errno != ISIX_EOK ) {
-		dbprintf("Buffer probably not prepared err %i", m_errno );
-		return m_errno;
+	m_error = m_fifo.pop_isr( abuf1 );
+	if( m_error != ISIX_EOK ) {
+		dbprintf("Buffer probably not prepared err %i", m_error );
+		return m_error;
 	}
 	//Setup semaphore for fin wait
 	m_done_sem.trywait();
@@ -213,21 +213,21 @@ int dac_audio::do_play()
 	dac_dma_cmd( DAC_CHANNEL, true );
 	tim_cmd( AUDIO_TIMER, true );
 	dac_cmd( DAC_CHANNEL, true );
-	m_errno = err_success;
+	m_error = err_success;
 	m_state = state::sampling;
-	return m_errno;
+	return m_error;
 }
 /* ------------------------------------------------------------------ */ 
 //! Commit filled application buffer
 int dac_audio::commit_buffer( uint16_t* buf, ostick_t tout )
 {
-	m_errno = m_fifo.push( buf, tout );
+	m_error = m_fifo.push( buf, tout );
 	if( m_state == state::idle || m_state == state::stop_wait ) {
 		dbprintf("Buffer curently not playing audio %i", m_state );
-		m_errno = err_not_playing;
-		return m_errno;
+		m_error = err_not_playing;
+		return m_error;
 	}
-	if( m_errno == ISIX_EOK ) { 
+	if( m_error == ISIX_EOK ) { 
 		if( m_state == state::start_wait  && m_fifo.size() >= 2 ) {
 			dbprintf("Start playing audio");
 			do_play();
@@ -235,7 +235,7 @@ int dac_audio::commit_buffer( uint16_t* buf, ostick_t tout )
 	} else {
 		dbprintf("Fifo push error");
 	}
-	return m_errno;
+	return m_error;
 }
 /* ------------------------------------------------------------------ */ 
 extern "C" {

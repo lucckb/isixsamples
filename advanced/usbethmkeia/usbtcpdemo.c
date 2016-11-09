@@ -21,7 +21,7 @@
 #include <stm32_eth.h>
 #include <stdbool.h>
 #include "tcpecho/tcpecho.h"
-#include "ethernetif.h"
+#include "eth/ethernetif.h"
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>
 #include <usbdevserial.h>

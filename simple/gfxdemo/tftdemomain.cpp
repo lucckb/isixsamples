@@ -128,9 +128,9 @@ class ili_gpio_bus : public gfx::drv::disp_bus
 	static constexpr auto RS_BIT_CMD = 1;
 	static constexpr auto RST_BIT_CMD = 2;
 private:
-	static constexpr auto DATA_PORT = GPIOE;
+	static const auto DATA_PORT = __builtin_constant_p(GPIOE);
 	static constexpr auto DATA_MASK = 0xff;
-	static constexpr auto CTL_PORT = GPIOC;
+	static constexpr auto CTL_PORT = __builtin_constant_p(GPIOC);
 	static constexpr auto CS_PIN =  4;
 	static constexpr auto RS_PIN =  5;
 	static constexpr auto WR_PIN =  7;
@@ -145,17 +145,20 @@ private:
 		in,
 		out
 	};
+	inline auto uip2a( uintptr_t a ) {
+		return reinterpret_cast<GPIO_TypeDef*>(a);
+	}
 
 	void bus_dir( dir_t dir )
 	{
 		using namespace stm32;
 		if( dir==dir_t::out && m_dir==dir_t::in )
 		{
-			gpio_abstract_config_ext( DATA_PORT, DATA_MASK, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_FULL );
+			gpio_abstract_config_ext( uip2a(DATA_PORT), DATA_MASK, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_FULL );
 		}
 		else if( dir==dir_t::in && m_dir==dir_t::out  )
 		{
-			gpio_abstract_config_ext( DATA_PORT, DATA_MASK, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_FULL );
+			gpio_abstract_config_ext( uip2a(DATA_PORT), DATA_MASK, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_FULL );
 		}
 		m_dir = dir;
 	}
@@ -163,12 +166,12 @@ public:
 	ili_gpio_bus()
 	{
 		using namespace stm32;
-		gpio_clock_enable( DATA_PORT, true );
-		gpio_clock_enable( CTL_PORT, true );
-		gpio_abstract_config_ext( DATA_PORT, DATA_MASK, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_FULL );
-		gpio_abstract_config_ext( CTL_PORT,
+		gpio_clock_enable( uip2a(DATA_PORT), true );
+		gpio_clock_enable( uip2a(CTL_PORT), true );
+		gpio_abstract_config_ext( uip2a(DATA_PORT), DATA_MASK, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_FULL );
+		gpio_abstract_config_ext( uip2a(CTL_PORT),
 			bv(CS_PIN)|bv(RS_PIN)|bv(WR_PIN)|bv(RD_PIN)|bv(RST_PIN), AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_FULL);
-		gpio_set_mask( CTL_PORT, bv(CS_PIN)|bv(WR_PIN)|bv(RD_PIN)|bv(RST_PIN) );
+		gpio_set_mask( uip2a(CTL_PORT), bv(CS_PIN)|bv(WR_PIN)|bv(RD_PIN)|bv(RST_PIN) );
 		/* PWM Configuration
 		 *
 		 */
@@ -192,9 +195,9 @@ public:
 		const auto io_fn = val?(&gpio_set):(&gpio_clr);
 		switch( bit )
 		{
-		case CSL_BIT_CMD: io_fn( CTL_PORT, CS_PIN ); break;
-		case RS_BIT_CMD:  io_fn( CTL_PORT, RS_PIN ); break;
-		case RST_BIT_CMD: io_fn( CTL_PORT, RST_PIN ); break;
+		case CSL_BIT_CMD: io_fn( uip2a(CTL_PORT), CS_PIN ); break;
+		case RS_BIT_CMD:  io_fn( uip2a(CTL_PORT), RS_PIN ); break;
+		case RST_BIT_CMD: io_fn( uip2a(CTL_PORT), RST_PIN ); break;
 		}
 	}
 	/* Read transfer */
@@ -204,10 +207,10 @@ public:
 		bus_dir( dir_t::in );
 		for( size_t l=0; l<len; ++l )
 		{
-			gpio_clr( CTL_PORT, RD_PIN );
+			gpio_clr( uip2a(CTL_PORT), RD_PIN );
 			nop(); nop(); nop(); nop();
-			*(reinterpret_cast<uint8_t*>(buf)+l) = gpio_get_mask( DATA_PORT, DATA_MASK );
-			gpio_set( CTL_PORT, RD_PIN );
+			*(reinterpret_cast<uint8_t*>(buf)+l) = gpio_get_mask( uip2a(DATA_PORT), DATA_MASK );
+			gpio_set( uip2a(CTL_PORT), RD_PIN );
 		}
 	}
 	/* Write transfer */
@@ -218,9 +221,9 @@ public:
 		for( size_t l=0; l<len; ++l )
 		{
 			//One write
-			gpio_set_clr_mask( DATA_PORT ,*(reinterpret_cast<const uint8_t*>(buf)+l), DATA_MASK );
-			gpio_clr( CTL_PORT, WR_PIN );	//WR down
-			gpio_set( CTL_PORT, WR_PIN );	//WR up
+			gpio_set_clr_mask( uip2a(DATA_PORT) ,*(reinterpret_cast<const uint8_t*>(buf)+l), DATA_MASK );
+			gpio_clr( uip2a(CTL_PORT), WR_PIN );	//WR down
+			gpio_set( uip2a(CTL_PORT), WR_PIN );	//WR up
 		}
 	}
 	virtual void fill( unsigned value, size_t nelms )
@@ -230,12 +233,12 @@ public:
 		for( size_t l=0; l<nelms; ++l )
 		{
 			//One write
-			gpio_set_clr_mask( DATA_PORT ,value, DATA_MASK );
-			gpio_clr( CTL_PORT, WR_PIN );	//WR down
-			gpio_set( CTL_PORT, WR_PIN );	//WR up
-			gpio_set_clr_mask( DATA_PORT ,value>>8, DATA_MASK );
-			gpio_clr( CTL_PORT, WR_PIN );	//WR down
-			gpio_set( CTL_PORT, WR_PIN );	//WR up
+			gpio_set_clr_mask( uip2a(DATA_PORT) ,value, DATA_MASK );
+			gpio_clr( uip2a(CTL_PORT), WR_PIN );	//WR down
+			gpio_set( uip2a(CTL_PORT), WR_PIN );	//WR up
+			gpio_set_clr_mask( uip2a(DATA_PORT) ,value>>8, DATA_MASK );
+			gpio_clr( uip2a(CTL_PORT), WR_PIN );	//WR down
+			gpio_set( uip2a(CTL_PORT), WR_PIN );	//WR up
 		}
 	}
 	/* Wait ms long delay */
@@ -423,15 +426,18 @@ class gpio_keypad: public isix::task_base
 	{
 		return 1<<x;
 	}
-	static constexpr auto j_port = GPIOE;
+	static constexpr auto j_port = __builtin_constant_p(GPIOE);
 	static constexpr auto j_ok = 8;
 	static constexpr auto j_up = 9;
 	static constexpr auto j_down = 10;
 	static constexpr auto j_right = 11;
 	static constexpr auto j_left = 12;
+	auto uip2a( uintptr_t addr ) {
+		return reinterpret_cast<GPIO_TypeDef*>(addr);
+	}
 	bool io( unsigned pin )
 	{
-		return stm32::gpio_get( j_port, pin );
+		return stm32::gpio_get( uip2a(j_port), pin );
 	}
 	using ks = gfx::input::detail::keyboard_tag::status;
 	void report_key( char key , ks type )
@@ -449,8 +455,8 @@ public:
 	gpio_keypad( gfx::gui::frame& frm )
 		:  m_frm(frm)
 	{
-		stm32::gpio_clock_enable(j_port, true);
-		stm32::gpio_abstract_config_ext( j_port,
+		stm32::gpio_clock_enable(uip2a(j_port), true);
+		stm32::gpio_abstract_config_ext( uip2a(j_port),
 				_bv(j_ok)|_bv(j_up)|_bv(j_down)|_bv(j_left)|_bv(j_right),
 				stm32::AGPIO_MODE_INPUT_PULLUP, stm32::AGPIO_SPEED_FULL
 		);

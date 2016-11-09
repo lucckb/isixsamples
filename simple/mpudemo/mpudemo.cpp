@@ -125,16 +125,19 @@ private:
 
 class mpu_demo: public isix::task_base
 {
+	static inline auto key_port() {
+		return GPIOC;
+	}
 public:
 	//Constructor
 	mpu_demo()
 	{
 		using namespace stm32;
 		start_thread( STACK_SIZE, TASK_PRIO );
-		gpio_clock_enable( KEY_PORT, true );
-		gpio_abstract_config(KEY_PORT, NULL_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
-		gpio_abstract_config(KEY_PORT, EXEC_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
-		gpio_abstract_config(KEY_PORT, STK_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
+		gpio_clock_enable( key_port(), true );
+		gpio_abstract_config(key_port(), NULL_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
+		gpio_abstract_config(key_port(), EXEC_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
+		gpio_abstract_config(key_port(), STK_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
 	}
 protected:
 	//Main function
@@ -142,9 +145,9 @@ protected:
 	{
 		for(;;)
 		{
-			bool knull = stm32::gpio_get( KEY_PORT, NULL_PIN );
-			bool kexec = stm32::gpio_get( KEY_PORT, EXEC_PIN );
-			bool kstk = stm32::gpio_get( KEY_PORT,  STK_PIN );
+			bool knull = stm32::gpio_get( key_port(), NULL_PIN );
+			bool kexec = stm32::gpio_get( key_port(), EXEC_PIN );
+			bool kstk = stm32::gpio_get( key_port(),  STK_PIN );
 			if( !knull && p_null ) {
 				dbprintf( "Trying to read from null pointer" );
 				mpu_demo* nptr = nullptr;
@@ -171,7 +174,6 @@ protected:
 	private:
 		static const unsigned STACK_SIZE = 2048;
 		static const unsigned TASK_PRIO = 3;
-		static constexpr auto KEY_PORT = GPIOC;
 		static constexpr auto NULL_PIN = 12;
 		static constexpr auto EXEC_PIN = 13;
 		static constexpr auto STK_PIN = 14;
