@@ -1,4 +1,4 @@
-#4 Automatic makefile for GNUARM (C/C++)
+# Automatic makefile for GNUARM (C/C++)
 
 #Target binary file name
 TARGET	   = example4c
@@ -11,7 +11,8 @@ FORMAT	= elf
 OPT 	?= 2
 
 #MCU variant
-MCU_VARIANT = f107VBT6
+MCU_MAJOR_TYPE = f1
+MCU_MINOR_TYPE = 07VBT6
 
 #Enable exceptions support
 CPP_EXCEPTIONS = n
