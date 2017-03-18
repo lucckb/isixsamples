@@ -5,6 +5,7 @@
 *.hex
 *.lss
 *.map
+*.bin
 .*
 tags
 .*.un~
