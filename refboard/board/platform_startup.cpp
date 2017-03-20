@@ -59,7 +59,6 @@ unsigned system_config()
 
 
     //Setup NVIC vector at begin of flash
-    //Setup NVIC vector at begin of flash
 #if CONFIG_WITH_SBL_BOOTLOADER_ENABLED
     SCB->VTOR = NVIC_VectTab_FLASH + 0x4000;
 #else

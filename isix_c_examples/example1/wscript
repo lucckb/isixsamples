@@ -12,7 +12,7 @@ def build(bld):
     bld.program(
             features='objcopy',
             target='example1',
-            source=bld.path.ant_glob( '*.c' ),
+            source=bld.path.ant_glob( '*.c' ) + [ 'dupa.S' ],
             includes='.',
             cflags= ['-std=gnu11', '-mthumb' , '-mcpu=cortex-m3' ],
             defines=[ 'ISIX_GIT_VERSION="1"', 'STM32MCU_MAJOR_TYPE_F1', 'STM32F10X_CL' ],
