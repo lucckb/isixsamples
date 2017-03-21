@@ -14,7 +14,6 @@ def build(bld):
             target='example1cpp',
             source=bld.path.ant_glob( '*.cpp' ),
             includes='.',
-            #use=[ 'foundation', 'isix', 'stm32', 'startup' ]
             use=[ 'foundation', 'isix', 'stm32' ]
             )
 

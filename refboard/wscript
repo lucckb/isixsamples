@@ -5,10 +5,13 @@ import os
 def options(opt):
     pass
 
-
+#TODO: Fixme that crap related to the HAVE_CONFIG_H
 def configure(conf):
-    conf.check(fragment='int main() { return 0; }\n')
-    #conf.define( '_HAVE_CONFIG_H', 1 )
+    stdinc = os.path.join(conf.path.abspath(),'board','include')
+    conf.env.append_value('INCLUDES', stdinc )
+    conf.check_cxx( header_name='config.h', features='cxx',
+            define_name='_HAVE_CONFIG_H' )
+    conf.define( 'WITH_ISIX_TCPIP_LIB' , 1 )
 
 
 def build(bld):
@@ -20,5 +23,5 @@ def build(bld):
             source=src,
             includes=[ '.', 'board/include' ],
             use=[ 'foundation', 'isix', 'stm32',
-                'isixdrvstm32', 'graphics', 'fatfs' ]
+                'isixdrvstm32', 'graphics', 'fatfs', 'tcpip' ]
             )
