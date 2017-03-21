@@ -7,7 +7,7 @@
  */
 /* ------------------------------------------------------------------ */
 #include "led_receiver.hpp"
-#include "usart_buffered.hpp"
+#include <isixdrv/usart_buffered.hpp>
 #include <stm32lib.h>
 #include <isix.h>
 /* ------------------------------------------------------------------ */
