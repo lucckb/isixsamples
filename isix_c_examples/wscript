@@ -4,6 +4,9 @@ import platform
 
 bld_subdirs = [
     'example1',
+    'example2',
+    'example3',
+    'example4'
 ]
 
 def options(opt):

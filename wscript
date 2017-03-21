@@ -7,9 +7,15 @@ sys.path.insert(0, 'isixrtos/isixwaf')
 top = '.'
 out = 'build'
 
+#bld_subdirs = [
+#        'isixrtos',
+#        'isix_c_examples',
+#        'isix_cpp_examples',
+#]
+
 bld_subdirs = [
         'isixrtos',
-        'isix_c_examples',
+        'refboard'
 ]
 
 def options(opt):

@@ -11,11 +11,12 @@ def configure(conf):
 def build(bld):
     bld.program(
             features='objcopy',
-            target='example1',
-            source=bld.path.ant_glob( '*.c' ),
+            target='example3cpp',
+            source=bld.path.ant_glob( '*.cpp' ),
             includes='.',
-            use=[ 'foundation', 'isix', 'stm32' ],
+            use=[ 'foundation', 'isix', 'stm32'  ]
             )
+
 
 
 
