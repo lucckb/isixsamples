@@ -27,5 +27,8 @@ def build(bld):
 def configure(config):
         config.recurse( bld_subdirs )
 
+def program(ctx):
+    ctx.recurse( 'isixrtos' )
+
 
 

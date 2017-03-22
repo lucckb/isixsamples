@@ -21,7 +21,9 @@ def build(bld):
             features='objcopy',
             target='brefboard',
             source=src,
+            install_path=False,
             includes=[ '.', 'board/include' ],
             use=[ 'foundation', 'isix', 'stm32',
                 'isixdrvstm32', 'graphics', 'fatfs', 'tcpip' ]
             )
+
