@@ -9,12 +9,17 @@ out = 'build'
 
 #bld_subdirs = [
 #        'isixrtos',
+#        'isixrtos/libisixdrvstm32',
 #        'isix_c_examples',
 #        'isix_cpp_examples',
 #]
 
 bld_subdirs = [
         'isixrtos',
+        'isixrtos/libisixdrvstm32',
+        'isixrtos/libgfx',
+        'isixrtos/libfsfat',
+        'isixrtos/libtcpip',
         'refboard'
 ]
 
