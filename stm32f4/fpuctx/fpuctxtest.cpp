@@ -67,9 +67,9 @@ void _external_startup(void)
 	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Initialize isix
-	isix::isix_init(ISIX_NUM_PRIORITIES);
+	isix::init(ISIX_NUM_PRIORITIES);
 
-	stm32::systick_config( isix::ISIX_HZ * (config::HCLK_HZ/(8*MHZ)) );
+	stm32::systick_config( ISIX_CONFIG_HZ * (config::HCLK_HZ/(8*MHZ)) );
 }
 /* ------------------------------------------------------------------ */
 } /* extern C */
@@ -102,11 +102,11 @@ protected:
 			//Enable LED
 			stm32::gpio_clr( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 			//Disable LED
 			stm32::gpio_set( LED_PORT, LED_PIN );
 			//Wait time
-			isix::isix_wait( isix::isix_ms2tick(BLINK_TIME) );
+			isix::wait_ms( BLINK_TIME );
 			ala_z += 1.0;
 			dbprintf("VAR1=%d", (int)ala_z);
 		}
@@ -175,12 +175,12 @@ protected:
             const int fret =  fputest_fill_and_add_check(m_begin);
             if( fret ) {
                 dbprintf("Assert failed at %i in %i iteration %i", fret, m_begin, it );
-                isix::isix_shutdown_scheduler();
+                isix::shutdown_scheduler();
                 break;
             }
             if( check_irq_failed ) {
             	 dbprintf("Assert IRQFAILED %i", check_irq_failed );
-            	  isix::isix_shutdown_scheduler();
+            	  isix::shutdown_scheduler();
             	 break;
             }
 		}
@@ -197,14 +197,15 @@ private:
 }	//namespace app end
 /* ------------------------------------------------------------------ */
 namespace {
-    
+#ifdef PDEBUG
     isix::semaphore usem(1, 1);
     void usart_lock() {
-        usem.wait(isix::ISIX_TIME_INFINITE);
+        usem.wait(ISIX_TIME_INFINITE);
     }
     void usart_unlock() {
         usem.signal();
     }
+#endif
 }
 /* ------------------------------------------------------------------ */
 //App main entry point
@@ -228,7 +229,7 @@ int main()
     //FPU->FPCCR &= ~( (1<<31U)|(1<<30));
 	//Start the isix scheduler
     app::prepare_fpu_irq_tests();
-	isix::isix_start_scheduler();
+	isix::start_scheduler();
 }
 
 
