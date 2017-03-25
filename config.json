@@ -6,8 +6,6 @@
 		"swd":     1
 	},
 	"configure" : {
-		"cpu": "stm32f407zet6",
-		"disable_isix": false,
-		"disable_exceptions": true
+		"disable_isix": false
 	}
 }
