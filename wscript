@@ -11,14 +11,15 @@ bld_subdirs = [
         #'isixrtos/libgfx',
         'isixrtos/libenergymeter',
         'isixrtos/libgsm',
-        'isixrtos/libtcpip',
+        #'isixrtos/libtcpip',
+        'isixrtos/libusb',
         #'isixrtos/libtls',
         'isixrtos/libfsfat',
         'isixrtos/libisixdrvstm32',
         #'isix_c_examples',
         #'isix_cpp_examples',
         #'simple/gfxdemo'
-        'advanced/tcpdemo'
+        'advanced/usbhostkbd'
 ]
 '''
 bld_subdirs = [
