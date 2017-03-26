@@ -6,23 +6,21 @@ sys.path.insert(0, 'isixrtos/isixwaf')
 
 top = '.'
 out = 'build'
-'''
 bld_subdirs = [
         'isixrtos',
-        'isixrtos/libgfx',
+        #'isixrtos/libgfx',
         'isixrtos/libenergymeter',
         'isixrtos/libgsm',
-        #'isixrtos/libtcpip',
+        'isixrtos/libtcpip',
         #'isixrtos/libtls',
-        #'isixrtos/libfsfat',
-        #'isixrtos/libisixdrvstm32',
-        #'isixrtos/libisixdrvstm32',
+        'isixrtos/libfsfat',
+        'isixrtos/libisixdrvstm32',
         #'isix_c_examples',
         #'isix_cpp_examples',
-        'simple/gfxdemo'
+        #'simple/gfxdemo'
+        'advanced/tcpdemo'
 ]
 '''
-
 bld_subdirs = [
         'isixrtos',
         'isixrtos/libisixdrvstm32',
@@ -31,6 +29,7 @@ bld_subdirs = [
         'isixrtos/libtcpip',
         'refboard'
 ]
+'''
 
 
 def options(opt):
