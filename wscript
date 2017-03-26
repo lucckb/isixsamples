@@ -3,47 +3,59 @@
 import sys
 sys.path.insert(0, 'isixrtos/isixwaf')
 
-
+# Current build directory
 top = '.'
+
+# Optput directory
 out = 'build'
-bld_subdirs = [
-        'isixrtos',
-        #'isixrtos/libgfx',
-        'isixrtos/libenergymeter',
-        'isixrtos/libgsm',
-        #'isixrtos/libtcpip',
-        'isixrtos/libusb',
-        #'isixrtos/libtls',
-        'isixrtos/libfsfat',
-        'isixrtos/libisixdrvstm32',
-        #'isix_c_examples',
-        #'isix_cpp_examples',
-        #'simple/gfxdemo'
-        'advanced/usbhostkbd'
-]
-'''
-bld_subdirs = [
-        'isixrtos',
-        'isixrtos/libisixdrvstm32',
-        'isixrtos/libgfx',
-        'isixrtos/libfsfat',
-        'isixrtos/libtcpip',
-        'refboard'
-]
-'''
+
+#Default board for samples
+_def_board = 'bf700'
 
 
+# Boards list
+_boards = [
+        'bf700',
+        'stm32butterfly',
+        'zl41arm'
+]
+
+# Board to cpu map 
+_board_cpu = {
+    'bf700' : 'stm32f407zet6',
+    'stm32butterfly' : 'stm32f107vbt6',
+    'zl41arm'   : 'stm32f417vgt6',
+}
+
+
+
+#On options selection
 def options(opt):
-        opt.recurse( bld_subdirs )
+    opt.recurse( 'isixrtos' )
+    opt.add_option( '--board', action='store',
+            choices=_boards, default=_def_board,
+            help='Select target board for samples' )
 
+#On configure
+def configure(cfg):
+    if not cfg.options.cpu:
+        brd =  _board_cpu[cfg.options.board]
+        cfg.msg('Cpu type not explicitly defined',
+                'selected by board type %s'%brd )
+        cfg.options.cpu = brd
+    cfg.recurse( 'isixrtos' )
+    cfg.env.BOARD_TYPE = cfg.options.board
+    cfg.recurse( cfg.env.BOARD_TYPE )
+
+#On  build
 def build(bld):
-        bld.recurse( bld_subdirs )
+    bld.recurse( 'isixrtos' )
+    bld.recurse( bld.env.BOARD_TYPE )
 
-def configure(config):
-        config.recurse( bld_subdirs )
-
+#Program target
 def program(ctx):
     ctx.recurse( 'isixrtos' )
 
+#Debug target
 def ocddebug(ctx):
     ctx.recurse( 'isixrtos' )
