@@ -53,7 +53,7 @@ CPPSRC += $(wildcard *.cpp)
 ASRC += $(wildcard *.S)
 
 
-ISIX_BASE_DIR=../../isixrtos
+ISIX_BASE_DIR=../../../isixrtos
 ISIX_DIR=$(ISIX_BASE_DIR)/libisix
 ISIXDRV_DIR=$(ISIX_BASE_DIR)/libisixdrvstm32
 LIBFOUNDATION_DIR=$(ISIX_BASE_DIR)/libfoundation
