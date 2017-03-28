@@ -4,7 +4,7 @@ def options(opt):
     pass
 
 def configure(conf):
-    conf.define('ISIX_CONFIG_SHUTDOWN_API',1)
+    conf.define('CONFIG_ISIX_SHUTDOWN_API',1)
 
 
 def build(bld):

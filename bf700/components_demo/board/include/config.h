@@ -25,13 +25,13 @@
 
 // --------  ISIX specific config ------------
 //! Enable poweroff API  
-//#define ISIX_CONFIG_SHUTDOWN_API
+//#define CONFIG_ISIX_SHUTDOWN_API
 //! In F103 devs MPU is not present
-#define ISIX_CONFIG_MEMORY_PROTECTION_MODEL ISIX_MPROT_LITE
-#define ISIX_CONFIG_TASK_STACK_CHECK 1
+#define CONFIG_ISIX_MEMORY_PROTECTION_MODEL ISIX_MPROT_LITE
+#define CONFIG_ISIX_TASK_STACK_CHECK 1
 //! Define log level for application
 #define FOUNDATION_CONFIG_LOGLEVEL FOUNDATION_DBGLOG_DEBUG
-#define ISIX_CONFIG_NUM_PRIORITIES 4
+#define CONFIG_ISIX_NUM_PRIORITIES 4
 
 // ---- Ethernet specific config ----
 #define ETH_DRV_USE_RMII  1

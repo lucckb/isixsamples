@@ -136,7 +136,7 @@ void _external_startup(void)
 	nvic_set_priority(SysTick_IRQn,1,0x7);
 
 	//Initialize isix
-	isix::init(ISIX_CONFIG_NUM_PRIORITIES);
+	isix::init(CONFIG_ISIX_NUM_PRIORITIES);
 
 	//Configure systic timer
 	systick_config( ISIX_HZ * (freq/(8000000)) );

@@ -9,7 +9,7 @@
 #define CONFIG_H_
 
 
-#define ISIX_CONFIG_SHUTDOWN_API 1
+#define CONFIG_ISIX_SHUTDOWN_API 1
 
 
 #endif /* CONFIG_H_ */

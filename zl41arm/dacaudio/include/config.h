@@ -9,7 +9,7 @@
 #pragma once
 /* ------------------------------------------------------------------ */
 //Enable isix shutdown API
-#define ISIX_CONFIG_SHUTDOWN_API 1
+#define CONFIG_ISIX_SHUTDOWN_API 1
 /* ------------------------------------------------------------------ */
 //HCLK system speed
 #define  CONFIG_XTAL_HZ   8000000

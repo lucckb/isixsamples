@@ -69,7 +69,7 @@ void _external_startup(void)
 	//Initialize isix
 	isix::init(ISIX_NUM_PRIORITIES);
 
-	stm32::systick_config( ISIX_CONFIG_HZ * (config::HCLK_HZ/(8*MHZ)) );
+	stm32::systick_config( CONFIG_ISIX_HZ * (config::HCLK_HZ/(8*MHZ)) );
 }
 /* ------------------------------------------------------------------ */
 } /* extern C */
