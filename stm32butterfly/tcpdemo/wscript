@@ -10,7 +10,7 @@ def configure(conf):
     conf.check_cxx( header_name='config.h', features='cxx',
             define_name='_HAVE_CONFIG_H' )
     conf.define('ISIX_CONFIG_SHUTDOWN_API',1)
-    conf.define( 'WITH_ISIX_TCPIP_LIB' , 1 )
+    conf.ISIX_COMPILE_TCPIP_DRIVERS = True
 
 
 def build(bld):
