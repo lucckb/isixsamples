@@ -1,4 +1,4 @@
-/* ------------------------------------------------------------------ */
+
 /*
  * example1.c
  *
@@ -8,13 +8,14 @@
  *  Created on: 18-09-2010
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+
 #include <isix.h>
 #include <stm32lib.h>
 #include <lwip/init.h>
 #include <foundation/dbglog.h>
+#include <foundation/tiny_printf.h>
 #include <usart_simple.h>
-#include "config.h"
+#include <config/conf.h>
 #include <stm32rcc.h>
 #include <stm32system.h>
 #include <stm32gpio.h>
@@ -24,7 +25,7 @@
 #include <eth/ethernetif.h>
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>
-/* ------------------------------------------------------------------ */
+
 //Led Port
 #define LED_PORT GPIOE
 #define LED_PIN 14
@@ -33,7 +34,7 @@
 #define BLINK_TIME 500
 #define BLINKING_TASK_PRIO 3
 
-/* ------------------------------------------------------------------ */
+
 /** Blinking led task function */
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
@@ -53,7 +54,7 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 	}
 }
 
-/* ------------------------------------------------------------------ */
+
 
 /**
   * @brief  Initializes the lwIP stack
@@ -130,7 +131,7 @@ static void tcp_eth_init(void)
 
 }
 
-/* ------------------------------------------------------------------ */
+
 
 //App main entry point
 int main(void)
@@ -157,7 +158,7 @@ enum crash_mode
 	CRASH_TYPE_USER=1,
 	CRASH_TYPE_SYSTEM
 };
-/* ------------------------------------------------------------------ */
+
 static inline void crash_info(enum crash_mode crash_type, unsigned long * SP)
 {
 	//Disable interrupt
@@ -176,10 +177,10 @@ static inline void crash_info(enum crash_mode crash_type, unsigned long * SP)
 	tiny_printf("[AFSR=%08lx]\r\n", rAFSR);
 	for(;;) wfi();
 }
-/* ------------------------------------------------------------------ */
+
 void hard_fault_exception_vector(void) __attribute__((__interrupt__,naked));
 
-/* ------------------------------------------------------------------ */
+
 void hard_fault_exception_vector(void)
 {
 	unsigned long *sp;

@@ -5,12 +5,11 @@ import os
 def options(opt):
     pass
 
-#TODO: Fixme that crap related to the HAVE_CONFIG_H
 def configure(conf):
     stdinc = os.path.join(conf.path.abspath(),'board','include')
     conf.env.append_value('INCLUDES', stdinc )
-    conf.check_cxx( header_name='config.h', features='cxx',
-            define_name='_HAVE_CONFIG_H' )
+    conf.check_cxx( header_name='isix_config.h', features='cxx',
+            define_name='HAVE_ISIX_CONFIG_H' )
     conf.env.ISIX_COMPILE_TCPIP_DRIVERS=True
 
 

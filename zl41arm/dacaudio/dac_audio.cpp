@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 
-#include <config.h>
+#include <config/conf.h>
 #include <dac_audio.hpp>
 #include <cstdlib>
 #include <new>
@@ -27,9 +27,9 @@
 #include <stm32dma.h>
 #include <stm32system.h>
 #include <foundation/dbglog.h>
-/* ------------------------------------------------------------------ */ 
+
 namespace drv {
-/* ------------------------------------------------------------------ */ 
+
 namespace {
 	inline void terminate() {
 #ifdef __EXCEPTIONS
@@ -52,7 +52,7 @@ namespace {
 	// Pointer to the dac audio for interrupt
 	dac_audio* g_dac_audio;
 }
-/* ------------------------------------------------------------------ */
+
 //! Constructor
 dac_audio::dac_audio( size_t audio_buf_len, size_t num_buffers )
 	: m_mempool( isix::mempool_create(
@@ -76,7 +76,7 @@ dac_audio::dac_audio( size_t audio_buf_len, size_t num_buffers )
 	}
 	g_dac_audio = this;
 }
-/* ------------------------------------------------------------------ */ 
+
 //! Destructor
 dac_audio::~dac_audio()
 {
@@ -87,7 +87,7 @@ dac_audio::~dac_audio()
 	isix::mempool_destroy( m_mempool );
 	g_dac_audio = nullptr;
 }
-/* ------------------------------------------------------------------ */ 
+
 //! Setup the hardware 
 int dac_audio::hardware_setup() 
 {
@@ -102,7 +102,7 @@ int dac_audio::hardware_setup()
 	nvic_irq_enable( DAC_DMA_STREAM_IRQN, true );
 	return err_success;
 }
-/* ------------------------------------------------------------------ */
+
 int dac_audio::play( unsigned short fs ) 
 {
 	if( m_state != state::idle ) {
@@ -123,7 +123,7 @@ int dac_audio::play( unsigned short fs )
 	m_state = state::start_wait;
 	return m_error;
 }
-/* ------------------------------------------------------------------ */ 
+
 //! Underflow error
 void dac_audio::transfer_error( int err ) 
 {
@@ -139,7 +139,7 @@ void dac_audio::transfer_error( int err )
 	}
 	m_state = state::idle;
 }
-/* ------------------------------------------------------------------ */ 
+
 //! Stop playing
 int dac_audio::stop( ostick_t timeout )  
 {
@@ -162,7 +162,7 @@ int dac_audio::stop( ostick_t timeout )
 	}
 	return m_error;
 }
-/* ------------------------------------------------------------------ */
+
 //! Raw hardware stop 
 void dac_audio::do_stop() 
 {
@@ -173,7 +173,7 @@ void dac_audio::do_stop()
 	dma_it_config( DAC_DMA_STREAM, DMA_IT_TC|DMA_IT_TE, false );
 	dma_clear_it_pending_bit( DAC_DMA_STREAM , DMA_FLAG_TCIF5 );
 }
-/* ------------------------------------------------------------------ */ 
+
 //!Play audio with selected sample ratio
 int dac_audio::do_play()
 {
@@ -217,7 +217,7 @@ int dac_audio::do_play()
 	m_state = state::sampling;
 	return m_error;
 }
-/* ------------------------------------------------------------------ */ 
+
 //! Commit filled application buffer
 int dac_audio::commit_buffer( uint16_t* buf, ostick_t tout )
 {
@@ -237,7 +237,7 @@ int dac_audio::commit_buffer( uint16_t* buf, ostick_t tout )
 	}
 	return m_error;
 }
-/* ------------------------------------------------------------------ */ 
+
 extern "C" {
 	//! Interrupt stream TC
 	__attribute__((interrupt)) void dma1_stream5_isr_vector() 
@@ -274,6 +274,6 @@ extern "C" {
 		dma_clear_flag( DAC_DMA_STREAM, DMA_FLAG_TCIF5|DMA_FLAG_TEIF5 );
 	}
 }
-/* ------------------------------------------------------------------ */ 
+
 }
-/* ------------------------------------------------------------------ */
+

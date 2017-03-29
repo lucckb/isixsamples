@@ -3,7 +3,7 @@
 #include <foundation/dbglog.h>
 #include <foundation/tiny_printf.h>
 #include <usart_simple.h>
-#include "config.h"
+#include <config/conf.h>
 #include <stm32system.h>
 #include <stm32rcc.h>
 #include <stm32gpio.h>
@@ -17,16 +17,15 @@
 #include <mmc/mmc_card.hpp>
 #include <stm32gpio.h>
 #include <stm32_spi_master_dma.hpp>
-/* ------------------------------------------------------------------ */
+
 namespace {
-/* ------------------------------------------------------------------ */
+
 
 //Number of isix threads
 const unsigned ISIX_NUM_PRIORITIES = 4;
 //SysTimer values
 const unsigned MHZ = 1000000;
 
-/* ------------------------------------------------------------------ */
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -40,11 +39,9 @@ uint32_t uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
     return freq;
 }
-/* ------------------------------------------------------------------ */
 extern "C"
 {
 
-/* ------------------------------------------------------------------ */
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -69,16 +66,12 @@ void _external_startup(void)
 
 	stm32::systick_config( ISIX_HZ * (freq/(8*MHZ)) );
 }
-/* ------------------------------------------------------------------ */
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
 }
-/* ------------------------------------------------------------------ */
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
 class ledblink: public isix::task_base
 {
 public:
@@ -113,7 +106,7 @@ private:
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
-/* ------------------------------------------------------------------ */
+
 
 class stm32_gpio : public drv::mmc::immc_det_pin
 {
@@ -130,7 +123,7 @@ public:
 	}
 };
 
-/* ------------------------------------------------------------------ */
+
 
 class fat_tester: public isix::task_base
 {
@@ -209,7 +202,7 @@ private:
 		drv::mmc::mmc_slot m_slot;
 };
 
-/* ------------------------------------------------------------------ */
+
 
 class mmc_host_tester : public isix::task_base
 {
@@ -314,10 +307,10 @@ private:
 		drv::mmc::mmc_slot m_slot;
 };
 
-/* ------------------------------------------------------------------ */
+
 
 }	//namespace app end
-/* ------------------------------------------------------------------ */
+
 //App main entry point
 int main()
 {
@@ -334,5 +327,4 @@ int main()
 	isix::start_scheduler();
 }
 
-/* ------------------------------------------------------------------ */
 

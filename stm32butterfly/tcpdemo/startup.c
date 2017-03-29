@@ -4,12 +4,12 @@
  *  Created on: 18-09-2010
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+
 #include <isix.h>
 #include <stm32lib.h>
 #include <stm32system.h>
-#include "config.h"
-/* ------------------------------------------------------------------ */
+#include <config/conf.h>
+
 //! Configure ADC prescaler to 8
 #define RCC_CFGR_ADCPRE_8 (3<<14)
 //! HSE oscilator control
@@ -20,7 +20,7 @@
 #define MHZ 1000000
 #define CTRL_TICKINT_Set 2
 #define SysTick_Counter_Enable 1
-/* ------------------------------------------------------------------ */
+
 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
@@ -69,7 +69,7 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 
-/* ------------------------------------------------------------------ */
+
 //Setup the systick timer at ISIX_HZ (default 1000HZ)
 void timer_setup()
 {
@@ -79,7 +79,7 @@ void timer_setup()
 	SysTick->CTRL |= SysTick_Counter_Enable;
 }
 
-/* ------------------------------------------------------------------ */
+
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -106,4 +106,4 @@ void _external_startup(void)
 	timer_setup();
 }
 
-/* ------------------------------------------------------------------ */
+

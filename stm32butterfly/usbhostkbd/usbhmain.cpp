@@ -2,7 +2,7 @@
 #include <foundation/dbglog.h>
 #include <foundation/tiny_printf.h>
 #include <usart_simple.h>
-#include <config.h>
+#include <config/conf.h>
 #include <stm32system.h>
 #include <cctype>
 #include <cstring>

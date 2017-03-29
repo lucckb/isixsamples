@@ -32,7 +32,5 @@
 #define  CONFIG_PCLK2_HZ (CONFIG_HCLK_HZ/2)
 #endif
 
-//Enable DMA mode
-#define CONFIG_ISIXDRV_SPI_ENABLE_DMAIRQ 0
 /* ------------------------------------------------------------------ */
 #endif /* CONFIG_HPP_ */

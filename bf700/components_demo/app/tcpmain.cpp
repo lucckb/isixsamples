@@ -18,7 +18,7 @@
 
 #include <isix.h>
 #include <foundation/dbglog.h>
-#include "config.h"
+#include <config/conf.h>
 #include <stm32_eth.h>
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>

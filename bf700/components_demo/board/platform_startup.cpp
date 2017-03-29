@@ -1,5 +1,4 @@
-
-#include "config.h"
+#include <config/conf.h>
 #include <functional>
 #include <stm32system.h>
 #include <stm32rcc.h>

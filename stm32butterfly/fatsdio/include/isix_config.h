@@ -1,14 +1,13 @@
-/* ------------------------------------------------------------------ */
 /*
  * config.hpp
  *
  *  Created on: 2010-01-28
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+
 #ifndef APP_CONFIG_H_
 #define APP_CONFIG_H_
-/* ------------------------------------------------------------------ */
+
 
 #if defined(STM32MCU_MAJOR_TYPE_F1)
 //HCLK system speed
@@ -34,5 +33,6 @@
 
 //Enable DMA mode
 #define CONFIG_ISIXDRV_SPI_ENABLE_DMAIRQ 0
-/* ------------------------------------------------------------------ */
+#define CONFIG_ISIX_SHUTDOWN_API 1
+
 #endif /* CONFIG_HPP_ */

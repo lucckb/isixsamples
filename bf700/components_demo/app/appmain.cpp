@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 
-#include <config.h>
+#include <config/conf.h>
 #include <foundation/dbglog.h>
 #include <usart_simple.h>
 #include <stm32gpio.h>

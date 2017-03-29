@@ -4,8 +4,8 @@
  *  Created on: 20 lis 2013
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
-#include "config.h"
+
+#include <config/conf.h>
 #include <functional>
 #include <stm32system.h>
 #include <stm32rcc.h>
@@ -15,19 +15,19 @@
 #include <stm32crashinfo.h>
 #include <stm32syscfg.h>
 #include <stm32dma.h>
-/* ------------------------------------------------------------------ */
+
 namespace drv {
 namespace board {
-/* ------------------------------------------------------------------ */
+
 namespace {
-/* ------------------------------------------------------------------ */
+
 
 //Number of isix threads
 constexpr unsigned ISIX_NUM_PRIORITIES = 4;
 //SysTimer values
 constexpr unsigned MHZ = 1000000;
 
-/* ------------------------------------------------------------------ */
+
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -72,13 +72,13 @@ unsigned uc_periph_setup()
     }
     return CONFIG_HCLK_HZ;
 }
-/* ------------------------------------------------------------------ */
+
 }	//Unnamed NS
-/* ------------------------------------------------------------------ */
+
 extern "C" {
-/* ------------------------------------------------------------------ */
+
 void _external_exit();
-/* ------------------------------------------------------------------ */
+
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -127,7 +127,7 @@ void _external_startup(void)
 		_external_exit();
 	}
 }
-/* ------------------------------------------------------------------ */
+
 //!External exit called after global constructors
 void _external_exit(void)
 {
@@ -138,7 +138,7 @@ void _external_exit(void)
 	stm32::pwr_wake_up_pin_cmd( true );
 	stm32::pwr_enter_standby_mode();
 }
-/* ------------------------------------------------------------------ */
+
 #ifdef PDEBUG
 //Crash info interrupt handler
 void __attribute__((__interrupt__,naked)) hard_fault_exception_vector(void)
@@ -146,9 +146,9 @@ void __attribute__((__interrupt__,naked)) hard_fault_exception_vector(void)
 	cm3_hard_hault_regs_dump();
 }
 #endif
-/* ------------------------------------------------------------------ */
+
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
+
 }}	//NS drv
-/* ------------------------------------------------------------------ */
+
