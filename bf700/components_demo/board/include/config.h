@@ -25,7 +25,7 @@
 
 // --------  ISIX specific config ------------
 //! Enable poweroff API  
-//#define CONFIG_ISIX_SHUTDOWN_API
+//#define CONFIG_ISIX_SHUTDOWN_API 1
 //! In F103 devs MPU is not present
 #define CONFIG_ISIX_MEMORY_PROTECTION_MODEL ISIX_MPROT_LITE
 #define CONFIG_ISIX_TASK_STACK_CHECK 1
