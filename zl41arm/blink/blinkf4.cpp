@@ -30,7 +30,7 @@ void uc_periph_setup()
     stm32::rcc_pclk2_config(  RCC_HCLK_Div2 );
     stm32::rcc_pclk1_config(  RCC_HCLK_Div4 );
     //Setup NVIC vector at begin of flash
-#if CONFIG_WITH_SBL_BOOTLOADER_ENABLED
+#if CONFIG_ISIX_SBL_BOOTLOADER_REMAP
     SCB->VTOR = 0x08004000;
 #else
     SCB->VTOR = NVIC_VectTab_FLASH;

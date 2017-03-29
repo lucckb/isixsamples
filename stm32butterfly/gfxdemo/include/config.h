@@ -33,6 +33,6 @@
 #endif
 
 //Enable DMA mode
-#define CONFIG_ISIX_DRV_SPI_ENABLE_DMAIRQ 0
+#define CONFIG_ISIXDRV_SPI_ENABLE_DMAIRQ 0
 /* ------------------------------------------------------------------ */
 #endif /* CONFIG_HPP_ */
