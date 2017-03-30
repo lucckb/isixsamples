@@ -52,6 +52,7 @@ namespace app {
 	bool tft_tester::on_click( const gfx::gui::event &ev )
 	{
 		auto b = static_cast<gfx::gui::button*>(ev.sender);
+		static_cast<void>(b);
 		dbprintf("Button %p clicked with desc %s", ev.sender, b->caption().c_str());
 		return false;
 	}
@@ -59,12 +60,14 @@ namespace app {
 	bool tft_tester::on_select_item( const gfx::gui::event &ev )
 	{
 		auto b = static_cast<gfx::gui::choice_menu*>(ev.sender);
+		static_cast<void>(b);
 		dbprintf("Sel %p clicked with item %i", ev.sender, b->selection());
 		return false;
 	}
 	bool tft_tester::on_seek_change( const gfx::gui::event &ev )
 	{
 		auto b = static_cast<gfx::gui::seekbar*>(ev.sender);
+		static_cast<void>(b);
 		dbprintf("Seek event pos %i", b->value());
 		return false;
 	}
@@ -153,6 +156,7 @@ namespace app {
 		gfx::disp::gdi gdi(gdisp);
 		gdi.clear();
 		ostick_t tbeg = isix::get_jiffies();
+		static_cast<void>(tbeg);
 		dbprintf("TIME=%u", isix::get_jiffies() - tbeg );
 		gdisp.fill(50,150,30,30, gfx::rgb(127,0,255));
 		gdisp.blit( 20, 40, 16, 16, 0, img );
