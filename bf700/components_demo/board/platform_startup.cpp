@@ -1,15 +1,13 @@
 #include <config/conf.h>
 #include <functional>
-#include <stm32system.h>
 #include <stm32rcc.h>
 #include <stm32pwr.h>
 #include <stm32adc.h>
-#include <stm32exti.h>
-#include <stm32rtc.h>
 #include <isix.h>
 #include <stm32crashinfo.h>
 #include <stm32syscfg.h>
 #include <stm32dma.h>
+#include <isix/arch/irq.h>
 
 namespace drv {
 namespace board {
@@ -111,10 +109,10 @@ extern "C" {
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
-	using namespace stm32;
 
 	//Give a chance a JTAG to reset the CPU
-	for(unsigned i=0; i<1000000; i++) stm32::nop();
+	for(unsigned i=0; i<1000000; i++)
+		asm volatile("nop\n");
 
 	//Initialize system perhipheral
 	const auto freq = drv::board::system_config();
@@ -123,22 +121,10 @@ void _external_startup(void)
 	drv::board::periph_config();
 
 	//1 bit for preemtion priority
-	nvic_priority_group(NVIC_PriorityGroup_1);
-
-	//System priorities
-	nvic_set_priority(PendSV_IRQn,1,0x7);
-
-	//System priorities
-	nvic_set_priority(SVCall_IRQn,1,0x7);
-
-	//Set timer priority
-	nvic_set_priority(SysTick_IRQn,1,0x7);
+	isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 
 	//Initialize isix
-	isix::init(CONFIG_ISIX_NUM_PRIORITIES);
-
-	//Configure systic timer
-	systick_config( ISIX_HZ * (freq/(8000000)) );
+	isix::init(freq);
 
 }
 

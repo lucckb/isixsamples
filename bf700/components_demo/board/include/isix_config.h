@@ -31,7 +31,6 @@
 #define CONFIG_ISIX_TASK_STACK_CHECK 1
 //! Define log level for application
 #define CONFIG_FOUNDATION_LOGLEVEL FOUNDATION_DBGLOG_DEBUG
-#define CONFIG_ISIX_NUM_PRIORITIES 4
 
 // ---- Ethernet specific config ----
 #define ETH_DRV_USE_RMII  1
