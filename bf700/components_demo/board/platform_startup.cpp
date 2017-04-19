@@ -55,7 +55,7 @@ unsigned system_config()
     syscfg_compensation_cell_cmd( true );
 
 
-	isix_set_irq_vectors_base( reinterpret_cast<uintptr_t>(&_exceptions_vectors) );
+	isix_set_irq_vectors_base( &_exceptions_vectors );
 
     // Enable main PLL
 	rcc_sysclk_config( RCC_SYSCLKSource_PLLCLK );
