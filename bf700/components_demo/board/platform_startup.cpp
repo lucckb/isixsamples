@@ -7,6 +7,7 @@
 #include <stm32crashinfo.h>
 #include <stm32syscfg.h>
 #include <stm32dma.h>
+#include <irq_vectors_symbol.h>
 #include <isix/arch/irq.h>
 
 namespace drv {
@@ -54,13 +55,7 @@ unsigned system_config()
     syscfg_compensation_cell_cmd( true );
 
 
-
-    //Setup NVIC vector at begin of flash
-#if CONFIG_ISIX_SBL_BOOTLOADER_REMAP
-    SCB->VTOR = NVIC_VectTab_FLASH + 0x4000;
-#else
-    SCB->VTOR = NVIC_VectTab_FLASH;
-#endif
+	isix_set_irq_vectors_base( reinterpret_cast<uintptr_t>(&_exceptions_vectors) );
 
     // Enable main PLL
 	rcc_sysclk_config( RCC_SYSCLKSource_PLLCLK );
