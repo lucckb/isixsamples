@@ -15,6 +15,7 @@
 #include <stm32crashinfo.h>
 #include <stm32syscfg.h>
 #include <stm32dma.h>
+#include <isix/arch/irq.h>
 
 namespace drv {
 namespace board {
@@ -22,8 +23,6 @@ namespace board {
 namespace {
 
 
-//Number of isix threads
-constexpr unsigned ISIX_NUM_PRIORITIES = 4;
 //SysTimer values
 constexpr unsigned MHZ = 1000000;
 
@@ -104,23 +103,13 @@ void _external_startup(void)
 		//Initialize system perhipheral
 		const auto volatile freq = uc_periph_setup();
 
+
 		//1 bit for preemtion priority
-		stm32::nvic_priority_group(NVIC_PriorityGroup_1);
-
-		//System priorities
-		stm32::nvic_set_priority(PendSV_IRQn,1,0x7);
-
-		//System priorities
-		stm32::nvic_set_priority(SVCall_IRQn,1,0x7);
-
-		//Set timer priority
-		stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
+		isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 
 		//Initialize isix
-		isix::init(ISIX_NUM_PRIORITIES);
+		isix::init(freq);
 
-		//Configure systic timer
-		stm32::systick_config( ISIX_HZ * (freq/(8*MHZ)) );
 	}
 	else
 	{

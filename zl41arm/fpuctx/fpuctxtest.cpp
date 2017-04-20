@@ -11,6 +11,7 @@
 #include <stm32dma.h>
 #include <stm32pwr.h>
 #include <stm32crashinfo.h>
+#include <isix/arch/irq.h>
 /* ------------------------------------------------------------------ */
 namespace {
 /* ------------------------------------------------------------------ */
@@ -55,21 +56,11 @@ void _external_startup(void)
 	uc_periph_setup();
 
 	//1 bit for preemtion priority
-	stm32::nvic_priority_group(NVIC_PriorityGroup_1);
-
-	//System priorities
-	stm32::nvic_set_priority(PendSV_IRQn,1,0x7);
-
-	//System priorities
-	stm32::nvic_set_priority(SVCall_IRQn,1,0x7);
-
-	//Set timer priority
-	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
+	isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 
 	//Initialize isix
-	isix::init(ISIX_NUM_PRIORITIES);
+	isix::init(config::HCLK_HZ);
 
-	stm32::systick_config( CONFIG_ISIX_HZ * (config::HCLK_HZ/(8*MHZ)) );
 }
 /* ------------------------------------------------------------------ */
 } /* extern C */
