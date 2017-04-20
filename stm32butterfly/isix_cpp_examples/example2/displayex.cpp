@@ -12,6 +12,7 @@
 #include "the_application.hpp"
 #include <usart_simple.h>
 #include <foundation/tiny_printf.h>
+#include <isix/arch/irq.h>
 
 namespace {
 /* ------------------------------------------------------------------ */
@@ -22,15 +23,6 @@ const unsigned long RCC_CFGR_ADCPRE_8 = (3<<14);
 const unsigned long RCC_CR_HSI_ON = (1<<0);
 //Number of isix threads
 
-const unsigned ISIX_NUM_PRIORITIES = 4;
-
-//SysTimer values
-const unsigned MHZ = 1000000;
-const unsigned CTRL_TICKINT_Set = 2;
-const unsigned SysTick_Counter_Enable = 1;
-
-//HCLK system speed
-const unsigned HCLK_HZ = 75000000;
 
 /* ------------------------------------------------------------------ */
 /** Cortex stm32 System setup
@@ -78,15 +70,6 @@ void uc_periph_setup()
     //Setup NVIC vector at begin of flash
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
-/* ------------------------------------------------------------------ */
-//Setup the systick timer at ISIX_HZ (default 1000HZ)
-void timer_setup()
-{
-	SysTick->LOAD = (1000000/ISIX_HZ) * (HCLK_HZ/(8*MHZ));
-	SysTick->CTRL |= CTRL_TICKINT_Set;
-	//System counter enable
-	SysTick->CTRL |= SysTick_Counter_Enable;
-}
 
 /* ------------------------------------------------------------------ */
 extern "C"
@@ -101,29 +84,10 @@ void _external_startup(void)
 	uc_periph_setup();
 
 	//1 bit for preemtion priority
-	stm32::nvic_priority_group(NVIC_PriorityGroup_1);
+	isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 
-	//System priorities
-	stm32::nvic_set_priority(PendSV_IRQn,1,0x7);
-
-	//System priorities
-	stm32::nvic_set_priority(SVCall_IRQn,1,0x7);
-
-	//Set timer priority
-	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
-
-	//Debug console output
-	/*
-	usartsimple_init(115200);
-	register_printf_putc_handler(usartsimple_putc,NULL);
-	tiny_printf("Hello world for all\r\n");
-	*/
 	//Initialize isix
-	isix::init(ISIX_NUM_PRIORITIES);
-
-	//Setup the systick timer
-	timer_setup();
-
+	isix::init(CONFIG_HCLK_HZ);
 
 }
 

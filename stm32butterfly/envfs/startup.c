@@ -8,18 +8,13 @@
 #include <isix.h>
 #include <stm32lib.h>
 #include <stm32system.h>
+#include <isix/arch/irq.h>
 #include "config.h"
 /* ------------------------------------------------------------------ */
 //! Configure ADC prescaler to 8
 #define RCC_CFGR_ADCPRE_8 (3<<14)
 //! HSE oscilator control
 #define RCC_CR_HSI_ON  (1<<0)
-//Number of isix threads
-#define ISIX_NUM_PRIORITIES 4
-//SysTimer values
-#define MHZ 1000000
-#define CTRL_TICKINT_Set 2
-#define SysTick_Counter_Enable 1
 /* ------------------------------------------------------------------ */
 
 /** Cortex stm32 System setup
@@ -67,16 +62,6 @@ void uc_periph_setup()
 }
 
 /* ------------------------------------------------------------------ */
-//Setup the systick timer at ISIX_HZ (default 1000HZ)
-void timer_setup()
-{
-	SysTick->LOAD = ISIX_HZ * (CONFIG_HCLK_HZ/(8*MHZ));
-	SysTick->CTRL |= CTRL_TICKINT_Set;
-	//System counter enable
-	SysTick->CTRL |= SysTick_Counter_Enable;
-}
-
-/* ------------------------------------------------------------------ */
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -85,22 +70,11 @@ void _external_startup(void)
 	uc_periph_setup();
 
 	//1 bit for preemtion priority
-	nvic_priority_group(NVIC_PriorityGroup_1);
-
-	//System priorities
-	nvic_set_priority(PendSV_IRQn,1,0x7);
-
-	//System priorities
-	nvic_set_priority(SVCall_IRQn,1,0x7);
-
-	//Set timer priority
-	nvic_set_priority(SysTick_IRQn,1,0x7);
+	isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 
 	//Initialize isix
-	isix_init(ISIX_NUM_PRIORITIES);
+	isix_init(CONFIG_HCLK_HZ);
 
-	//Setup the systick timer
-	timer_setup();
 }
 
 /* ------------------------------------------------------------------ */

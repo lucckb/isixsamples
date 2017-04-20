@@ -14,6 +14,7 @@
 #include <gfx/types.hpp>
 #include <gfx/disp/gdi.hpp>
 #include <gfx/gui/gui.hpp>
+#include <isix/arch/irq.h>
 
 #include <string>
 #include <regex>
@@ -58,21 +59,11 @@ void _external_startup(void)
 	const uint32_t freq = uc_periph_setup();
 
 	//1 bit for preemtion priority
-	stm32::nvic_priority_group(NVIC_PriorityGroup_1);
-
-	//System priorities
-	stm32::nvic_set_priority(PendSV_IRQn,1,0x7);
-
-	//System priorities
-	stm32::nvic_set_priority(SVCall_IRQn,1,0x7);
-
-	//Set timer priority
-	stm32::nvic_set_priority(SysTick_IRQn,1,0x7);
+	isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 
 	//Initialize isix
-	isix::init(ISIX_NUM_PRIORITIES);
+	isix_init(freq);
 
-	stm32::systick_config( ISIX_HZ * (freq/(8*MHZ)) );
 }
 /* ------------------------------------------------------------------ */
 } /* extern C */
