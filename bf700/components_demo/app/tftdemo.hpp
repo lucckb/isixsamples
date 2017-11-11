@@ -47,7 +47,7 @@ public:
 	}
 
 protected:
-	virtual void main();
+	virtual void main() noexcept;
 private:
 	//Base buttons and windows demo
 	void windows_test();

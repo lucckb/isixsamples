@@ -76,7 +76,7 @@ namespace app {
 	{
 		start_thread( STACK_SIZE, TASK_PRIO );
 	}
-	void tft_tester::main()
+	void tft_tester::main() noexcept
 	{
 		dbprintf("GDI test go");
 #if 0
