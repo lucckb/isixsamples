@@ -10,14 +10,15 @@ top = '.'
 out = 'build'
 
 #Default board for samples
-_def_board = 'bf700'
+_def_board = 'testf334'
 
 
 # Boards list
 _boards = [
         'bf700',
         'stm32butterfly',
-        'zl41arm'
+        'zl41arm',
+        'testf334'
 ]
 
 # Board to cpu map 
@@ -25,6 +26,7 @@ _board_cpu = {
     'bf700' : 'stm32f407zet6',
     'stm32butterfly' : 'stm32f107vbt6',
     'zl41arm'   : 'stm32f417vgt6',
+    'testf334'	: 'stm32f334x8'
 }
 
 
@@ -32,7 +34,7 @@ _board_cpu = {
 #On options selection
 def options(opt):
     opt.recurse( 'isixrtos' )
-    opt.add_option( '--board', action='store',
+    opt.add_option( '--board', action='store',	
             choices=_boards, default=_def_board,
             help='Select target board for samples' )
 
