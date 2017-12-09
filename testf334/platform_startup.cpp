@@ -5,7 +5,7 @@
  *      Author: lucck
  */
  
-#include "config.h"
+#include <config/conf.h>
 #include <functional>
 #include <stm32system.h>
 #include <stm32rcc.h>
@@ -58,9 +58,7 @@ bool uc_periph_setup()
     }
 
     //Configure other periph clocks
-    rcc_usb_clk_config( RCC_USBCLKSource_PLLCLK_1Div5 );	//USB 48M
-    rcc_sdadc_clk_config( RCC_SDADCCLK_SYSCLK_Div12 );		//SDADC 6MHz (Max 6)
-    rcc_adc_clk_config( RCC_PCLK2_Div6 );					//ADC 12MHz (Max 14)
+    rcc_adc_clk_config( RCC_CFGR2_ADCPRE12_DIV64 );					//ADC 12MHz (Max 14)
 
 
     //Enable clocks for all GPIOS
