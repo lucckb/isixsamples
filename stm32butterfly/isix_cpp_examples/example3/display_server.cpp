@@ -20,7 +20,7 @@ display_server::display_server():io_fifo(QUEUE_CAPACITY)
 }
 /* ------------------------------------------------------------------ */
 //Main thread
-void display_server::main()
+void display_server::main() noexcept 
 {
 	const display_msg *msg = NULL;
 

@@ -40,7 +40,7 @@ led_receiver::led_receiver(stm32::dev::usart_buffered &_serial)
 
 /* ------------------------------------------------------------------ */
 //Main task/thread function
-void led_receiver::main()
+void led_receiver::main() noexcept
 {
 	while(true)
 	{

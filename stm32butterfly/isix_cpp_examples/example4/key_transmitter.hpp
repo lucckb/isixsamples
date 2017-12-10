@@ -33,7 +33,7 @@ public:
 	}
 protected:
 	//Main thread method
-	virtual void main();
+	virtual void main() noexcept;
 private:
 	//Stack and prio cfgs
 	static const unsigned STACK_SIZE = 256;

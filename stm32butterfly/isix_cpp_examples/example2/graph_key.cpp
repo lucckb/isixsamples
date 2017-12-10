@@ -72,7 +72,7 @@ graph_key::graph_key(display_server &_srv)
 }
 /* ------------------------------------------------------------------ */
 //Task/thread method
-void graph_key::main()
+void graph_key::main() noexcept
 {
 	//Previous key variable
 	static short p_key = -1;

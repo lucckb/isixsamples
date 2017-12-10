@@ -89,7 +89,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		while(true)
 		{
@@ -310,7 +310,7 @@ public:
 		return frame;
 	}
 protected:
-	virtual void main()
+	virtual void main() noexcept
 	{
 		//gdi_test();
 		windows_test();
@@ -453,7 +453,7 @@ public:
 		);
 		start_thread( STACK_SIZE, TASK_PRIO );
 	}
-	virtual void main()
+	virtual void main() noexcept
 	{
 		using keys = gfx::input::kbdcodes;
 		bool pok{}, pl{}, pr{}, pu{}, pd{};

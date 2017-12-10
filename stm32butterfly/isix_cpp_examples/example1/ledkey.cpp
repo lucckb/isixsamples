@@ -35,7 +35,7 @@ ledkey::ledkey()
 }
 
 /* ------------------------------------------------------------------ */
-void ledkey::main()
+void ledkey::main() noexcept
 {
 	//Last key state
 	bool p_state = true;

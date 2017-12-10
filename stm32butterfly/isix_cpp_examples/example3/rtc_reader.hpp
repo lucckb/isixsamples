@@ -26,7 +26,7 @@ public:
 	}
 protected:
 	//Thread/task method
-	virtual void main();
+	virtual void main() noexcept;
 private:
 	static const unsigned STACK_SIZE = 512;
 	static const unsigned TASK_PRIO = 3;

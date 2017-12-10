@@ -21,7 +21,7 @@ display_server::display_server()
 }
 /* ------------------------------------------------------------------ */
 //Main thread
-void display_server::main()
+void display_server::main() noexcept
 {
 	const display_msg *msg = NULL;
 

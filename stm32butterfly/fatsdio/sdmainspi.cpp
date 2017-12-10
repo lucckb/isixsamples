@@ -72,7 +72,7 @@ public:
 	}
 protected:
 	//Main functionQMonikQ
-	virtual void main()
+	virtual void main() noexcept
 	{
 		while(true)
 		{
@@ -124,7 +124,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		isix::wait_ms( 100 );
 		static char buf[513];
@@ -244,7 +244,7 @@ private:
 		}
 	}
 protected:
-	virtual void main()
+	virtual void main() noexcept
 	{
 		for(;;)
 		{

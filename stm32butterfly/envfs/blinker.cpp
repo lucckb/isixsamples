@@ -36,7 +36,7 @@ ledblink::ledblink()
 
 /* ------------------------------------------------------------------ */
 //Main task/thread function
-void ledblink::main()
+void ledblink::main() noexcept
 {
 	while(true) {
 		//Enable LED

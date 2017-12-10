@@ -28,7 +28,7 @@ rtc_reader::rtc_reader(display_server &disp_srv_):
 }
 /* ------------------------------------------------------------------ */
 //Main rtc reader core task
-void rtc_reader::main()
+void rtc_reader::main() noexcept
 {
 	static const uint8_t pgm_regs[] =
 	{

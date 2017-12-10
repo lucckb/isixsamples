@@ -47,7 +47,7 @@
 //The Delay
 #define KBD_DELAY_TIME  25
 
-typedef short key_t;
+typedef short hkey_t;
 /* ------------------------------------------------------------------ */
 //Get the key function
 static inline unsigned short get_key()
@@ -85,7 +85,7 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 	nlcd_put_string("www.boff.pl",0,0);
 	nlcd_put_string("Joy state:",0,1);
 	//Key variable read from
-	key_t key;
+	hkey_t key;
 	for(;;)
 	{
 		//Read data from fifo
@@ -127,11 +127,11 @@ static ISIX_TASK_FUNC(keyboard_srv_task,entry_params)
 	gpio_config(KEY_PORT,KEY_RIGHT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
 	osfifo_t kbd_fifo = (osfifo_t)entry_params;
 	//Previous key variable
-	static key_t p_key = -1;
+	static hkey_t p_key = -1;
 	for(;;)
 	{
 		//Get key
-		key_t key = get_key();
+		hkey_t key = get_key();
 		//Check if any key is pressed
 		if(key!=0 && p_key==0)
 		{
@@ -152,7 +152,7 @@ int main(void)
 	isix_task_create( blinking_task, NULL,
 			ISIX_PORT_SCHED_MIN_STACK_DEPTH, BLINKING_TASK_PRIO, 0
 	);
-	osfifo_t kbd_fifo = isix_fifo_create( 10, sizeof(key_t) );
+	osfifo_t kbd_fifo = isix_fifo_create( 10, sizeof(hkey_t) );
 	if(kbd_fifo)
 	{
 		//Create the display serwer task

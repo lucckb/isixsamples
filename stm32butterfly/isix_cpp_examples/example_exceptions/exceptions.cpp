@@ -110,7 +110,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		while(true)
 		{
@@ -152,7 +152,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		//Last key state
 		bool state = true;

@@ -36,7 +36,7 @@ public:
 	}
 protected:
 	//Thread/task method
-	virtual void main();
+	virtual void main() noexcept;
 private:
 	//The display object
 	nokia_display display;

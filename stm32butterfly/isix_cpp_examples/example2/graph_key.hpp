@@ -32,7 +32,7 @@ public:
 	}
 protected:
 	//The task/thread
-	virtual void main();
+	virtual void main() noexcept;
 
 private:
 	static const unsigned STACK_SIZE = 256;

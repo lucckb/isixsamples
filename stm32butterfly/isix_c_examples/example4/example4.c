@@ -23,7 +23,7 @@
 /* ------------------------------------------------------------------ */
 
 //Key definition
-typedef char key_t;
+typedef char hkey_t;
 
 /* ------------------------------------------------------------------ */
 #define KEYSCAN_PORT GPIOE				/* Keyboard port */
@@ -54,7 +54,7 @@ static void keyscan_init(void)
 
 /* ------------------------------------------------------------------ */
 //Translate row/col to key val
-static inline char key_translate(int row, int col)
+static inline char hkey_translate(int row, int col)
 {
 	switch(row)		/* Select row */
 	{
@@ -117,7 +117,7 @@ ISIX_TASK_FUNC(kbd_task,entry_params)
 		if(col>0)
 		{
 			//If col selected translate key and sent to disp
-			key_t key = key_translate( row, col );
+			hkey_t key = hkey_translate( row, col );
 			isix_fifo_write( key_fifo, &key, isix_ms2tick(KEY_SCAN_INTERVAL));
 		}
 		//Wait one ms
@@ -129,7 +129,7 @@ ISIX_TASK_FUNC(kbd_task,entry_params)
 static ISIX_TASK_FUNC(display_srv_task, entry_params)
 {
 	osfifo_t temp_fifo = (osfifo_t)entry_params;
-	key_t key;
+	hkey_t key;
 	nlcd_init();			//Initialize LCD
 	//Put welcome string
 	nlcd_put_string( "www.boff.pl", 0, 0 );
@@ -170,7 +170,7 @@ int main(void)
 	//Create ISIX blinking task
 	isix_task_create( blinking_task, NULL,ISIX_PORT_SCHED_MIN_STACK_DEPTH, TASK_PRIO_LED,0);
 	//Create fifo msgs
-	osfifo_t key_fifo = isix_fifo_create( 10, sizeof(key_t) );
+	osfifo_t key_fifo = isix_fifo_create( 10, sizeof(hkey_t) );
 	if(key_fifo)
 	{
 		//Create isix tasks (key and disp)

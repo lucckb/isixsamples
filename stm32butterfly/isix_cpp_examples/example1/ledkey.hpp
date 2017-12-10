@@ -21,7 +21,7 @@ public:
 		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 protected:
-	virtual void main();
+	virtual void main() noexcept;
 
 private:
 		static const unsigned STACK_SIZE = 256;

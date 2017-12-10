@@ -68,7 +68,7 @@ key_transmitter::key_transmitter(stm32::dev::usart_buffered &_serial) :
 
 /* ------------------------------------------------------------------ */
 //Main task - read joy key and sent it to RS232
-void key_transmitter::main()
+void key_transmitter::main() noexcept
 {
 	//Previous key variable
 	static short p_key = -1;

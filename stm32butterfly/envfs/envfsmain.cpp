@@ -19,7 +19,7 @@ public:
 		start_thread( STACK_SIZE, TASK_PRIO );
 	}
 protected:
-	virtual void main() {
+	virtual void main() noexcept {
 		initenv( m_i2c );
 		//! Set the env
 		static constexpr int val = 0x12345678;
