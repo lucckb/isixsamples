@@ -18,10 +18,10 @@
 #pragma once
  
 // --------  Hardware specific config ------------
-#define  CONFIG_XTAL_HZ   25000000LU
-#define  CONFIG_HCLK_HZ  168000000LU
-#define	 CONFIG_PCLK1_HZ (CONFIG_HCLK_HZ/4)
-#define  CONFIG_PCLK2_HZ (CONFIG_HCLK_HZ/2)
+#define  CONFIG_XTAL_HZ   8000000LU
+#define  CONFIG_HCLK_HZ  72000000LU
+#define	 CONFIG_PCLK1_HZ (CONFIG_HCLK_HZ/2)
+#define  CONFIG_PCLK2_HZ (CONFIG_HCLK_HZ/1)
 
 // --------  ISIX specific config ------------
 //! Enable poweroff API  

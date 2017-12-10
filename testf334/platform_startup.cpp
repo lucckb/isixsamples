@@ -67,7 +67,7 @@ bool uc_periph_setup()
 	gpio_config_ext(GPIOB,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 	gpio_config_ext(GPIOC,0x3fff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 	gpio_config_ext(GPIOD,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
-	gpio_config_ext(GPIOE,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
+	//gpio_config_ext(GPIOE,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 	gpio_config_ext(GPIOF,0xfffc, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 
     //Enable power domain for SDADC and RTC
@@ -127,10 +127,7 @@ extern "C" {
 void _external_startup(void)
 {
 	using namespace stm32;
-	//Number of isix threads
-	constexpr unsigned ISIX_NUM_PRIORITIES = 4;
 	//SysTimer values
-	constexpr unsigned MHZ = 1000000;
 	//Give a chance a JTAG to reset the CPU
 	for(unsigned i=0; i<1000000; i++) stm32::nop();
 
@@ -138,17 +135,9 @@ void _external_startup(void)
 
 	if( uc_periph_setup() ) {
 		//1 bit for preemtion priority
-		nvic_priority_group(NVIC_PriorityGroup_1);
-		//System priorities
-		nvic_set_priority(PendSV_IRQn,1,0x7);
-		//System priorities
-		nvic_set_priority(SVCall_IRQn,1,0x7);
-		//Set timer priority
-		nvic_set_priority(SysTick_IRQn,1,0x7);
+		isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 		//Initialize isix
-		isix::init(ISIX_NUM_PRIORITIES);
-		//Configure systic timer
-		systick_config( ISIX_HZ * (CONFIG_HCLK_HZ/(8*MHZ)) );
+		isix::init(CONFIG_HCLK_HZ);
 	} else {
 		//TODO: Handle failure initialization
 		//! Initialization failure

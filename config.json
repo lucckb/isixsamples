@@ -1,6 +1,6 @@
 {
 	"jtag": {
-		"target": 	"bf700/components_demo/brefboard",
+		"target": 	"testf334/test334",
 		"type": 	"stlink-v2-1",
 		"speed": 	2000,
 		"swd":     1

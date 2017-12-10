@@ -54,6 +54,8 @@ int main() {
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
 			usart_debug::unlock, stm32::usartsimple_init,
 			USART1,115200, false, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
+	isix::task_create( test_thread, nullptr, 512, isix::get_min_priority() );
+		dbprintf("You welcome");
 	isix::start_scheduler();
 	return 0;
 }
