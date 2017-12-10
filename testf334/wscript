@@ -18,11 +18,11 @@ def build(bld):
     src += bld.path.ant_glob( '**/*.c' )
     bld.program(
             features='objcopy',
-            target='brefboard',
+            target='test334',
             source=src,
+            linkflags='-Wl,-undefined=malloc',
             install_path=False,
             includes=[ '.', 'board/include' ],
-            use=[ 'foundation', 'isix', 'stm32',
-                'isixdrvstm32', 'graphics', 'fatfs', 'tcpip' ]
+            use=[ 'isix', 'stm32', 'foundation' ]
             )
 
