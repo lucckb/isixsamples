@@ -63,11 +63,11 @@ bool uc_periph_setup()
     rcc_ahb_periph_clock_cmd( RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN |
 		RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |
 		RCC_AHBENR_GPIOEEN | RCC_AHBENR_GPIOFEN, true );
+	// GPIO configuration
 	gpio_config_ext(GPIOA,0x9fff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 	gpio_config_ext(GPIOB,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 	gpio_config_ext(GPIOC,0x3fff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 	gpio_config_ext(GPIOD,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
-	//gpio_config_ext(GPIOE,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 	gpio_config_ext(GPIOF,0xfffc, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
 
     //Enable power domain for SDADC and RTC

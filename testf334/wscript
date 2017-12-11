@@ -20,7 +20,6 @@ def build(bld):
             features='objcopy',
             target='test334',
             source=src,
-            linkflags='-Wl,-undefined=malloc',
             install_path=False,
             includes=[ '.', 'board/include' ],
             use=[ 'isix', 'stm32', 'foundation' ]

@@ -38,8 +38,8 @@ namespace usart_debug {
 
 void test_thread(void*)
 {
-	for(;;) {
-		dbprintf("Hello from thread");
+	for(int cnt=0;;++cnt) {
+		dbprintf("Hello from thread %i",cnt);
 		isix::wait_ms(1000);
 	}
 }
