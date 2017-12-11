@@ -20,6 +20,11 @@
 #include <usart_simple.h>
 #include <isix.h>
 
+
+//SSD1306 display driver
+https://github.com/kmm/SS1306.git
+
+
 #ifdef PDEBUG
 namespace {
 namespace usart_debug {
