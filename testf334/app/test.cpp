@@ -53,9 +53,9 @@ int main() {
 	isix::wait_ms( 500 );
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
 			usart_debug::unlock, stm32::usartsimple_init,
-			USART1,115200, false, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
+			USART1,115200, USARTSIMPLE_FL_ALTERNATE_PC, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
 	isix::task_create( test_thread, nullptr, 512, isix::get_min_priority() );
-		dbprintf("You welcome");
+		dbprintf("<<<< You welcome >>>>");
 	isix::start_scheduler();
 	return 0;
 }
