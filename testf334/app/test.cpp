@@ -19,10 +19,11 @@
 #include <foundation/dbglog.h>
 #include <usart_simple.h>
 #include <isix.h>
+#include "ssd1306demo.h"
 
 
 //SSD1306 display driver
-https://github.com/kmm/SS1306.git
+//https://github.com/kmm/SS1306.git
 
 
 #ifdef PDEBUG
@@ -43,6 +44,9 @@ namespace usart_debug {
 
 void test_thread(void*)
 {
+	dbprintf("Demo start");
+	ssd1306_demo();
+	dbprintf("Demo end");
 	for(int cnt=0;;++cnt) {
 		dbprintf("Hello from thread %i",cnt);
 		isix::wait_ms(1000);
