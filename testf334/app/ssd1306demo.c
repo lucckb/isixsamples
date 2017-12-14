@@ -13,7 +13,7 @@
 #include "ss1306.h"
 #include "nyan.h"
 #include "ssd1306demo.h"
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 
 const uint8_t sine_table[64] = {
 	128, 140, 152, 165, 176, 188, 198, 208,

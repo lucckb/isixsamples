@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 #include <config/conf.h>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
 #include <isix.h>
 #include "ssd1306demo.h"
