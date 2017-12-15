@@ -10,3 +10,5 @@
 tags
 .*.un~
 build/
+waf3*
+waf

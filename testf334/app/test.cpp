@@ -21,6 +21,8 @@
 #include <isix.h>
 #include "ssd1306demo.h"
 
+#include <foundation/drv/lcd/display.hpp>
+
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
