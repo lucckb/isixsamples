@@ -61,7 +61,11 @@ void test_thread(void*)
 //! Test thread for new display library
 void test_thread(void*) {
 	stm32::drv::spi_master spidev( SPI1, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
-
+	fnd::drv::lcd::ssd1306 disp( spidev, 128, 64 );
+	disp.enable(true);
+	for(;;) {
+		isix::wait_ms(1000);
+	}
 }
 
 
