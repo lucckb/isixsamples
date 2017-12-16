@@ -2,6 +2,10 @@
 
 import os
 
+_libs = [
+    'isixrtos/libisixdrvstm32'
+]
+
 def options(opt):
     pass
 
@@ -10,10 +14,13 @@ def configure(conf):
     conf.env.append_value('INCLUDES', stdinc )
     conf.check_cxx( header_name='isix_config.h', features='cxx',
             define_name='HAVE_ISIX_CONFIG_H' )
-    conf.env.ISIX_COMPILE_TCPIP_DRIVERS=True
+    for lib in _libs:
+        conf.recurse( os.path.join(os.getcwd(),lib) )
 
 
 def build(bld):
+    for lib in _libs:
+        bld.recurse( os.path.join(os.getcwd(),lib) )
     src = bld.path.ant_glob( '**/*.cpp' )
     src += bld.path.ant_glob( '**/*.c' )
     bld.program(
@@ -22,6 +29,6 @@ def build(bld):
             source=src,
             install_path=False,
             includes=[ '.', 'board/include' ],
-            use=[ 'isix', 'stm32', 'foundation' ]
+            use=[ 'isix', 'stm32', 'foundation', 'isixdrvstm32' ]
             )
 

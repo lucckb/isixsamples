@@ -21,7 +21,9 @@
 #include <isix.h>
 #include "ssd1306demo.h"
 
-#include <foundation/drv/lcd/display.hpp>
+#include <foundation/drv/lcd/ssd1306.hpp>
+#include <foundation/drv/lcd/uc1601_display.hpp>
+#include <isixdrv/spi_master.hpp>
 
 
 //SSD1306 display driver
@@ -43,7 +45,7 @@ namespace usart_debug {
 }}
 #endif
 
-
+#if 0
 void test_thread(void*)
 {
 	dbprintf("Demo start");
@@ -54,10 +56,14 @@ void test_thread(void*)
 		isix::wait_ms(1000);
 	}
 }
+#endif
 
-//extern "C" void std::abort() {}
+//! Test thread for new display library
+void test_thread(void*) {
+	stm32::drv::spi_master spidev( SPI1, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
 
-//extern "C" void _sbrk() {}
+}
+
 
 
 int main() {
