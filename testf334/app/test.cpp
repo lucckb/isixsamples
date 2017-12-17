@@ -24,6 +24,7 @@
 #include <foundation/drv/lcd/ssd1306.hpp>
 #include <foundation/drv/lcd/uc1601_display.hpp>
 #include <isixdrv/spi_master.hpp>
+#include <isixdrv/i2c_bus.hpp>
 
 
 //SSD1306 display driver
@@ -63,6 +64,7 @@ void test_thread(void*) {
 	stm32::drv::spi_master spidev( SPI1, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
 	fnd::drv::lcd::ssd1306 disp( spidev, 128, 64 );
 	disp.enable(true);
+	stm32::gpio::pin_desc pin { GPIOA, 15 };
 	for(;;) {
 		isix::wait_ms(1000);
 	}
