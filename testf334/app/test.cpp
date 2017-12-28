@@ -25,6 +25,7 @@
 #include <foundation/drv/lcd/uc1601_display.hpp>
 #include <isixdrv/spi_master.hpp>
 #include <isixdrv/i2c_bus.hpp>
+#include <isixdrv/gpioout.hpp>
 
 
 //SSD1306 display driver
@@ -57,18 +58,41 @@ void test_thread(void*)
 		isix::wait_ms(1000);
 	}
 }
-#endif
-
+#else
 //! Test thread for new display library
 void test_thread(void*) {
-	stm32::drv::spi_master spidev( SPI1, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
-	fnd::drv::lcd::ssd1306 disp( spidev, 128, 64 );
-	disp.enable(true);
+	using smod = drv::spi_device;
+	static constexpr stm32::drv::spi_gpio_config spicnf {
+		CONFIG_PCLK1_HZ,
+		CONFIG_PCLK2_HZ,
+		stm32::GPIO_AF_5,
+		{ stm32::gpio::pin_desc::PB, 4 },	//MISO
+		{ stm32::gpio::pin_desc::PB, 5 },	//MOSI
+		{ stm32::gpio::pin_desc::PB, 3 },	//SCK
+		{{				//CS
+			{ stm32::gpio::pin_desc::PB, 7 },	// MEM_CS - CS0
+			{ stm32::gpio::pin_desc::PB, 6 }	// DI_CS -  CS1
+		}}
+	};
+	stm32::drv::spi_master spidev( SPI1, spicnf );
+	spidev.enable( true );
+	static constexpr int bus_speed = 10E6;
+	spidev.set_mode( smod::data_8b|smod::msb_first|smod::polar_cpol_low|smod::phase_1edge, bus_speed/1000, smod::CS1 );
+	stm32::drv::gpio_out rst { GPIOB, 8 };
+	stm32::drv::gpio_out di { GPIOB, 9 };
+	fnd::drv::lcd::ssd1306 disp( spidev, di, rst, smod::CS1, 128, 64 );
+	int err = disp.enable(true);
+	dbprintf("Disp en status %i", err);
 	stm32::gpio::pin_desc pin { GPIOA, 15 };
+	err = disp.clear();
+	dbprintf("Disp clear status %i", err );
 	for(;;) {
 		isix::wait_ms(1000);
+		err = disp.clear();
+		dbprintf("Disp clear status %i", err );
 	}
 }
+#endif
 
 
 
