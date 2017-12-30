@@ -26,6 +26,7 @@
 #include <isixdrv/spi_master.hpp>
 #include <isixdrv/i2c_bus.hpp>
 #include <isixdrv/gpioout.hpp>
+#include "resources.hpp"
 
 
 //SSD1306 display driver
@@ -82,14 +83,24 @@ void test_thread(void*) {
 	stm32::drv::gpio_out di { GPIOB, 9 };
 	fnd::drv::lcd::ssd1306 disp( spidev, di, rst, smod::CS1, 128, 64 );
 	int err = disp.enable(true);
+	disp.set_font( &app::res::font_default );
 	dbprintf("Disp en status %i", err);
 	stm32::gpio::pin_desc pin { GPIOA, 15 };
 	err = disp.clear();
 	dbprintf("Disp clear status %i", err );
+	err = disp.puts("Ada to nie wypada");
+	dbprintf("Disp puts status %i", err );
+	err = disp.endl();
+	dbprintf("Disp puts status %i", err );
+	err = disp.puts("I ma cyce jak szpada");
+	dbprintf("Disp puts status %i", err );
+	disp.set_font( &app::res::font_big );
+	err = disp.setpos(0,32);
+	dbprintf("Disp puts setpos %i", err );
+	err = disp.puts("1234");
+	dbprintf("Disp puts status %i", err );
 	for(;;) {
 		isix::wait_ms(1000);
-		err = disp.clear();
-		dbprintf("Disp clear status %i", err );
 	}
 }
 #endif
