@@ -83,11 +83,11 @@ void test_thread(void*) {
 	stm32::drv::gpio_out di { GPIOB, 9 };
 	fnd::drv::lcd::ssd1306 disp( spidev, di, rst, smod::CS1, 128, 64 );
 	int err = disp.enable(true);
-	disp.set_font( &app::res::font_default );
-	dbprintf("Disp en status %i", err);
-	stm32::gpio::pin_desc pin { GPIOA, 15 };
+	disp.set_font( &app::res::font_default);
+	dbprintf("Disp en status %i",err);
 	err = disp.clear();
-	dbprintf("Disp clear status %i", err );
+	dbprintf("Disp clear status %i",err);
+#if 0
 	err = disp.puts("Ada to nie wypada");
 	dbprintf("Disp puts status %i", err );
 	err = disp.endl();
@@ -99,6 +99,11 @@ void test_thread(void*) {
 	dbprintf("Disp puts setpos %i", err );
 	err = disp.puts("1234");
 	dbprintf("Disp puts status %i", err );
+#endif
+	//err = disp.progress_bar( 32,16,80,16,50,100);
+	//err = disp.draw_hline( 0, 63, 80, fnd::drv::lcd::color::black);
+	err = disp.show_icon( 12,16,&app::res::manual_icon );
+	dbprintf("draw hline status %i", err );
 	for(;;) {
 		isix::wait_ms(1000);
 	}

@@ -16,6 +16,8 @@ namespace res {
 
 	extern const fnd::drv::lcd::font_t font_default;
 	extern const fnd::drv::lcd::font_t font_big;
+	extern const fnd::drv::lcd::icon_t ok_icon;
+	extern const fnd::drv::lcd::icon_t manual_icon;
 }}
 
 
