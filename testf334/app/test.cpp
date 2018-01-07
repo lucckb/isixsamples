@@ -19,7 +19,6 @@
 #include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
 #include <isix.h>
-#include "ssd1306demo.h"
 
 #include <foundation/drv/lcd/ssd1306.hpp>
 #include <foundation/drv/lcd/uc1601_display.hpp>
@@ -27,6 +26,7 @@
 #include <isixdrv/i2c_bus.hpp>
 #include <isixdrv/gpioout.hpp>
 #include "resources.hpp"
+#include "hrtim_test.hpp"
 
 
 //SSD1306 display driver
@@ -48,18 +48,6 @@ namespace usart_debug {
 }}
 #endif
 
-#if 0
-void test_thread(void*)
-{
-	dbprintf("Demo start");
-	ssd1306_demo();
-	dbprintf("Demo end");
-	for(int cnt=0;;++cnt) {
-		dbprintf("Hello from thread %i",cnt);
-		isix::wait_ms(1000);
-	}
-}
-#else
 //! Test thread for new display library
 void test_thread(void*) {
 	using smod = drv::spi_device;
@@ -87,7 +75,7 @@ void test_thread(void*) {
 	dbprintf("Disp en status %i",err);
 	err = disp.clear();
 	dbprintf("Disp clear status %i",err);
-#if 0
+#if 1
 	err = disp.puts("Ada to nie wypada");
 	dbprintf("Disp puts status %i", err );
 	err = disp.endl();
@@ -99,6 +87,7 @@ void test_thread(void*) {
 	dbprintf("Disp puts setpos %i", err );
 	err = disp.puts("1234");
 	dbprintf("Disp puts status %i", err );
+	app::hrtim_test_init();
 #endif
 	//err = disp.progress_bar( 32,16,80,16,50,100);
 	//err = disp.draw_hline( 0, 63, 80, fnd::drv::lcd::color::black);
@@ -108,7 +97,6 @@ void test_thread(void*) {
 		isix::wait_ms(1000);
 	}
 }
-#endif
 
 
 
