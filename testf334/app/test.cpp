@@ -15,6 +15,7 @@
  *
  * =====================================================================================
  */
+#if 0
 #include <config/conf.h>
 #include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
@@ -27,17 +28,19 @@
 #include <isixdrv/gpioout.hpp>
 #include "resources.hpp"
 #include "hrtim_test.hpp"
+#endif
 
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
 
+#if 0
 
 #ifdef PDEBUG
 namespace {
 namespace usart_debug {
 	isix::semaphore m_ulock_sem { 1, 1 };
-	void lock() 
+	void lock()
 	{
 		m_ulock_sem.wait( ISIX_TIME_INFINITE );
 	}
@@ -100,7 +103,9 @@ void test_thread(void*) {
 
 
 
+#endif
 int main() {
+#if 0
 	isix::wait_ms( 500 );
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
 			usart_debug::unlock, stm32::usartsimple_init,
@@ -108,5 +113,6 @@ int main() {
 	isix::task_create( test_thread, nullptr, 512, isix::get_min_priority() );
 		dbprintf("<<<< You welcome >>>>");
 	isix::start_scheduler();
+#endif
 	return 0;
 }

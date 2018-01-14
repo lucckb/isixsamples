@@ -3,7 +3,7 @@
 import os
 
 _libs = [
-    'isixrtos/libisixdrvstm32'
+    #'isixrtos/libisixdrvstm32'
 ]
 
 def options(opt):
@@ -29,6 +29,7 @@ def build(bld):
             source=src,
             install_path=False,
             includes=[ '.', 'board/include' ],
-            use=[ 'isix', 'stm32', 'foundation', 'isixdrvstm32' ]
+            #use=[ 'isix', 'periph', 'foundation', 'isixdrvstm32' ]
+            use=[ 'isix', 'periph', 'foundation' ]
             )
 

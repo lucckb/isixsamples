@@ -6,21 +6,25 @@
  */
 
 
+#if 0
 #include <stm32_ll_hrtim.h>
-#include <stm32_ll_adc.h>
 #include <stm32rcc.h>
 #include <stm32gpio.h>
 #include <isix.h>
 #include <foundation/sys/dbglog.h>
+#endif
 
 namespace app {
 
+#if 0
 static constexpr uint16_t BUCK_PWM_PERIOD = 18432;
 static constexpr uint16_t DT_FALLING = 230;
 static constexpr uint16_t DT_RISING = 230;
+#endif
 
 void hrtim_test_init()
 {
+#if 0
 	using namespace stm32;
 	//Temporary enable GPIO on
 	gpio_config(GPIOC, 9, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, AGPIO_SPEED_LOW, 0);
@@ -135,8 +139,7 @@ void hrtim_test_init()
 
 	     /* Start HRTIM's TIMER A and B */
 	     LL_HRTIM_TIM_CounterEnable(HRTIM1, LL_HRTIM_TIMER_A );
-
-
+#endif
 }
 
 }

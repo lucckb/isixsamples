@@ -4,22 +4,23 @@
  *  Created on: 20 lis 2013
  *      Author: lucck
  */
- 
-#include <config/conf.h>
-#include <functional>
+#if 0
 #include <stm32system.h>
 #include <stm32rcc.h>
 #include <stm32pwr.h>
 #include <stm32adc.h>
 #include <stm32exti.h>
 #include <stm32rtc.h>
-#include <isix.h>
-#include <stm32crashinfo.h>
 #include <stm32syscfg.h>
 #include <stm32dma.h>
 #include <stm32gpio.h>
-#include <irq_vectors_symbol.h>
+#endif
+#include <config/conf.h>
+#include <functional>
 #include <isix/arch/irq.h>
+#include <isix.h>
+#include <boot/arch/arm/cortexm/irq_vectors_table.h>
+#include <boot/arch/arm/cortexm/crashinfo.h>
 
 namespace drv {
 namespace board {
@@ -32,6 +33,7 @@ namespace {
  */
 bool uc_periph_setup()
 {
+#if 0
 	using namespace stm32;
 	constexpr auto retries=100000;
 
@@ -99,6 +101,7 @@ bool uc_periph_setup()
 		}
 	}
 	return ok;
+#endif
 }
 
 
@@ -106,14 +109,13 @@ bool uc_periph_setup()
 //! Application crash called from hard fault
 void application_crash( crash_mode type, unsigned long* sp )
 {
-	using namespace stm32;
 #ifdef PDEBUG
 	cortex_cm3_print_core_regs( type, sp );
 #else
 	static_cast<void>(type);
 	static_cast<void>(sp);
 #endif
-	for(;;) stm32::wfi();
+	for(;;) asm volatile("wfi\n");
 }
 
 
@@ -125,10 +127,9 @@ extern "C" {
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
-	using namespace stm32;
 	//SysTimer values
 	//Give a chance a JTAG to reset the CPU
-	for(unsigned i=0; i<1000000; i++) stm32::nop();
+	for(unsigned i=0; i<1000000; i++) asm volatile("nop\n");
 
 	//Initialize system perhipheral
 
@@ -156,4 +157,4 @@ void __attribute__((__interrupt__,naked)) hard_fault_exception_vector(void)
 
  
 }}	//NS drv
- 
+
