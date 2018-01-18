@@ -14,6 +14,8 @@
 #include <stm32syscfg.h>
 #include <stm32dma.h>
 #include <stm32gpio.h>
+#else
+#include <stm32f3xx_ll_rcc.h>
 #endif
 #include <config/conf.h>
 #include <functional>
@@ -33,15 +35,13 @@ namespace {
  */
 bool uc_periph_setup()
 {
-#if 0
-	using namespace stm32;
 	constexpr auto retries=100000;
 
 	isix_set_irq_vectors_base( &_exceptions_vectors );
 
     //! Deinitialize RCC
-    rcc_deinit();
-
+    LL_RCC_DeInit();
+#if 0
 	//Configure flash latency
 	rcc_flash_latency( CONFIG_HCLK_HZ );
 
