@@ -10,9 +10,10 @@
 #include <stm32_ll_hrtim.h>
 #include <stm32rcc.h>
 #include <stm32gpio.h>
+#endif
 #include <isix.h>
 #include <foundation/sys/dbglog.h>
-#endif
+#include <stm32f3xx_ll_hrtim.h>
 
 namespace app {
 

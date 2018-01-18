@@ -4,19 +4,10 @@
  *  Created on: 20 lis 2013
  *      Author: lucck
  */
-#if 0
-#include <stm32system.h>
-#include <stm32rcc.h>
-#include <stm32pwr.h>
-#include <stm32adc.h>
-#include <stm32exti.h>
-#include <stm32rtc.h>
-#include <stm32syscfg.h>
-#include <stm32dma.h>
-#include <stm32gpio.h>
-#else
 #include <stm32f3xx_ll_rcc.h>
-#endif
+#include <stm32f3xx_ll_system.h>
+#include <stm32f3xx_ll_bus.h>
+#include <stm32f3xx_ll_gpio.h>
 #include <config/conf.h>
 #include <functional>
 #include <isix/arch/irq.h>
@@ -41,67 +32,57 @@ bool uc_periph_setup()
 
     //! Deinitialize RCC
     LL_RCC_DeInit();
-#if 0
-	//Configure flash latency
-	rcc_flash_latency( CONFIG_HCLK_HZ );
+	LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+	LL_FLASH_EnablePrefetch();
+	//! Set MCU Prescallers
+	LL_RCC_SetAHBPrescaler( LL_RCC_SYSCLK_DIV_1 );
+	LL_RCC_SetAPB2Prescaler( LL_RCC_APB2_DIV_1 );
+	LL_RCC_SetAPB1Prescaler( LL_RCC_APB1_DIV_2 );
 
-	//Setup bus dividers
-    rcc_pclk2_config( RCC_HCLK_Div1 );
-    rcc_pclk1_config( RCC_HCLK_Div2 );
-    rcc_hclk_config( RCC_SYSCLK_Div1 );
-
-
-    //Enable hse generator
-    rcc_hse_config( RCC_HSE_ON );
-    if( !rcc_wait_for_hse_startup() ) {
-		return false;
-    }
-
-    //Configure other periph clocks
-    rcc_adc_clk_config( RCC_CFGR2_ADCPRE12_DIV64 );					//ADC 12MHz (Max 14)
-
-
-    //Enable clocks for all GPIOS
-    rcc_ahb_periph_clock_cmd( RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN |
-		RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOFEN, true );
-	// GPIO configuration
-	gpio_config_ext(GPIOA,0x9fff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
-	gpio_config_ext(GPIOB,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
-	gpio_config_ext(GPIOC,0x3fff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
-	gpio_config_ext(GPIOD,0xffff, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
-	gpio_config_ext(GPIOF,0xfffc, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP );
-
-    //Enable power domain for SDADC and RTC
-    rcc_apb1_periph_clock_cmd( RCC_APB1Periph_PWR, true );
-    //Enable DMA controllers
-    rcc_ahb_periph_clock_cmd( RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, true );
-
-    //Configure PLL
-    rcc_prediv1_config( RCC_PREDIV1_Div1 );
-	rcc_pll_config( RCC_PLLSource_PREDIV1, RCC_CFGR_PLLMULL9 );
-	rcc_pll_cmd( true );
-	// Wait for PLL startup
-	bool ok = false;
-	for( auto r=0; r<retries; ++r ) {
-		if( !rcc_get_flag_status(RCC_FLAG_PLLRDY) ) {
-			ok = true;
+	//! Enable HSE generator
+	LL_RCC_HSE_Enable();
+	for( int i=0; i<retries; ++i ) {
+		if(LL_RCC_HSE_IsReady()) {
 			break;
 		}
 	}
-	if( ok ) {
-		ok = false;
-		rcc_sysclk_config( RCC_SYSCLKSource_PLLCLK );
-		// Enable PLL as clock source
-		constexpr auto PLL_SRC = 0x08;
-		for( auto r=0; r<retries; ++r ) {
-			if( rcc_get_sysclk_source() != PLL_SRC ) {
-				ok = true;
-				break;
-			}
+	if( !LL_RCC_HSE_IsReady() ) {
+		return false;
+	}
+	//ADC 12MHz (Max 14)
+	LL_RCC_SetADCClockSource( LL_RCC_ADC12_CLKSRC_PLL_DIV_64 );
+	//Enable clocks for GPIOS
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA|LL_AHB1_GRP1_PERIPH_GPIOB|
+		LL_AHB1_GRP1_PERIPH_GPIOC|LL_AHB1_GRP1_PERIPH_GPIOD|LL_AHB1_GRP1_PERIPH_GPIOF );
+	LL_GPIO_InitTypeDef gpiocnf { 0x9fff,LL_GPIO_MODE_INPUT, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_PULL_UP,LL_GPIO_AF_0};
+	LL_GPIO_Init( GPIOA, &gpiocnf );
+	gpiocnf.Pin=0xffff; LL_GPIO_Init( GPIOB, &gpiocnf );
+	gpiocnf.Pin=0x3fff; LL_GPIO_Init( GPIOC, &gpiocnf );
+	gpiocnf.Pin=0xffff; LL_GPIO_Init( GPIOD, &gpiocnf );
+	gpiocnf.Pin=0xfffc; LL_GPIO_Init( GPIOF, &gpiocnf );
+
+    //Enable power domain for SDADC and RTC
+	LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_PWR );
+    //Enable DMA controllers
+	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1 );
+	//Configure PLL
+	LL_RCC_PLL_ConfigDomain_SYS( LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9 );
+	LL_RCC_PLL_Enable();
+	for( auto r=0; r<retries; ++r ) {
+		if( LL_RCC_PLL_IsReady() ) {
+			break;
 		}
 	}
-	return ok;
-#endif
+	if( !LL_RCC_PLL_IsReady() ) {
+		return false;
+	}
+    LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+	for( auto r=0; r<retries; ++r ) {
+		if( LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_PLL ) {
+			break;
+		}
+	}
+	return  LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_PLL;
 }
 
 

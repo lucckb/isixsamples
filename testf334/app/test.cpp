@@ -15,26 +15,25 @@
  *
  * =====================================================================================
  */
-#if 0
 #include <config/conf.h>
 #include <foundation/sys/dbglog.h>
-#include <usart_simple.h>
 #include <isix.h>
+#include "hrtim_test.hpp"
+#if 0
 
+#include <usart_simple.h>
 #include <foundation/drv/lcd/ssd1306.hpp>
 #include <foundation/drv/lcd/uc1601_display.hpp>
 #include <isixdrv/spi_master.hpp>
 #include <isixdrv/i2c_bus.hpp>
 #include <isixdrv/gpioout.hpp>
 #include "resources.hpp"
-#include "hrtim_test.hpp"
 #endif
 
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
 
-#if 0
 
 #ifdef PDEBUG
 namespace {
@@ -49,10 +48,10 @@ namespace usart_debug {
 		m_ulock_sem.signal();
 	}
 }}
-#endif
 
 //! Test thread for new display library
 void test_thread(void*) {
+#if 0
 	using smod = drv::spi_device;
 	static constexpr stm32::drv::spi_gpio_config spicnf {
 		CONFIG_PCLK1_HZ,
@@ -90,12 +89,13 @@ void test_thread(void*) {
 	dbprintf("Disp puts setpos %i", err );
 	err = disp.puts("1234");
 	dbprintf("Disp puts status %i", err );
-	app::hrtim_test_init();
 #endif
 	//err = disp.progress_bar( 32,16,80,16,50,100);
 	//err = disp.draw_hline( 0, 63, 80, fnd::drv::lcd::color::black);
 	err = disp.show_icon( 12,16,&app::res::manual_icon );
 	dbprintf("draw hline status %i", err );
+#endif
+	app::hrtim_test_init();
 	for(;;) {
 		isix::wait_ms(1000);
 	}
@@ -105,14 +105,14 @@ void test_thread(void*) {
 
 #endif
 int main() {
-#if 0
 	isix::wait_ms( 500 );
+#if 0
 	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
 			usart_debug::unlock, stm32::usartsimple_init,
 			USART1,115200, USARTSIMPLE_FL_ALTERNATE_PC, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
+#endif
 	isix::task_create( test_thread, nullptr, 512, isix::get_min_priority() );
 		dbprintf("<<<< You welcome >>>>");
 	isix::start_scheduler();
-#endif
 	return 0;
 }
