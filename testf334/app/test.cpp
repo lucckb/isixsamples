@@ -29,7 +29,7 @@
 #include <isixdrv/gpioout.hpp>
 #include "resources.hpp"
 #endif
-
+#include <periph/error.hpp>
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
