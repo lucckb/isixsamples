@@ -29,7 +29,8 @@
 #include <isixdrv/gpioout.hpp>
 #include "resources.hpp"
 #endif
-#include <periph/error.hpp>
+#include <periph/gpio/llgpio.hpp>
+#include <periph/gpio/gpio.hpp>
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
@@ -51,6 +52,7 @@ namespace usart_debug {
 
 //! Test thread for new display library
 void test_thread(void*) {
+	periph::gpio::setup( periph::gpio::num::PA0, periph::gpio::mode::in{ periph::gpio::pulltype::floating } );
 #if 0
 	using smod = drv::spi_device;
 	static constexpr stm32::drv::spi_gpio_config spicnf {
