@@ -29,7 +29,6 @@
 #include <isixdrv/gpioout.hpp>
 #include "resources.hpp"
 #endif
-#include <periph/gpio/llgpio.hpp>
 #include <periph/gpio/gpio.hpp>
 
 //SSD1306 display driver
