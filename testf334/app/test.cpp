@@ -30,6 +30,7 @@
 #include "resources.hpp"
 #endif
 #include <periph/gpio/gpio.hpp>
+#include <periph/bus/transfer.hpp>
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
