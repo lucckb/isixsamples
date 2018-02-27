@@ -6,38 +6,41 @@
  */
 
 
-#if 0
-#include <stm32_ll_hrtim.h>
-#include <stm32rcc.h>
-#include <stm32gpio.h>
-#endif
+
 #include <isix.h>
 #include <foundation/sys/dbglog.h>
 #include <stm32f3xx_ll_hrtim.h>
+#include <stm32f3xx_ll_rcc.h>
+#include <stm32f3xx_ll_bus.h>
+#include <periph/gpio/gpio.hpp>
+
 
 namespace app {
 
-#if 0
 static constexpr uint16_t BUCK_PWM_PERIOD = 18432;
 static constexpr uint16_t DT_FALLING = 230;
 static constexpr uint16_t DT_RISING = 230;
-#endif
 
 void hrtim_test_init()
 {
+	using namespace periph;
+
+
 #if 0
-	using namespace stm32;
 	//Temporary enable GPIO on
 	gpio_config(GPIOC, 9, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, AGPIO_SPEED_LOW, 0);
 	gpio_set(GPIOC,9);
-
 	//GPIO configuration
 	gpio_config(GPIOA, 8, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE, AGPIO_SPEED_FULL, 0);
 	gpio_config(GPIOA, 9, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE, AGPIO_SPEED_FULL, 0);
 	gpio_pin_AF_config( GPIOA, 8, GPIO_AF_13 );
 	gpio_pin_AF_config( GPIOA, 9, GPIO_AF_13 );
-	rcc_hrtim1_clk_config( RCC_HRTIM1CLK_PLLCLK );
-	rcc_apb2_periph_clock_cmd(RCC_APB2ENR_HRTIM1, true);
+#endif
+	gpio::setup( gpio::num::PC9, gpio::mode::out{gpio::outtype::pushpull,gpio::speed::low} );
+	gpio::setup( gpio::num::PA8, gpio::mode::alt{gpio::outtype::pushpull, LL_GPIO_AF_13, gpio::speed::high} );
+	gpio::setup( gpio::num::PA9, gpio::mode::alt{gpio::outtype::pushpull, LL_GPIO_AF_13, gpio::speed::high} );
+	LL_RCC_SetHRTIMClockSource( LL_RCC_HRTIM1_CLKSOURCE_PLL );
+	LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_HRTIM1 );
 	LL_HRTIM_ConfigDLLCalibration(HRTIM1,
 	                                LL_HRTIM_DLLCALIBRATION_MODE_CONTINUOUS,
 	                                LL_HRTIM_DLLCALIBRATION_RATE_14);
@@ -140,7 +143,6 @@ void hrtim_test_init()
 
 	     /* Start HRTIM's TIMER A and B */
 	     LL_HRTIM_TIM_CounterEnable(HRTIM1, LL_HRTIM_TIMER_A );
-#endif
 }
 
 }

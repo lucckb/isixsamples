@@ -17,6 +17,7 @@
  */
 #include <config/conf.h>
 #include <foundation/sys/dbglog.h>
+#include <periph/dt/device_tree.hpp>
 #include <isix.h>
 #include "hrtim_test.hpp"
 #if 0
@@ -49,10 +50,12 @@ namespace usart_debug {
 		m_ulock_sem.signal();
 	}
 }}
+#endif
 
+namespace app {
 //! Test thread for new display library
-void test_thread(void*) {
-	periph::gpio::setup( periph::gpio::num::PA_ALL, periph::gpio::mode::in{ periph::gpio::pulltype::floating } );
+void test_thread(void*)
+{
 #if 0
 	using smod = drv::spi_device;
 	static constexpr stm32::drv::spi_gpio_config spicnf {
@@ -103,9 +106,9 @@ void test_thread(void*) {
 	}
 }
 
+}
 
 
-#endif
 int main() {
 	isix::wait_ms( 500 );
 #if 0
@@ -113,7 +116,7 @@ int main() {
 			usart_debug::unlock, stm32::usartsimple_init,
 			USART1,115200, USARTSIMPLE_FL_ALTERNATE_PC, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
 #endif
-	isix::task_create( test_thread, nullptr, 512, isix::get_min_priority() );
+	isix::task_create( app::test_thread, nullptr, 512, isix::get_min_priority() );
 		dbprintf("<<<< You welcome >>>>");
 	isix::start_scheduler();
 	return 0;
