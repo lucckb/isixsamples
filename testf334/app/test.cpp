@@ -17,8 +17,8 @@
  */
 #include <config/conf.h>
 #include <foundation/sys/dbglog.h>
-#include <periph/dt/device_tree.hpp>
 #include <isix.h>
+#include "../../isixrtos/libperiph/periph/include/periph/dt/dts.hpp"
 #include "hrtim_test.hpp"
 #if 0
 
