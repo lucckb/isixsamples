@@ -18,7 +18,7 @@
 #include <config/conf.h>
 #include <foundation/sys/dbglog.h>
 #include <isix.h>
-#include "../../isixrtos/libperiph/periph/include/periph/dt/dts.hpp"
+#include <periph/dt/dts.hpp>
 #include "hrtim_test.hpp"
 #if 0
 
@@ -101,6 +101,13 @@ void test_thread(void*)
 	dbprintf("draw hline status %i", err );
 #endif
 	app::hrtim_test_init();
+	volatile int clk = periph::dt::get_bus_clock( periph::dt::bus::ahb1 );
+	clk = periph::dt::get_bus_clock( periph::dt::bus::axi );
+	clk = periph::dt::get_periph_clock("serial0");
+	clk = periph::dt::get_periph_clock("dupa");
+	clk  = periph::dt::get_periph_pin( "serial0", periph::dt::pinfunc::miso );
+	clk  = periph::dt::get_periph_pin( "serial0", periph::dt::pinfunc::rxd );
+
 	for(;;) {
 		isix::wait_ms(1000);
 	}
