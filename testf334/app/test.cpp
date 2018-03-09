@@ -19,10 +19,11 @@
 #include <foundation/sys/dbglog.h>
 #include <isix.h>
 #include <periph/dt/dts.hpp>
+#include <periph/drivers/serial/uart_early.hpp>
 #include "hrtim_test.hpp"
-#if 0
 
-#include <usart_simple.h>
+
+#if 0
 #include <foundation/drv/lcd/ssd1306.hpp>
 #include <foundation/drv/lcd/uc1601_display.hpp>
 #include <isixdrv/spi_master.hpp>
@@ -101,28 +102,27 @@ void test_thread(void*)
 	dbprintf("draw hline status %i", err );
 #endif
 	app::hrtim_test_init();
-	volatile int clk = periph::dt::get_bus_clock( periph::dt::bus::ahb1 );
-	clk = periph::dt::get_bus_clock( periph::dt::bus::axi );
-	clk = periph::dt::get_periph_clock("serial0");
-	clk = periph::dt::get_periph_clock("dupa");
-	clk  = periph::dt::get_periph_pin( "serial0", periph::dt::pinfunc::miso );
-	clk  = periph::dt::get_periph_pin( "serial0", periph::dt::pinfunc::rxd );
-
 	for(;;) {
 		isix::wait_ms(1000);
+		dbprintf("Dupa >>>");
 	}
 }
 
 }
 
 
-int main() {
+int main()
+{
 	isix::wait_ms( 500 );
-#if 0
-	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
-			usart_debug::unlock, stm32::usartsimple_init,
-			USART1,115200, USARTSIMPLE_FL_ALTERNATE_PC, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
-#endif
+	dblog_init_locked(
+		[](int ch, void*) {
+			return periph::drivers::uart_early::putc(ch);
+		},
+		nullptr, usart_debug::lock,
+		usart_debug::unlock,
+		periph::drivers::uart_early::init,
+		"serial0", 115200
+	);
 	isix::task_create( app::test_thread, nullptr, 512, isix::get_min_priority() );
 		dbprintf("<<<< You welcome >>>>");
 	isix::start_scheduler();
