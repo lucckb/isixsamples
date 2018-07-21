@@ -38,21 +38,6 @@
 //https://github.com/kmm/SS1306.git
 
 
-#ifdef PDEBUG
-namespace {
-namespace usart_debug {
-	isix::semaphore m_ulock_sem { 1, 1 };
-	void lock()
-	{
-		m_ulock_sem.wait( ISIX_TIME_INFINITE );
-	}
-	void unlock()
-	{
-		m_ulock_sem.signal();
-	}
-}}
-#endif
-
 namespace app {
 //! Test thread for new display library
 void test_thread(void*)
@@ -114,12 +99,18 @@ void test_thread(void*)
 int main()
 {
 	isix::wait_ms( 500 );
+	static isix::semaphore m_ulock_sem { 1, 1 };
 	dblog_init_locked(
 		[](int ch, void*) {
 			return periph::drivers::uart_early::putc(ch);
 		},
-		nullptr, usart_debug::lock,
-		usart_debug::unlock,
+		nullptr,
+		[]() {
+			m_ulock_sem.wait(ISIX_TIME_INFINITE);
+		},
+		[]() {
+			m_ulock_sem.signal();
+		},
 		periph::drivers::uart_early::init,
 		"serial0", 115200
 	);

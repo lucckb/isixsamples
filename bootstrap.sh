@@ -1,4 +1,4 @@
 #!/bin/sh -e
-wget -O waf https://waf.io/waf-2.0.3
+wget -O waf https://waf.io/waf-2.0.9
 chmod +x waf
 
