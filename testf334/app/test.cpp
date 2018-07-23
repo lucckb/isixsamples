@@ -20,6 +20,7 @@
 #include <isix.h>
 #include <periph/dt/dts.hpp>
 #include <periph/drivers/serial/uart_early.hpp>
+#include <periph/dma/dma.hpp>
 #include "hrtim_test.hpp"
 
 
