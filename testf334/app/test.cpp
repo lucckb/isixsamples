@@ -33,7 +33,8 @@
 #include "resources.hpp"
 #endif
 #include <periph/gpio/gpio.hpp>
-#include <periph/bus/transfer.hpp>
+#include <periph/blk/transfer.hpp>
+#include <periph/device.hpp>
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
@@ -97,7 +98,7 @@ void test_thread(void*)
 }
 
 
-int main()
+auto main() -> int
 {
 	isix::wait_ms( 500 );
 	static isix::semaphore m_ulock_sem { 1, 1 };
