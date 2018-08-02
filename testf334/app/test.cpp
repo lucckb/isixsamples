@@ -35,9 +35,39 @@
 #include <periph/gpio/gpio.hpp>
 #include <periph/blk/transfer.hpp>
 #include <periph/device.hpp>
+#include <periph/peripheral_manager.hpp>
 
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
+
+class dtest : public periph::device {
+public:
+	dtest()
+		:periph::device(periph::device::char_dev) {
+
+	}
+	virtual ~dtest() {
+	}
+
+	int open(unsigned u, int i ) override {
+		dbprintf( "OPEN CALLED <<<<%u %i>>>", u, i );
+		return 0;
+	}
+	int close() override {
+		return 0;
+	}
+	int event_add(isix::event&, unsigned , poll ) override {
+		return 0;
+	}
+	int event_del(isix::event& ,unsigned ,unsigned ) override {
+		return 0;
+	}
+protected:
+	int do_set_option(periph::device_option& ) override
+	{
+		return 0;
+	}
+};
 
 
 namespace app {
@@ -89,6 +119,18 @@ void test_thread(void*)
 	dbprintf("draw hline status %i", err );
 #endif
 	app::hrtim_test_init();
+	auto& test = periph::peripheral_manager::instance();
+	auto code = test.register_driver( "spi0",
+			[]() -> std::shared_ptr<periph::device> { return std::make_shared<dtest>(); }
+	);
+	dbprintf("Register code status %i", code);
+	const auto sp1 = test.access_device("spi1");
+	if(sp1!=nullptr) dbprintf("SP1OK");
+	else dbprintf("SP1FAIL");
+	const auto sp2 = test.access_device("spi0");
+	if(sp2!=nullptr) dbprintf("SP2OK");
+	else dbprintf("SP2FAIL");
+	sp2->open(1,2);
 	for(;;) {
 		isix::wait_ms(1000);
 		dbprintf("Dupa >>>");
@@ -116,7 +158,7 @@ auto main() -> int
 		periph::drivers::uart_early::init,
 		"serial0", 115200
 	);
-	isix::task_create( app::test_thread, nullptr, 512, isix::get_min_priority() );
+	isix::task_create( app::test_thread, nullptr, 1024, isix::get_min_priority() );
 		dbprintf("<<<< You welcome >>>>");
 	isix::start_scheduler();
 	return 0;
