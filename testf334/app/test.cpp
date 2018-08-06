@@ -20,6 +20,7 @@
 #include <isix.h>
 #include <periph/dt/dts.hpp>
 #include <periph/drivers/serial/uart_early.hpp>
+#include <periph/drivers/spi/spi_master.hpp>
 #include <periph/dma/dma.hpp>
 #include "hrtim_test.hpp"
 
@@ -34,19 +35,20 @@
 #endif
 #include <periph/gpio/gpio.hpp>
 #include <periph/blk/transfer.hpp>
-#include <periph/device.hpp>
-#include <periph/peripheral_manager.hpp>
-
+#include <periph/core/device.hpp>
+#include <periph/core/peripheral_manager.hpp>
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
 
 class dtest : public periph::device {
 public:
 	dtest()
-		:periph::device(periph::device::char_dev) {
-
+		:periph::device(periph::device::char_dev,1) {
+		dbprintf("construct");
 	}
 	virtual ~dtest() {
+		close();
+		dbprintf("Destruct");
 	}
 
 	int open(unsigned u, int i ) override {
@@ -54,6 +56,7 @@ public:
 		return 0;
 	}
 	int close() override {
+		dbprintf("close() called");
 		return 0;
 	}
 	int event_add(isix::event&, unsigned , poll ) override {
@@ -71,6 +74,26 @@ protected:
 
 
 namespace app {
+
+void foo() {
+	auto& test = periph::peripheral_manager::instance();
+	auto code = test.register_driver( "spi0",
+			[]() -> std::shared_ptr<periph::device> { return std::make_shared<dtest>(); }
+	);
+	dbprintf("Register code status %i", code);
+	const auto sp1 = test.access_device("spi1");
+	if(sp1!=nullptr) dbprintf("SP1OK");
+	else dbprintf("SP1FAIL");
+	const auto sp2 = test.access_device("spi0");
+	if(sp2!=nullptr) dbprintf("SP2OK");
+	else dbprintf("SP2FAIL");
+	sp2->open(1,2);
+	for(int i=0;i<10;++i) {
+		isix::wait_ms(1000);
+		dbprintf("Dupa >>>");
+	}
+}
+
 //! Test thread for new display library
 void test_thread(void*)
 {
@@ -119,26 +142,10 @@ void test_thread(void*)
 	dbprintf("draw hline status %i", err );
 #endif
 	app::hrtim_test_init();
-	auto& test = periph::peripheral_manager::instance();
-	auto code = test.register_driver( "spi0",
-			[]() -> std::shared_ptr<periph::device> { return std::make_shared<dtest>(); }
-	);
-	dbprintf("Register code status %i", code);
-	const auto sp1 = test.access_device("spi1");
-	if(sp1!=nullptr) dbprintf("SP1OK");
-	else dbprintf("SP1FAIL");
-	const auto sp2 = test.access_device("spi0");
-	if(sp2!=nullptr) dbprintf("SP2OK");
-	else dbprintf("SP2FAIL");
-	sp2->open(1,2);
-	for(;;) {
-		isix::wait_ms(1000);
-		dbprintf("Dupa >>>");
-	}
+	foo();
 }
 
 }
-
 
 auto main() -> int
 {
@@ -155,7 +162,7 @@ auto main() -> int
 		[]() {
 			m_ulock_sem.signal();
 		},
-		periph::drivers::uart_early::init,
+		periph::drivers::uart_early::open,
 		"serial0", 115200
 	);
 	isix::task_create( app::test_thread, nullptr, 1024, isix::get_min_priority() );
