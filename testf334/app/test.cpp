@@ -51,11 +51,11 @@ public:
 		dbprintf("Destruct");
 	}
 
-	int open(unsigned u, int i ) override {
-		dbprintf( "OPEN CALLED <<<<%u %i>>>", u, i );
+	int do_open( int i ) override {
+		dbprintf( "OPEN CALLED <<<< %i>>>", i );
 		return 0;
 	}
-	int close() override {
+	int do_close() override {
 		dbprintf("close() called");
 		return 0;
 	}
@@ -66,7 +66,7 @@ public:
 		return 0;
 	}
 protected:
-	int do_set_option(periph::device_option& ) override
+	int do_set_option(periph::option::device_option& ) override
 	{
 		return 0;
 	}
@@ -87,7 +87,7 @@ void foo() {
 	const auto sp2 = test.access_device("spi0");
 	if(sp2!=nullptr) dbprintf("SP2OK");
 	else dbprintf("SP2FAIL");
-	sp2->open(1,2);
+	sp2->open(1);
 	for(int i=0;i<10;++i) {
 		isix::wait_ms(1000);
 		dbprintf("Dupa >>>");
