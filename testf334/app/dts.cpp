@@ -47,6 +47,7 @@ namespace {
 		{}
 	};
 
+
 	constexpr device devices[]
 	{
 		{
@@ -54,7 +55,7 @@ namespace {
 			bus::apb2, LL_GPIO_AF_7,
 			unsigned(std::log2(LL_APB2_GRP1_PERIPH_USART1)),
 			ser0_pins,
-			0
+			nullptr
 		},
 		{}
 	};
