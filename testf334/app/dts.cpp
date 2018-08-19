@@ -2,6 +2,8 @@
 #include <periph/dt/dts.hpp>
 #include <periph/gpio/gpio_numbers.hpp>
 #include <periph/dt/dts_config.hpp>
+#include <periph/drivers/display/mono/display_config.hpp>
+#include <isix/arch/irq.h>
 #include <stm32_ll_usart.h>
 #include <stm32_ll_gpio.h>
 #include <stm32_ll_bus.h>
@@ -9,9 +11,7 @@
 
 
 
-namespace periph {
-namespace dt {
-namespace _dts_config {
+namespace periph::dt::_dts_config {
 
 namespace {
 	constexpr clock clk[] {
@@ -42,11 +42,39 @@ namespace {
 		{}
 	};
 
+	//Serial debug interface
 	constexpr pin ser0_pins[] {
 		{ pinfunc::txd, gpio::num::PC4 },
 		{}
 	};
 
+	//SPI controller
+	constexpr pin spi1_pins[] {
+		{ pinfunc::miso, gpio::num::PB4 },	//MISO config
+		{ pinfunc::mosi, gpio::num::PB5 },	//MOSI config
+		{ pinfunc::sck, gpio::num::PB3 },	//SCK config
+		{ pinfunc::cs0, gpio::num::PB6 },	//DI_CS (Display)
+		{ pinfunc::cs1, gpio::num::PB7 },	//MEM_CS (Memory)
+		{}
+	};
+
+	constexpr device_conf spi1_conf {
+		{},
+		SPI1_IRQn,
+		1,7,	//! IRQ prio subprio
+		0		//! Don't use any special flags here
+	};
+
+	constexpr pin display0_pins[] {
+		{ pinfunc::rst, gpio::num::PB8 },
+		{ pinfunc::rw, gpio::num::PB9 },
+		{}
+	};
+
+	//! Display screen resolution configuration
+	constexpr periph::display::config display0_conf {
+		{}, 128, 64
+	};
 
 	constexpr device devices[]
 	{
@@ -56,6 +84,19 @@ namespace {
 			unsigned(std::log2(LL_APB2_GRP1_PERIPH_USART1)),
 			ser0_pins,
 			nullptr
+		},
+		{
+			"spi1", reinterpret_cast<uintptr_t>(SPI1),
+			bus::apb2, LL_GPIO_AF_5,
+			unsigned(std::log2(LL_APB2_GRP1_PERIPH_SPI1)),
+			spi1_pins,
+			&spi1_conf
+		},
+		{
+			"display0", 0,
+			bus::unspec, 0, 0,
+			display0_pins,
+			&display0_conf
 		},
 		{}
 	};
@@ -67,5 +108,4 @@ constexpr configuration the_machine_config {
 	devices
 };
 
-
-} } }
+}

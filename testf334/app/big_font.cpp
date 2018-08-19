@@ -1,8 +1,7 @@
-#include <foundation/drv/lcd/lcd_font.hpp>
+#include <periph/drivers/display/mono/lcd_font.hpp>
 #include "resources.hpp"
 
-namespace app {
-namespace res {
+namespace periph::display::_data {
 
 //
 //  Font data for Courier New 24pt
@@ -417,7 +416,7 @@ static constexpr unsigned char courierNew_24ptBitmaps[] =
 
 // Character descriptors for Courier New 24pt
 // { [Char width in bits], [Offset into courierNew_24ptCharBitmaps in bytes] }
-static constexpr fnd::drv::lcd::font_t::chr_desc_t courierNew_24ptDescriptors[] =
+static constexpr periph::display::font_t::chr_desc_t courierNew_24ptDescriptors[] =
 {
 	{6, 0}, 		// ,
 	{13, 24}, 		// -
@@ -436,7 +435,7 @@ static constexpr fnd::drv::lcd::font_t::chr_desc_t courierNew_24ptDescriptors[] 
 };
 
 // Font information for Courier New 24pt
-const fnd::drv::lcd::font_t font_big =
+const periph::display::font_t font_big =
 {
 	25, //  Character height
 	',', //  Start character
@@ -449,4 +448,4 @@ const fnd::drv::lcd::font_t font_big =
 
 
 
-}}
+}

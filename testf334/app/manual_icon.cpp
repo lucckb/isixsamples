@@ -39,7 +39,7 @@ static constexpr unsigned char manualBitmaps[] =
 };
 
 
-const fnd::drv::lcd::icon_t manual_icon
+const periph::display::icon_t manual_icon
 {
 	2,
 	16,

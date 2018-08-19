@@ -23,81 +23,34 @@
 #include <periph/drivers/spi/spi_master.hpp>
 #include <periph/dma/dma.hpp>
 #include "hrtim_test.hpp"
+#include <periph/drivers/display/mono/ssd1306.hpp>
 
-
-#if 0
-#include <foundation/drv/lcd/ssd1306.hpp>
-#include <foundation/drv/lcd/uc1601_display.hpp>
-#include <isixdrv/spi_master.hpp>
-#include <isixdrv/i2c_bus.hpp>
-#include <isixdrv/gpioout.hpp>
-#include "resources.hpp"
-#endif
 #include <periph/gpio/gpio.hpp>
 #include <periph/blk/transfer.hpp>
 #include <periph/core/device.hpp>
 #include <periph/core/peripheral_manager.hpp>
+#include "resources.hpp"
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
 
-class dtest : public periph::device {
-public:
-	dtest()
-		:periph::device(periph::device::char_dev,1) {
-		dbprintf("construct");
-	}
-	virtual ~dtest() {
-		close();
-		dbprintf("Destruct");
-	}
-
-	int do_open( int i ) override {
-		dbprintf( "OPEN CALLED <<<< %i>>>", i );
-		return 0;
-	}
-	int do_close() override {
-		dbprintf("close() called");
-		return 0;
-	}
-	int event_add(isix::event&, unsigned , poll ) override {
-		return 0;
-	}
-	int event_del(isix::event& ,unsigned ,unsigned ) override {
-		return 0;
-	}
-protected:
-	int do_set_option(periph::option::device_option& ) override
-	{
-		return 0;
-	}
-};
 
 
 namespace app {
 
-void foo() {
-	auto& test = periph::peripheral_manager::instance();
-	auto code = test.register_driver( "spi0",
-			[]() -> std::shared_ptr<periph::device> { return std::make_shared<dtest>(); }
-	);
-	dbprintf("Register code status %i", code);
-	const auto sp1 = test.access_device("spi1");
-	if(sp1!=nullptr) dbprintf("SP1OK");
-	else dbprintf("SP1FAIL");
-	const auto sp2 = test.access_device("spi0");
-	if(sp2!=nullptr) dbprintf("SP2OK");
-	else dbprintf("SP2FAIL");
-	sp2->open(1);
-	for(int i=0;i<10;++i) {
-		isix::wait_ms(1000);
-		dbprintf("Dupa >>>");
-	}
-}
-
 //! Test thread for new display library
 void test_thread(void*)
 {
-#if 0
+	namespace opt = periph::option;
+	dbprintf("Before SPI construct");
+	periph::drivers::spi_master m_spi("spi1");
+	int ret = m_spi.open(ISIX_TIME_INFINITE);
+	dbprintf("SPI open status %i", ret);
+	ret = m_spi.set_option( opt::speed(10E6),
+			opt::polarity(opt::polarity::low),
+			opt::phase(opt::phase::_1_edge)
+	);
+	dbprintf("SPI open status %i", ret);
+/**
 	using smod = drv::spi_device;
 	static constexpr stm32::drv::spi_gpio_config spicnf {
 		CONFIG_PCLK1_HZ,
@@ -111,6 +64,7 @@ void test_thread(void*)
 			{ stm32::gpio::pin_desc::PB, 6 }	// DI_CS -  CS1
 		}}
 	};
+
 	stm32::drv::spi_master spidev( SPI1, spicnf );
 	spidev.enable( true );
 	static constexpr int bus_speed = 10E6;
@@ -118,12 +72,13 @@ void test_thread(void*)
 	stm32::drv::gpio_out rst { GPIOB, 8 };
 	stm32::drv::gpio_out di { GPIOB, 9 };
 	fnd::drv::lcd::ssd1306 disp( spidev, di, rst, smod::CS1, 128, 64 );
+*/
+	periph::display::ssd1306 disp("display0", m_spi);
 	int err = disp.enable(true);
 	disp.set_font( &app::res::font_default);
 	dbprintf("Disp en status %i",err);
 	err = disp.clear();
 	dbprintf("Disp clear status %i",err);
-#if 1
 	err = disp.puts("Ada to nie wypada");
 	dbprintf("Disp puts status %i", err );
 	err = disp.endl();
@@ -135,14 +90,11 @@ void test_thread(void*)
 	dbprintf("Disp puts setpos %i", err );
 	err = disp.puts("1234");
 	dbprintf("Disp puts status %i", err );
-#endif
 	//err = disp.progress_bar( 32,16,80,16,50,100);
 	//err = disp.draw_hline( 0, 63, 80, fnd::drv::lcd::color::black);
 	err = disp.show_icon( 12,16,&app::res::manual_icon );
 	dbprintf("draw hline status %i", err );
-#endif
 	app::hrtim_test_init();
-	foo();
 }
 
 }

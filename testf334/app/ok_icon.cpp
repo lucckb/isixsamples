@@ -55,7 +55,7 @@ static constexpr unsigned char ok2Bitmaps[] =
 };
 
 // Bitmap sizes for ok2
-const fnd::drv::lcd::icon_t ok_icon
+const periph::display::icon_t ok_icon
 {
 	4,
 	31,
