@@ -24,7 +24,6 @@
 #include <periph/dma/dma.hpp>
 #include "hrtim_test.hpp"
 #include <periph/drivers/display/mono/ssd1306.hpp>
-
 #include <periph/gpio/gpio.hpp>
 #include <periph/blk/transfer.hpp>
 #include <periph/core/device.hpp>
@@ -45,11 +44,12 @@ void test_thread(void*)
 	periph::drivers::spi_master m_spi("spi1");
 	int ret = m_spi.open(ISIX_TIME_INFINITE);
 	dbprintf("SPI open status %i", ret);
-	ret = m_spi.set_option( opt::speed(10E6),
-			opt::polarity(opt::polarity::low),
-			opt::phase(opt::phase::_1_edge)
-	);
-	dbprintf("SPI open status %i", ret);
+	ret = m_spi.set_option( opt::speed(10E6) );
+	dbprintf("Set option status 1 %i", ret);
+	ret = m_spi.set_option( opt::polarity(opt::polarity::low));
+	dbprintf("Set option status 2 %i", ret);
+    ret = m_spi.set_option( opt::phase(opt::phase::_1_edge));
+	dbprintf("Set option status 3 %i", ret);
 /**
 	using smod = drv::spi_device;
 	static constexpr stm32::drv::spi_gpio_config spicnf {
@@ -73,7 +73,9 @@ void test_thread(void*)
 	stm32::drv::gpio_out di { GPIOB, 9 };
 	fnd::drv::lcd::ssd1306 disp( spidev, di, rst, smod::CS1, 128, 64 );
 */
+	dbprintf("Before SSD");
 	periph::display::ssd1306 disp("display0", m_spi);
+	dbprintf("After SSD");
 	int err = disp.enable(true);
 	disp.set_font( &app::res::font_default);
 	dbprintf("Disp en status %i",err);
@@ -117,8 +119,8 @@ auto main() -> int
 		periph::drivers::uart_early::open,
 		"serial0", 115200
 	);
-	isix::task_create( app::test_thread, nullptr, 1024, isix::get_min_priority() );
-		dbprintf("<<<< You welcome >>>>");
+	isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
+		dbprintf("<<<< You welcome A >>>>");
 	isix::start_scheduler();
 	return 0;
 }

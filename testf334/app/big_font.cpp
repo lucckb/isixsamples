@@ -1,7 +1,7 @@
 #include <periph/drivers/display/mono/lcd_font.hpp>
 #include "resources.hpp"
 
-namespace periph::display::_data {
+namespace app::res {
 
 //
 //  Font data for Courier New 24pt
