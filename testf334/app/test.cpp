@@ -85,7 +85,7 @@ void test_thread(void*)
 	dbprintf("Disp puts status %i", err );
 	err = disp.endl();
 	dbprintf("Disp puts status %i", err );
-	err = disp.puts("I ma cyce jak szpada");
+	err = disp.puts("Display test line2");
 	dbprintf("Disp puts status %i", err );
 	disp.set_font( &app::res::font_big );
 	err = disp.setpos(0,32);
