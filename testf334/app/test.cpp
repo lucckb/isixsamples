@@ -28,6 +28,7 @@
 #include <periph/blk/transfer.hpp>
 #include <periph/core/device.hpp>
 #include <periph/core/peripheral_manager.hpp>
+#include <periph/dma/dma.hpp>
 #include "resources.hpp"
 //SSD1306 display driver
 //https://github.com/kmm/SS1306.git
@@ -101,6 +102,8 @@ void test_thread(void*)
 	spi_rwtest(m_spi);
 	spi_rwtest(m_spi);
 	}
+	//DMA instance test
+	auto& ctrl = periph::dma::controller::instance();
 	for(;;) {
 		isix::wait_ms(1000);
 	}
