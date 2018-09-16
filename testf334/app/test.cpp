@@ -102,12 +102,14 @@ void test_thread(void*)
 	spi_rwtest(m_spi);
 	spi_rwtest(m_spi);
 	}
-	//DMA instance test
-	auto& ctrl = periph::dma::controller::instance();
-	for(;;) {
-		isix::wait_ms(1000);
-	}
 }
+
+	void dma_test_thread(void*) {
+		auto& ctrl = periph::dma::controller::instance();
+		for(;;) {
+			isix::wait_ms(1000);
+		}
+	}
 
 }
 
@@ -129,7 +131,7 @@ auto main() -> int
 		periph::drivers::uart_early::open,
 		"serial0", 115200
 	);
-	isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
+	isix::task_create( app::dma_test_thread, nullptr, 1536, isix::get_min_priority() );
 		dbprintf("<<<< You welcome A >>>>");
 	isix::start_scheduler();
 	return 0;
