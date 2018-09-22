@@ -105,7 +105,24 @@ void test_thread(void*)
 }
 
 	void dma_test_thread(void*) {
+		static char mem[128];
+		namespace fl = periph::dma;
 		auto& ctrl = periph::dma::controller::instance();
+		constexpr auto flags = fl::mode_src_inc|fl::mode_dst_inc|
+			fl::mode_dst_size_byte|fl::mode_src_size_byte;
+		auto chn = ctrl.alloc_channel( periph::dma::devid::mem, flags );
+		dbprintf("Do DMA transfer test");
+		chn->callback( [&](periph::dma::mem_ptr ptr, bool err) {
+			dbprintf("DMA fin ptr %p err %i", ptr,err);
+		});
+		int err = chn->single( mem, reinterpret_cast<const void*>(0x8000000), sizeof mem);
+		dbprintf("Transfer completion status %i", err );
+		dbprintf("memcmp %i", std::memcmp( mem, reinterpret_cast<const void*>(0x8000000), sizeof mem));
+		isix::wait_ms(20);
+		std::memset(mem,0xff,sizeof mem);
+		err = chn->single( mem, reinterpret_cast<const void*>(0x8000000), sizeof mem);
+		dbprintf("Transfer completion status %i", err );
+		dbprintf("memcmp %i", std::memcmp( mem, reinterpret_cast<const void*>(0x8000000), sizeof mem));
 		for(;;) {
 			isix::wait_ms(1000);
 		}
