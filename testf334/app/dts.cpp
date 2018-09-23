@@ -62,7 +62,7 @@ namespace {
 		{},
 		SPI1_IRQn,
 		1,7,	//! IRQ prio subprio
-		0		//! Don't use any special flags here
+		device_conf::fl_dma		//! Use DMA transfer
 	};
 
 	constexpr pin display0_pins[] {

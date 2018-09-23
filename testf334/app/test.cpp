@@ -59,8 +59,7 @@ void test_thread(void*)
 	namespace opt = periph::option;
 	dbprintf("Before SPI construct");
 	periph::drivers::spi_master m_spi("spi1");
-	int ret = m_spi.open(ISIX_TIME_INFINITE);
-	dbprintf("SPI open status %i", ret);
+	int ret;
 	ret = m_spi.set_option( opt::speed(10E6) );
 	dbprintf("Set option speed %i", ret);
 	ret = m_spi.set_option( opt::polarity(opt::polarity::low));
@@ -71,36 +70,38 @@ void test_thread(void*)
 	dbprintf("Set option data width %i", ret);
     ret = m_spi.set_option( opt::bitorder(opt::bitorder::msb));
 	dbprintf("Set option bitorder %i", ret);
+	ret = m_spi.open(ISIX_TIME_INFINITE);
+	dbprintf("SPI open status %i", ret);
 #if 1
 	dbprintf("Before SSD");
 	periph::display::ssd1306 disp("display0", m_spi);
 	dbprintf("After SSD");
 	int err = disp.enable(true);
 	for(int a=0;a<5;a++) {
-	disp.set_font( &app::res::font_default);
-	dbprintf("Disp en status %i",err);
-	dbprintf("LOOP>>>%i",a);
-	err = disp.clear();
-	dbprintf("Disp clear status %i",err);
-	err = disp.puts("Ada to nie");
-	dbprintf("Disp puts status %i", err );
-	err = disp.endl();
-	dbprintf("Disp puts status %i", err );
-	err = disp.puts("Display line2");
-	dbprintf("Disp puts status %i", err );
-	disp.set_font( &app::res::font_big );
-	err = disp.setpos(0,32);
-	dbprintf("Disp puts setpos %i", err );
-	err = disp.puts("1234");
-	dbprintf("Disp puts status %i", err );
-	err = disp.progress_bar( 32,16,80,16,50,100);
-	//err = disp.draw_hline( 0, 63, 80, fnd::drv::lcd::color::black);
-	err = disp.show_icon( 12,16,&app::res::manual_icon );
-	dbprintf("draw hline status %i", err );
+		disp.set_font( &app::res::font_default);
+		dbprintf("Disp en status %i",err);
+		dbprintf("LOOP>>>%i",a);
+		err = disp.clear();
+		dbprintf("Disp clear status %i",err);
+		err = disp.puts("Ada to nie");
+		dbprintf("Disp puts status %i", err );
+		err = disp.endl();
+		dbprintf("Disp puts status %i", err );
+		err = disp.puts("Display line2");
+		dbprintf("Disp puts status %i", err );
+		disp.set_font( &app::res::font_big );
+		err = disp.setpos(0,32);
+		dbprintf("Disp puts setpos %i", err );
+		err = disp.puts("1234");
+		dbprintf("Disp puts status %i", err );
+		err = disp.progress_bar( 32,16,80,16,50,100);
+		//err = disp.draw_hline( 0, 63, 80, fnd::drv::lcd::color::black);
+		err = disp.show_icon( 12,16,&app::res::manual_icon );
+		dbprintf("draw hline status %i", err );
 #endif
-	//app::hrtim_test_init();
-	spi_rwtest(m_spi);
-	spi_rwtest(m_spi);
+		//app::hrtim_test_init();
+		spi_rwtest(m_spi);
+		spi_rwtest(m_spi);
 	}
 }
 
@@ -112,17 +113,24 @@ void test_thread(void*)
 			fl::mode_dst_size_word|fl::mode_src_size_word;
 		auto chn = ctrl.alloc_channel( periph::dma::devid::mem, flags );
 		dbprintf("Do DMA transfer test");
-		chn->callback([](periph::dma::mem_ptr ptr, bool err) {
+		chn->callback([&](periph::dma::mem_ptr ptr, bool err) {
 			dbprintf("DMA fin ptr %p err %i", ptr,err);
 		});
 		int err = chn->single(mem, reinterpret_cast<const void*>(0x8000000), sizeof mem);
 		dbprintf("Transfer completion status %i", err );
 		dbprintf("memcmp %i", std::memcmp( mem, reinterpret_cast<const void*>(0x8000000), sizeof mem));
+
+		// Release test
+		err = ctrl.release_channel(chn);
+		dbprintf("Release channel status %i", err);
+		chn = ctrl.alloc_channel( periph::dma::devid::mem, flags );
+
 		isix::wait_ms(20);
 		std::memset(mem,0xff,sizeof mem);
 		err = chn->single( mem, reinterpret_cast<const void*>(0x8000000), sizeof mem);
 		dbprintf("Transfer completion status %i", err );
 		dbprintf("memcmp %i", std::memcmp( mem, reinterpret_cast<const void*>(0x8000000), sizeof mem));
+		dbprintf("DMA test finished");
 		for(;;) {
 			isix::wait_ms(1000);
 		}
@@ -148,7 +156,7 @@ auto main() -> int
 		periph::drivers::uart_early::open,
 		"serial0", 115200
 	);
-	isix::task_create( app::dma_test_thread, nullptr, 1536, isix::get_min_priority() );
+	isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
 		dbprintf("<<<< You welcome A >>>>");
 	isix::start_scheduler();
 	return 0;
