@@ -41,8 +41,8 @@ namespace app {
 /** Test SPI internal driver based on the new periphlib library
  */
 void spi_rwtest( periph::drivers::spi_master& spi )  {
-	constexpr uint8_t inbuf[6] { 0x90 };
-	uint8_t outbuf[6] {};
+	constexpr uint8_t inbuf[4] { 0x9F };
+	uint8_t outbuf[4] {};
 	static_assert( sizeof outbuf == sizeof inbuf );
 	periph::blk::trx_transfer tran(inbuf,outbuf,sizeof outbuf);
 	dbprintf("Do spirwtest");
@@ -77,7 +77,7 @@ void test_thread(void*)
 	periph::display::ssd1306 disp("display0", m_spi);
 	dbprintf("After SSD");
 	int err = disp.enable(true);
-	for(int a=0;a<5;a++) {
+	for(int a=0;a<1;a++) {
 		disp.set_font( &app::res::font_default);
 		dbprintf("Disp en status %i",err);
 		dbprintf("LOOP>>>%i",a);
@@ -98,11 +98,15 @@ void test_thread(void*)
 		//err = disp.draw_hline( 0, 63, 80, fnd::drv::lcd::color::black);
 		err = disp.show_icon( 12,16,&app::res::manual_icon );
 		dbprintf("draw hline status %i", err );
+	}
 #endif
 		//app::hrtim_test_init();
-		spi_rwtest(m_spi);
-		spi_rwtest(m_spi);
-	}
+		for(int a=0;a<1;a++) {
+			spi_rwtest(m_spi);
+		}
+		for(;;) {
+			isix::wait_ms(1000);
+		}
 }
 
 	void dma_test_thread(void*) {
