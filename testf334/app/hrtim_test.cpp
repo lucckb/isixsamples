@@ -12,14 +12,17 @@
 #include <stm32f3xx_ll_hrtim.h>
 #include <stm32f3xx_ll_rcc.h>
 #include <stm32f3xx_ll_bus.h>
+#include <stm32f3xx_ll_adc.h>
 #include <periph/gpio/gpio.hpp>
 
 
 namespace app {
 
-static constexpr uint16_t BUCK_PWM_PERIOD = 18432;
-static constexpr uint16_t DT_FALLING = 230;
-static constexpr uint16_t DT_RISING = 230;
+namespace {
+	constexpr uint16_t BUCK_PWM_PERIOD = 18432;
+	constexpr uint16_t DT_FALLING = 230;
+	constexpr uint16_t DT_RISING = 230;
+}
 
 void hrtim_test_init()
 {

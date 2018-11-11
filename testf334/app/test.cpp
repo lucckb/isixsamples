@@ -100,7 +100,7 @@ void test_thread(void*)
 		dbprintf("draw hline status %i", err );
 	}
 #endif
-		//app::hrtim_test_init();
+		app::hrtim_test_init();
 		for(int a=0;a<1;a++) {
 			spi_rwtest(m_spi);
 		}
