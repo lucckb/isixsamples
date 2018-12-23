@@ -1,7 +1,7 @@
 {
 	"jtag": {
-		"target": 	"testf334/test334",
-		"type": 	"stlink-v2-1",
+		"target": 	"stm32f411e_disco/led_blink/411disco_blink",
+		"type": 	"stlink-v2",
 		"speed": 	2000,
 		"swd":     1
 	},

@@ -10,7 +10,7 @@ top = '.'
 out = 'build'
 
 #Default board for samples
-_def_board = 'testf334'
+_def_board = 'stm32f411e_disco'
 
 
 # Boards list
@@ -18,7 +18,8 @@ _boards = [
         'bf700',
         'stm32butterfly',
         'zl41arm',
-        'testf334'
+        'testf334',
+        'stm32f411e_disco'
 ]
 
 # Board to cpu map
@@ -26,7 +27,8 @@ _board_cpu = {
     'bf700' : 'stm32f407zet6',
     'stm32butterfly' : 'stm32f107vbt6',
     'zl41arm'   : 'stm32f417vgt6',
-    'testf334'	: 'stm32f334x8'
+    'testf334'	: 'stm32f334x8',
+    'stm32f411e_disco' : 'stm32f411vet6'
 }
 
 
