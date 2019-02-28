@@ -7,7 +7,8 @@ _prjs = [
     'e0_led_blink',
     'e1_mutex',
     'e2_task_suspend',
-    'e3_semaphore'
+    'e3_semaphore',
+    'e4_fifo_from_irq',
 ]
 
 #Additional extra libraries

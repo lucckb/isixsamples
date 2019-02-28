@@ -1,6 +1,6 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/e3_semaphore/semaphore",
+		"target": 	"stm32f411e_disco/e4_fifo_from_irq/fifoirq",
 		"type": 	"stlink-v2",
 		"speed": 	2000,
 		"swd":     1
