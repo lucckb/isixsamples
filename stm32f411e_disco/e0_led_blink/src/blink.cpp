@@ -40,11 +40,11 @@ auto main() -> int
 		"serial0", 115200
 	);
     // Configure PD13 pin LED as an output
-    periph::gpio::setup( led_0, 
-        periph::gpio::mode::out{ 
+    periph::gpio::setup( led_0,
+        periph::gpio::mode::out{
             periph::gpio::outtype::pushpull,
             periph::gpio::speed::low
-        } 
+        }
     );
 	isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
     dbprintf("<<<< Hello STM32F411E-DISCO board >>>>");

@@ -4,12 +4,14 @@
 
 # Projects list
 _prjs = [
-    'led_blink'
+    'e0_led_blink',
+    'e1_mutex',
+    'e2_task_suspend'
 ]
 
 #Additional extra libraries
 _libs = [
-    
+    'stm32f411e_disco/board'
 ]
 
 import os

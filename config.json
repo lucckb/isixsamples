@@ -1,6 +1,6 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/led_blink/411disco_blink",
+		"target": 	"stm32f411e_disco/e2_task_suspend/task_suspend",
 		"type": 	"stlink-v2",
 		"speed": 	2000,
 		"swd":     1

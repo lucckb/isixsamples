@@ -6,8 +6,6 @@ def options(opt):
     pass
 
 def configure(conf):
-    stdinc = os.path.join(conf.path.abspath(),'board','include')
-    conf.env.append_value('INCLUDES', stdinc )
     conf.check_cxx( header_name='isix_config.h', features='cxx',
             define_name='HAVE_ISIX_CONFIG_H' )
 
@@ -20,6 +18,6 @@ def build(bld):
             target='411disco_blink',
             source=src,
             install_path=False,
-            includes=[ '.', 'board/include' ],
-            use=[ 'isix', 'periph', 'foundation' ]
+            includes=[ '.' ],
+            use=[ 'isix', 'periph', 'foundation', 'stm32f411ed_boot' ]
             )
