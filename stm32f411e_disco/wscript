@@ -9,6 +9,7 @@ _prjs = [
     'e2_task_suspend',
     'e3_semaphore',
     'e4_fifo_from_irq',
+    'e5_events'
 ]
 
 #Additional extra libraries
