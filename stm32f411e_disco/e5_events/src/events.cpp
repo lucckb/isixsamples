@@ -1,4 +1,5 @@
-/** Example shows howto use fifo from irq context
+/** Example shows howto use events mechanism to the intertask
+ *  communicaton
  *  Hardware platform: STM32F411E-DISCO
  *  PA2 Port - USART TXD should be connected to serial<->usb converter
  */
@@ -23,20 +24,12 @@ namespace {
 	//Input keys
 	constexpr int keys[] = { periph::gpio::num::PC0,
 		periph::gpio::num::PC1,periph::gpio::num::PC2,
-		periph::gpio::num::PC3 };
+		periph::gpio::num::PC3, periph::gpio::num::PC4,
+	    periph::gpio::num::PC5
+	};
 }
 
 namespace {
-	//Task for the led blinking
-	auto blink_task() -> void {
-		//! Blinking loop
-		for(;;) {
-			for( int i=0;i<4;++i) {
-				periph::gpio::set(leds[i],!periph::gpio::get(keys[i]));
-			}
-			isix::wait_ms(10);
-		}
-	}
 	//IO pins conf
 	auto io_config() -> void {
 		// Configure gpios as input
@@ -54,23 +47,67 @@ namespace {
 			} );
 		}
 	}
+
+	// Task for button scanning and semaphore signaling
+	auto key_scan_task(isix::event& ev, int id) -> void {
+		// Suspend resume flag
+		for(auto pstate=true;;) {
+			//Get key
+			const auto val = periph::gpio::get(keys[id]);
+			// On rising edge change state
+			if(!val && pstate) {
+				ev.set( 1U<<id );
+			}
+			//Save previous state
+			pstate = val;
+			isix::wait_ms(10);
+		}
+	}
+
+	//Task for the led blinking
+	auto blink_task(isix::event& ev, int led, unsigned wait_for ) -> void {
+		//! Blinking loop
+		for(;;) {
+			ev.wait(wait_for, true, true);
+			periph::gpio::toggle(leds[led]);
+		}
+	}
 }
 
 
 // Start main function
 auto main() -> int
 {
-	static constexpr auto task_siz = 1024;
 	io_config();
 	// Wait some time before startup
     isix::wait_ms(500);
 	//Event
-	isix::event ev {};
-	// Create task for blinking
-	static auto t1 = isix::thread_create_and_run(task_siz,
-		isix::get_min_priority(),0,blink_task);
+	static isix::event ev {};
+	// Create 4 tasks for led controlling
+	static isix::thread ledtasks[] = {
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,blink_task, std::ref(ev), 0, 0x01 ),
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,blink_task, std::ref(ev), 1, 0x02 ),
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,blink_task, std::ref(ev), 2, 0x04 ),
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,blink_task, std::ref(ev), 3, 0x18 ),
+	};
+	//! Create 5 tasks for keyboard scanning
+	static isix::thread scantsk[] = {
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,key_scan_task,std::ref(ev), 0),
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,key_scan_task,std::ref(ev), 1),
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,key_scan_task,std::ref(ev), 2),
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,key_scan_task,std::ref(ev), 3),
+		isix::thread_create_and_run(ISIX_MIN_STACK_SIZE,
+			isix::get_min_priority(),0,key_scan_task,std::ref(ev), 4),
+	};
 	isix::start_scheduler();
-	return 0;
 }
 
 
