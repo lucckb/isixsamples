@@ -26,46 +26,102 @@ namespace {
 		);
 	}
 
+	class leds_vis {
+	public:
+		enum ledx {
+			none,c1fwd, c1bk, c2fwd, c2bk
+		};
+		//! Leds setup constructor
+		leds_vis() {
+			using namespace periph;
+			for(int p=gpio::num::PD12;p<=gpio::num::PD15;++p) {
+				gpio::setup(p,
+					gpio::mode::out {gpio::outtype::pushpull,gpio::speed::low}
+				);
+			}
+		}
+		//Leds setup destructor
+		void operator()(ledx arg) {
+			using namespace periph;
+			switch(arg) {
+				case c1fwd:
+					gpio::set(gpio::num::PD13,true);
+					gpio::set(gpio::num::PD15,false);
+					break;
+				case c1bk:
+					gpio::set(gpio::num::PD13,false);
+					gpio::set(gpio::num::PD15,true);
+					break;
+				case c2fwd:
+					gpio::set(gpio::num::PD12,true);
+					gpio::set(gpio::num::PD14,false);
+					break;
+				case c2bk:
+					gpio::set(gpio::num::PD12,false);
+					gpio::set(gpio::num::PD14,true);
+					break;
+				case none:
+					gpio::set(gpio::num::PD12,false);
+					gpio::set(gpio::num::PD13,false);
+					gpio::set(gpio::num::PD14,false);
+					gpio::set(gpio::num::PD15,false);
+					break;
+
+			}
+		}
+	};
+
+
 
 	//Task for the led blinking
 	auto watch_sensor() -> void {
 		namespace opt = periph::option;
-		int ret;
-		periph::drivers::spi_master m_spi("spi1");
-		ret = m_spi.set_option( opt::speed(10E6) );
-		dbprintf("Set option speed %i", ret);
-		ret = m_spi.set_option( opt::polarity(opt::polarity::low));
-		dbprintf("Set option polarity %i", ret);
-		ret = m_spi.set_option( opt::phase(opt::phase::_1_edge));
-		dbprintf("Set option phase %i", ret);
-		ret = m_spi.set_option( opt::dwidth(8));
-		dbprintf("Set option data width %i", ret);
-		ret = m_spi.set_option( opt::bitorder(opt::bitorder::msb));
-		dbprintf("Set option bitorder %i", ret);
-		ret = m_spi.open(ISIX_TIME_INFINITE);
-		dbprintf("SPI open status %i", ret);
-		app::l3gd20 sensor(m_spi,0);
-		app::l3gd20::value_t val;
-		app::l3gd20::temp_t temp;
-		if((ret=sensor.enable(true))<0) {
-			dbprintf("Initialize failure %i",ret);
-			return;
-		}
-		for(;;) {
-			do {
-				temp = {};
-				val = {};
-				if((ret=sensor.read_temp(temp))<0) break;
-				if((ret=sensor.read(val))<0) break;
-			} while(0);
-			if(!ret) {
-				dbprintf("Temp %i", temp );
-				dbprintf("x %i y %i z %i", val.x, val.y, val.z );
-			} else {
-				dbprintf("Ret status %i",ret);
+		int ret {};
+		periph::drivers::spi_master spi("spi1");
+		app::l3gd20 sensor(spi,0);
+		leds_vis leds;
+		do {
+			if((ret=spi.set_option(opt::speed(10E6)))<0) {
+				break;
 			}
-			isix::wait_ms(1000);
-		}
+			if((ret=spi.set_option(opt::polarity(opt::polarity::low)))<0) {
+				break;
+			}
+			if((ret=spi.set_option(opt::phase(opt::phase::_1_edge)))<0) {
+				break;
+			}
+			if((ret=spi.set_option(opt::dwidth(8)))<0) {
+				break;
+			}
+			if((ret=spi.set_option(opt::bitorder(opt::bitorder::msb)))<0) {
+				break;
+			}
+			if((ret=spi.open(ISIX_TIME_INFINITE))<0) {
+				break;
+			}
+			app::l3gd20::value_t val;
+			if((ret=sensor.enable(true))<0) {
+				break;
+			}
+			for(;;) {
+				val = {};
+				if((ret=sensor.read(val))<0) break;
+				if( val.x > 500 ) {
+					leds(leds_vis::c1fwd);
+				} else if( val.x < -500 ) {
+					leds(leds_vis::c1bk);
+				} else if( val.y > 500 ) {
+					leds(leds_vis::c2fwd);
+				} else if( val.y < -500 ) {
+					leds(leds_vis::c2bk);
+				} else {
+					leds(leds_vis::none);
+				}
+				dbg_info("Gyro x: %i y: %i z: %i",val.x,val.y,val.z);
+				isix::wait_ms(100);
+			}
+		} while(0);
+		dbg_info("Task failed finished with code %i", ret);
 	}
 }
 

@@ -74,7 +74,6 @@ int l3gd20::probe()
 		if(val==WHO_I_AM_H) break;
 		if(val==WHO_I_AM_L3G4200D) break;
 	} while(0);
-	dbprintf("Probe ret=%i",ret);
 	return ret;
 }
 
@@ -95,7 +94,6 @@ int l3gd20::enable(bool en)
 			if((ret=write_reg(L3GD20_CTRL_REG1,0x00))<0) break;
 		}
 	} while(0);
-	dbprintf("enable ret=%i",ret);
 	return ret;
 }
 
