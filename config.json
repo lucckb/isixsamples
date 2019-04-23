@@ -1,13 +1,6 @@
 {
 	"jtag": {
-		"target": 	{
-			"blink" : "stm32f411e_disco/e0_led_blink/411disco_blink",
-			"mutexes" : "stm32f411e_disco/e1_mutex/mutexes",
-			"suspend resume" : "stm32f411e_disco/e2_task_suspend/task_suspend",
-			"semaphores" : "stm32f411e_disco/e3_semaphore/semaphore",
-			"fifos" : "stm32f411e_disco/e4_fifo_from_irq/fifoirq",
-			"events" : "stm32f411e_disco/e5_events/events"
-		},
+		"target": 	"stm32f411e_disco/e6_spi_mems/spi_mems",
 		"type": 	"stlink-v2",
 		"speed": 	2000,
 		"swd":     1

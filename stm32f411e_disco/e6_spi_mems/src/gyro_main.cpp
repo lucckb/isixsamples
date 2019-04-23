@@ -10,6 +10,8 @@
 #include <periph/drivers/spi/spi_master.hpp>
 #include <isix.h>
 #include "l3gd20.hpp"
+#include <periph/dma/dma.hpp>
+#include <cstring>
 
 namespace {
 	/* Initialize the debug USART */
@@ -100,8 +102,9 @@ namespace {
 				break;
 			}
 			app::l3gd20::value_t val;
-			if((ret=sensor.enable(true))<0) {
-				break;
+			if((ret=sensor.enable(true))!=0) {
+				dbg_info("Sensor en fail %i",ret);
+				return;
 			}
 			for(;;) {
 				val = {};
@@ -118,12 +121,13 @@ namespace {
 					leds(leds_vis::none);
 				}
 				dbg_info("Gyro x: %i y: %i z: %i",val.x,val.y,val.z);
-				isix::wait_ms(100);
+				isix::wait_ms(1000);
 			}
 		} while(0);
 		dbg_info("Task failed finished with code %i", ret);
 	}
-}
+
+	}
 
 
 // Start main function
@@ -132,7 +136,6 @@ auto main() -> int
 	usart_protected_init();
 	// Wait some time before startup
     isix::wait_ms(500);
-	//Event
 	static constexpr auto tsk_stack = 1024;
 	static constexpr auto tsk_prio = 6;
 	static auto watch_task =

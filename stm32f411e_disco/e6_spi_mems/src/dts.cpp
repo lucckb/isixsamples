@@ -60,8 +60,8 @@ namespace {
 		{},
 		SPI1_IRQn,
 		1,7,	//! IRQ prio subprio
-		0
-		 //device_conf::fl_dma		//! Use DMA transfer
+		//0
+		device_conf::fl_dma		//! Use DMA transfer
 	};
 
 

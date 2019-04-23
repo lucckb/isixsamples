@@ -117,8 +117,8 @@ void test_thread(void*)
 			fl::mode_dst_size_word|fl::mode_src_size_word;
 		auto chn = ctrl.alloc_channel( periph::dma::devid::mem, flags );
 		dbprintf("Do DMA transfer test");
-		chn->callback([&](periph::dma::mem_ptr ptr, bool err) {
-			dbprintf("DMA fin ptr %p err %i", ptr,err);
+		chn->callback([&](bool err) {
+			dbprintf("DMA fin err %i", err);
 		});
 		int err = chn->single(mem, reinterpret_cast<const void*>(0x8000000), sizeof mem);
 		dbprintf("Transfer completion status %i", err );

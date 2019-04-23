@@ -67,9 +67,9 @@ int l3gd20::probe()
 	int ret;
 	do {
 		ret = read_reg(ADDR_WHO_AM_I,val);
-		if(ret) break;
+		if(ret<0) break;
 		ret = read_reg(ADDR_WHO_AM_I,val);
-		if(ret) break;
+		if(ret<0) break;
 		if(val==WHO_I_AM) break;
 		if(val==WHO_I_AM_H) break;
 		if(val==WHO_I_AM_L3G4200D) break;
@@ -84,7 +84,7 @@ int l3gd20::enable(bool en)
 	int ret {};
 	do {
 		if( en ) {
-			if((ret=probe()<0)) break;
+			if((ret=probe())<0) break;
 			if((ret=write_reg(L3GD20_CTRL_REG1,0x0f))<0) break;
 			if((ret=write_reg(L3GD20_CTRL_REG2,0x00))<0) break;
 			if((ret=write_reg(L3GD20_CTRL_REG3,0b00001000))<0) break;
