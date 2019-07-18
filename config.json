@@ -1,6 +1,6 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/e6_spi_mems/spi_mems",
+		"target": 	"stm32f411e_disco/e7_i2c_mems/i2c_mems",
 		"type": 	"stlink-v2",
 		"speed": 	2000,
 		"swd":     1

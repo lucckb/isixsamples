@@ -10,7 +10,8 @@ _prjs = [
     'e3_semaphore',
     'e4_fifo_from_irq',
     'e5_events',
-    'e6_spi_mems'
+    'e6_spi_mems',
+    'e7_i2c_mems'
 ]
 
 #Additional extra libraries
