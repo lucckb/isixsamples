@@ -48,20 +48,17 @@ namespace {
 	};
 
 	//SPI controller
-	constexpr pin spi1_pins[] {
-		{ pinfunc::miso, gpio::num::PA6 },	//MISO config
-		{ pinfunc::mosi, gpio::num::PA7 },	//MOSI config
-		{ pinfunc::sck, gpio::num::PA5 },	//SCK config
-		{ pinfunc::cs0, gpio::num::PE3 },	//DI_Mems (Display)
+	constexpr pin i2c1_pins[] {
+		{ pinfunc::scl, gpio::num::PB6 },	//SCK pin
+		{ pinfunc::sda, gpio::num::PB9 },	//SCL pin
 		{}
 	};
 
-	constexpr device_conf spi1_conf {
+	constexpr device_conf i2c1_conf {
 		{},
-		SPI1_IRQn,
+		I2C1_EV_IRQn,
 		1,7,	//! IRQ prio subprio
-		//0
-		device_conf::fl_dma		//! Use DMA transfer
+		0 //device_conf::fl_dma		//! Use DMA transfer
 	};
 
 
@@ -76,15 +73,17 @@ namespace {
 			nullptr
 		},
 		{
-			"spi1", reinterpret_cast<uintptr_t>(SPI1),
-			bus::apb2, LL_GPIO_AF_5,
-			unsigned(std::log2(LL_APB2_GRP1_PERIPH_SPI1)),
-			spi1_pins,
-			&spi1_conf
+			"i2c1", reinterpret_cast<uintptr_t>(I2C1),
+			bus::apb1, LL_GPIO_AF_4,
+			unsigned(std::log2(LL_APB1_GRP1_PERIPH_I2C1)),
+			i2c1_pins,
+			&i2c1_conf
 		},
 		{}
 	};
 }
+
+
 
 //! The machine config
 constexpr configuration the_machine_config {

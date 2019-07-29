@@ -10,6 +10,7 @@
 #include <periph/drivers/i2c/i2c_master.hpp>
 #include <isix.h>
 #include <cstring>
+#include "lms303.hpp"
 
 namespace {
 	/* Initialize the debug USART */
@@ -75,15 +76,38 @@ namespace {
 
 	//Task for the led blinking
 	auto watch_sensor() -> void {
-		periph::drivers::i2c_master i2cm("i2c2");
-		for(;;) {
-			dbprintf("Tak tak ");
-			isix::wait_ms(1000);
-		}
+		periph::drivers::i2c_master i2c1("i2c1");
+		app::lms303 lms(i2c1);
+		static constexpr auto IFC_TIMEOUT = 1000;
+		do {
+			int ret = i2c1.open(IFC_TIMEOUT);
+			if(ret) {
+				dbg_err("Unable to open i2c device error: %i", ret);
+				break;
+			}
+			ret = i2c1.set_option(periph::option::speed(400'000));
+			if(ret) {
+				dbg_err("Unable to set i2c option error: %i", ret);
+				break;
+			}
+			ret = lms.configure();
+			if(ret) {
+				dbg_err("LMS sensor init error: %i", ret);
+				break;
+			}
+			for(int x,y,z;;) {
+				ret = lms.get_orientation(x,y,z);
+				if(ret) {
+					dbg_err("LMS orientation error: %i", ret);
+					return;
+				}
+				dbg_info("X pos: %i Y pos %i Z pos %i", x,y,z);
+				isix::wait_ms(500);
+			}
+		} while(0);
 	}
 
 	}
-
 
 // Start main function
 auto main() -> int
