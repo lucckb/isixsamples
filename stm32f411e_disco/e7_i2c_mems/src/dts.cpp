@@ -57,8 +57,8 @@ namespace {
 	constexpr device_conf i2c1_conf {
 		{},
 		I2C1_EV_IRQn,
-		1,7,	//! IRQ prio subprio
-		0 //device_conf::fl_dma		//! Use DMA transfer
+		1,7,					//! IRQ prio subprio
+		device_conf::fl_dma		//! Use DMA transfer
 	};
 
 
