@@ -2,6 +2,7 @@
 #include <periph/dt/dts.hpp>
 #include <periph/gpio/gpio_numbers.hpp>
 #include <periph/dt/dts_config.hpp>
+#include <periph/memory/sdram_dtypes.hpp>
 #include <isix/arch/irq.h>
 #include <stm32_ll_usart.h>
 #include <stm32_ll_gpio.h>
@@ -43,45 +44,104 @@ namespace {
 
 	//Serial debug interface
 	constexpr pin ser0_pins[] {
-		{ pinfunc::txd, gpio::num::PA2 },
+		{ pinfunc::txd, gpio::num::PB10 },
 		{}
 	};
 
-	//SPI controller
-	constexpr pin spi1_pins[] {
-		{ pinfunc::miso, gpio::num::PB4 },	//MISO config
-		{ pinfunc::mosi, gpio::num::PB5 },	//MOSI config
-		{ pinfunc::sck, gpio::num::PB3 },	//SCK config
-		{ pinfunc::cs0, gpio::num::PB6 },	//DI_CS (Display)
-		{ pinfunc::cs1, gpio::num::PB7 },	//MEM_CS (Memory)
-		{}
+	// FMC SDRAM pins
+	constexpr pin sdram_pins[] {
+		{ pinfunc::fmc_sdcke1, gpio::num::PB5 },
+		{ pinfunc::fmc_sdne1, gpio::num::PB6 },
+		{ pinfunc::fmc_sdnwe, gpio::num::PC0 },
+		{ pinfunc::fmc_d2, gpio::num::PD0 },
+		{ pinfunc::fmc_d3, gpio::num::PD1 },
+		{ pinfunc::fmc_d13, gpio::num::PD8 },
+		{ pinfunc::fmc_d14, gpio::num::PD9 },
+		{ pinfunc::fmc_d15, gpio::num::PD10 },
+		{ pinfunc::fmc_d0, gpio::num::PD14 },
+		{ pinfunc::fmc_d1, gpio::num::PD15 },
+
+		{ pinfunc::fmc_nbl0, gpio::num::PE0 },
+		{ pinfunc::fmc_nbl1, gpio::num::PE1 },
+		{ pinfunc::fmc_d4, gpio::num::PE7 },
+		{ pinfunc::fmc_d5, gpio::num::PE8 },
+		{ pinfunc::fmc_d6, gpio::num::PE9 },
+		{ pinfunc::fmc_d7, gpio::num::PE10 },
+		{ pinfunc::fmc_d8, gpio::num::PE11 },
+		{ pinfunc::fmc_d9, gpio::num::PE12 },
+		{ pinfunc::fmc_d10, gpio::num::PE13 },
+		{ pinfunc::fmc_d11, gpio::num::PE14 },
+		{ pinfunc::fmc_d12, gpio::num::PE15 },
+
+		{ pinfunc::fmc_a0, gpio::num::PF0 },
+		{ pinfunc::fmc_a1, gpio::num::PF1 },
+		{ pinfunc::fmc_a2, gpio::num::PF2 },
+		{ pinfunc::fmc_a3, gpio::num::PF3 },
+		{ pinfunc::fmc_a4, gpio::num::PF4 },
+		{ pinfunc::fmc_a5, gpio::num::PF5 },
+		{ pinfunc::fmc_sdnras, gpio::num::PF11 },
+		{ pinfunc::fmc_a6, gpio::num::PF12 },
+		{ pinfunc::fmc_a7, gpio::num::PF13 },
+		{ pinfunc::fmc_a8, gpio::num::PF14 },
+		{ pinfunc::fmc_a9, gpio::num::PF15 },
+
+		{ pinfunc::fmc_a10, gpio::num::PG0 },
+		{ pinfunc::fmc_a11, gpio::num::PG1 },
+		{ pinfunc::fmc_a14, gpio::num::PG4 },
+		{ pinfunc::fmc_a15, gpio::num::PG5 },
+		{ pinfunc::fmc_sdclk, gpio::num::PG8 },
+		{ pinfunc::fmc_sdncas, gpio::num::PG15 },
+
+		{ pinfunc::fmc_sdcke0, gpio::num::PH2 },
+		{ pinfunc::fmc_sdne0, gpio::num::PH3 },
+		{ pinfunc::fmc_d16, gpio::num::PH8 },
+		{ pinfunc::fmc_d17, gpio::num::PH9 },
+		{ pinfunc::fmc_d18, gpio::num::PH10 },
+		{ pinfunc::fmc_d19, gpio::num::PH11 },
+		{ pinfunc::fmc_d20, gpio::num::PH12 },
+		{ pinfunc::fmc_d21, gpio::num::PH13 },
+		{ pinfunc::fmc_d22, gpio::num::PH14 },
+		{ pinfunc::fmc_d23, gpio::num::PH15 },
+
+		{ pinfunc::fmc_d24, gpio::num::PI0 },
+		{ pinfunc::fmc_d25, gpio::num::PI1 },
+		{ pinfunc::fmc_d26, gpio::num::PI2 },
+		{ pinfunc::fmc_d27, gpio::num::PI3 },
+		{ pinfunc::fmc_nbl2, gpio::num::PI4 },
+		{ pinfunc::fmc_nbl3, gpio::num::PI5 },
+		{ pinfunc::fmc_d28, gpio::num::PI6 },
+		{ pinfunc::fmc_d29, gpio::num::PI7 },
+		{ pinfunc::fmc_d30, gpio::num::PI9 },
+		{ pinfunc::fmc_d31, gpio::num::PI10 },
 	};
 
-	constexpr device_conf spi1_conf {
+	constexpr memory::sdram sdram_conf {
 		{},
-		SPI1_IRQn,
-		1,7,	//! IRQ prio subprio
-		 device_conf::fl_dma		//! Use DMA transfer
+		.sdrtr = 1385,
+		.nrfs = 7,
+		.bank1 = {
+			.sdcr = { 1, 1, 2, 0, 3, 1, 2, 0, 0 },
+			.sdtr = { 2, 2, 2, 7, 4, 7, 2 },
+			.sdcmr = { 0 },
+		},
+		.bank2 = {},
 	};
-
-
-
 
 	constexpr device devices[]
 	{
 		{
-			"serial0", reinterpret_cast<uintptr_t>(USART2),
+			"serial0", reinterpret_cast<uintptr_t>(USART3),
 			bus::apb1, LL_GPIO_AF_7,
-			unsigned(std::log2(LL_APB1_GRP1_PERIPH_USART2)),
+			unsigned(std::log2(LL_APB1_GRP1_PERIPH_USART3)),
 			ser0_pins,
 			nullptr
 		},
 		{
-			"spi1", reinterpret_cast<uintptr_t>(SPI1),
-			bus::apb2, LL_GPIO_AF_5,
-			unsigned(std::log2(LL_APB2_GRP1_PERIPH_SPI1)),
-			spi1_pins,
-			&spi1_conf
+			"sdram", 0,
+			bus::ahb3, LL_GPIO_AF_12,
+			unsigned(std::log2(LL_AHB3_GRP1_PERIPH_FMC)),
+			sdram_pins,
+			&sdram_conf
 		},
 		{}
 	};

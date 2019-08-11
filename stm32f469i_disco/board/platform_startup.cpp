@@ -8,36 +8,36 @@
 #include <stm32_ll_bus.h>
 #include <stm32_ll_system.h>
 #include <stm32_ll_gpio.h>
+#include <stm32_ll_pwr.h>
 #include <config/conf.h>
 #include <functional>
 #include <isix/arch/irq.h>
 #include <isix.h>
 #include <boot/arch/arm/cortexm/irq_vectors_table.h>
 #include <boot/arch/arm/cortexm/crashinfo.h>
+#include <periph/drivers/memory/sdram.hpp>
 
 namespace drv {
 namespace board {
 namespace {
 
 
-/** STM32 F3 system startup
- * 72MHz for AHB, APB2 36MHz APB1
+/** STM32F469 system startup
  */
 bool uc_periph_setup()
 {
-
 	constexpr auto retries=100000;
-
 	isix_set_irq_vectors_base( &_exceptions_vectors );
-
     //! Deinitialize RCC
     LL_RCC_DeInit();
-	LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+	LL_FLASH_SetLatency(LL_FLASH_LATENCY_5);
 	LL_FLASH_EnablePrefetch();
+	LL_FLASH_EnableDataCache();
+	LL_FLASH_EnableInstCache();
 	//! Set MCU Prescallers
 	LL_RCC_SetAHBPrescaler( LL_RCC_SYSCLK_DIV_1 );
-	LL_RCC_SetAPB2Prescaler( LL_RCC_APB2_DIV_1 );
-	LL_RCC_SetAPB1Prescaler( LL_RCC_APB1_DIV_2 );
+	LL_RCC_SetAPB2Prescaler( LL_RCC_APB2_DIV_2 );
+	LL_RCC_SetAPB1Prescaler( LL_RCC_APB1_DIV_4 );
 	//! Enable HSE generator
 	LL_RCC_HSE_Enable();
 	for( int i=0; i<retries; ++i ) {
@@ -48,13 +48,36 @@ bool uc_periph_setup()
 	if( !LL_RCC_HSE_IsReady() ) {
 		return false;
 	}
-
+    //Enable overdrive mode
 	//Enable clocks for GPIOS
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA|LL_AHB1_GRP1_PERIPH_GPIOB|
-		LL_AHB1_GRP1_PERIPH_GPIOC|LL_AHB1_GRP1_PERIPH_GPIOD|LL_AHB1_GRP1_PERIPH_GPIOE );
+		LL_AHB1_GRP1_PERIPH_GPIOC|LL_AHB1_GRP1_PERIPH_GPIOD|LL_AHB1_GRP1_PERIPH_GPIOE|
+		LL_AHB1_GRP1_PERIPH_GPIOF| LL_AHB1_GRP1_PERIPH_GPIOG|LL_AHB1_GRP1_PERIPH_GPIOH|
+		LL_AHB1_GRP1_PERIPH_GPIOI|LL_AHB1_GRP1_PERIPH_GPIOJ|LL_AHB1_GRP1_PERIPH_GPIOK);
 
+	// Setup overdrive mode
+	LL_APB1_GRP1_EnableClock(RCC_APB1ENR_PWREN);
+	__sync_synchronize();
+	LL_PWR_EnableOverDriveMode();
+	for( auto r=0; r<retries; ++r ) {
+		if(LL_PWR_IsActiveFlag_OD()) {
+			break;
+		}
+	}
+	if(!LL_PWR_IsActiveFlag_OD()) {
+		return false;
+	}
+	LL_PWR_EnableOverDriveSwitching();
+	for( auto r=0; r<retries; ++r ) {
+		if(LL_PWR_IsActiveFlag_ODSW()) {
+			break;
+		}
+	}
+	if(!LL_PWR_IsActiveFlag_ODSW()) {
+		return false;
+	}
 	//Configure PLL
-	LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_8, 400, LL_RCC_PLLP_DIV_4);
+	LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 180, LL_RCC_PLLP_DIV_2);
 	LL_RCC_PLL_Enable();
 	for( auto r=0; r<retries; ++r ) {
 		if( LL_RCC_PLL_IsReady() ) {
@@ -70,9 +93,20 @@ bool uc_periph_setup()
 			break;
 		}
 	}
+	// SAI domain
+	LL_RCC_PLL_ConfigDomain_SAI(LL_RCC_PLLSOURCE_HSE,LL_RCC_PLLM_DIV_7, 192, LL_RCC_PLLR_DIV_4 );
+	LL_RCC_PLLSAI_Enable();
+	for( auto r=0; r<retries; ++r ) {
+		if( LL_RCC_PLLSAI_IsReady() ) {
+			break;
+		}
+	}
+	if( !LL_RCC_PLLSAI_IsReady() ) {
+		return false;
+	}
+
 	return  LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_PLL;
 }
-
 
 
 //! Application crash called from hard fault
@@ -102,7 +136,7 @@ void _external_startup(void)
 
 	//Initialize system perhipheral
 
-	if( uc_periph_setup() ) {
+	if( uc_periph_setup() && !periph::memory::sdram_setup()) {
 		//1 bit for preemtion priority
 		isix_set_irq_priority_group( isix_cortexm_group_pri7 );
 		//Initialize isix

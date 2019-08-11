@@ -5,11 +5,35 @@
 #include <isix.h>
 
 namespace {
-    constexpr auto led_0 = periph::gpio::num::PD13;
+    constexpr auto led_0 = periph::gpio::num::PD5;
+}
+
+namespace {
+	static void
+	sdram_memtest(void)
+	{
+		uint32_t *addr;
+		int i;
+		addr = (uint32_t *)0xc0000000;
+		for (i = 0; i < (2 * 1024 * 1024); i++) {
+			/* Test */
+			*(volatile uint32_t *)(addr + i) = i;
+		}
+		for (i = 0; i < (2 * 1024 * 1024); i++) {
+			if (*(volatile uint32_t *)(addr + i) != uintptr_t(i)) {
+				dbprintf("sdram test failed %x",
+			    *(volatile uint32_t *)(addr + i), addr +i );
+				break;
+			}
+		}
+		dbprintf("sdram test completed");
+	}
+
 }
 
 namespace app {
     void test_thread(void*) {
+		sdram_memtest();
         for(int i=0;;++i) {
             isix::wait_ms(500);
             if(i%2==0) {
