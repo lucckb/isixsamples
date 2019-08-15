@@ -15,11 +15,11 @@ namespace {
 		uint32_t *addr;
 		int i;
 		addr = (uint32_t *)0xc0000000;
-		for (i = 0; i < (2 * 1024 * 1024); i++) {
+		for (i = 0; i < (4 * 1024 * 1024); i++) {
 			/* Test */
 			*(volatile uint32_t *)(addr + i) = i;
 		}
-		for (i = 0; i < (2 * 1024 * 1024); i++) {
+		for (i = 0; i < (4 * 1024 * 1024); i++) {
 			if (*(volatile uint32_t *)(addr + i) != uintptr_t(i)) {
 				dbprintf("sdram test failed %x",
 			    *(volatile uint32_t *)(addr + i), addr +i );
