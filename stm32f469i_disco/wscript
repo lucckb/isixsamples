@@ -5,6 +5,7 @@
 # Projects list
 _prjs = [
     'e0_led_blink',
+    'e1_graphics'
 ]
 
 #Additional extra libraries

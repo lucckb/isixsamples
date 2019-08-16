@@ -1,9 +1,9 @@
 {
 	"jtag": {
-		"target": 	"stm32f469i_disco/e0_led_blink/led_blink",
+		"target": 	"stm32f469i_disco/e1_graphics/tft_driver",
 		"type": 	"stlink-v2-1",
 		"speed": 	2000,
-		"swd":     1
+		"swd":      1
 	},
 	"configure" : {
 		"disable_isix": false,
