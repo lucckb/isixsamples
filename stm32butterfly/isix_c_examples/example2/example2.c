@@ -1,17 +1,17 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * example2.c
  *
  *  Created on: 19-09-2010
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include <isix.h>
 #include "nokia_lcd.h"
 #include "i2c_master.h"
 #include <foundation/foundation.h>
 #include <stm32system.h>
-/* ------------------------------------------------------------------ */
+ 
 #define I2C_SPEED 100000			/*I2c speed on the bus */
 #define TEMPSENSOR_I2CADDR 0x90		/*I2c temp sensor addr */
 #define MCP9800_CONFIG_REG 1		/* configuration register */
@@ -20,12 +20,12 @@
 #define LED_PORT GPIOE				/* Led port def */
 #define LED_PIN 14					/* Blink led pin */
 #define BLINK_TIME 500				/* Blink time led */
-/* ------------------------------------------------------------------ */
+ 
 #define TASK_STK_SIZE 256			/* measure task stack size */
 #define TASK_PRIO_LED 3				/* led task prio */
 #define TASK_PRIO_TEMP 2			/* measure task prio */
 #define MEASURE_WAIT_TIME 500		/* Measure interval */
-/* ------------------------------------------------------------------ */
+ 
 //Temperature fractional structure
 struct temp
 {
@@ -41,7 +41,7 @@ struct msg
 };
 
 
-/* ------------------------------------------------------------------ */
+ 
 //Configure temperature sensor to 12 bit resolution
 static int tempsensor_init(void)
 {
@@ -50,7 +50,7 @@ static int tempsensor_init(void)
 	return i2cm_transfer_7bit(TEMPSENSOR_I2CADDR,tmp,sizeof(tmp),NULL,0);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Get current temperature and fill the structure
 static int tempsensor_get(struct temp *t)
 {
@@ -67,7 +67,7 @@ static int tempsensor_get(struct temp *t)
 	}
 	return ecode;
 }
-/* ------------------------------------------------------------------ */
+ 
 //Display temperature
 static void display_temp(int x,int y, struct temp *t, const char *str)
 {
@@ -76,7 +76,7 @@ static void display_temp(int x,int y, struct temp *t, const char *str)
 	nlcd_put_string(buf,x,y);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 /** Temperature read task */
 ISIX_TASK_FUNC(temp_read_task,entry_params)
 {
@@ -99,7 +99,7 @@ ISIX_TASK_FUNC(temp_read_task,entry_params)
 		isix_wait_ms(MEASURE_WAIT_TIME);
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Display server task */
 static ISIX_TASK_FUNC(display_srv_task, entry_params)
 {
@@ -127,7 +127,7 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 		bstate=!bstate;
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Blinking led task function */
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
@@ -146,7 +146,7 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 		isix_wait_ms( BLINK_TIME );
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Main func  */
 int main(void)
 {
@@ -167,4 +167,4 @@ int main(void)
 	isix_start_scheduler();
 	//Start the sheduler
 }
-/* ------------------------------------------------------------------ */
+ 

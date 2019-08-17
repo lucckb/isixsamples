@@ -18,13 +18,13 @@
 #pragma once
 #include <foundation/noncopyable.hpp>
 #include <isix.h>
-/* ------------------------------------------------------------------ */ 
+  
 namespace drv {
-/* ------------------------------------------------------------------ */
+ 
 extern "C" {
 	__attribute__((interrupt)) void dma1_stream5_isr_vector();
 }
-/* ------------------------------------------------------------------ */ 
+  
 //DAC audio converter class
 class dac_audio : public fnd::noncopyable {
 	static const auto IRQ_PRIO = 0;			//! IRQ priority
@@ -127,6 +127,6 @@ private:
 	volatile state m_state { state::idle };	//! Internal application state
 };
 
-/* ------------------------------------------------------------------ */ 
+  
 }
-/* ------------------------------------------------------------------ */ 
+  

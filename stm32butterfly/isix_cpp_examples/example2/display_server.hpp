@@ -1,23 +1,23 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * display_server.hpp
  * Display server class header
  *  Created on: 2010-01-03
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #ifndef DISPLAY_SERVER_HPP_
 #define DISPLAY_SERVER_HPP_
-/* ------------------------------------------------------------------ */
+ 
 #include <isix.h>
 #include "nokia_display.hpp"
 #include "display_proto.hpp"
-/* ------------------------------------------------------------------ */
+ 
 //The application namespace
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 //Display server class
 class display_server: public isix::task_base
 {
@@ -47,10 +47,10 @@ private:
 	isix::fifo<const display_msg*> io_fifo;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 
 }
-/* ------------------------------------------------------------------ */
+ 
 #endif /* DISPLAY_SERVER_HPP_ */
 
-/* ------------------------------------------------------------------ */
+ 

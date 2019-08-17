@@ -12,16 +12,16 @@
 #include <stm32pwr.h>
 #include <stm32crashinfo.h>
 #include <isix/arch/irq.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace {
-/* ------------------------------------------------------------------ */
+ 
 
 //Number of isix threads
 const unsigned ISIX_NUM_PRIORITIES = 4;
 //SysTimer values
 const unsigned MHZ = 1000000;
 
-/* ------------------------------------------------------------------ */
+ 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -35,7 +35,7 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 extern "C"
 {
 	//Save all fpu regs inc initial by one
@@ -47,7 +47,7 @@ extern "C"
 	//Check basic regs filling from irq
 	int fpuirq_base_regs_check( int start );
 
-/* ------------------------------------------------------------------ */
+ 
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -62,16 +62,16 @@ void _external_startup(void)
 	isix::init(config::HCLK_HZ);
 
 }
-/* ------------------------------------------------------------------ */
+ 
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 class ledblink: public isix::task_base
 {
 public:
@@ -109,7 +109,7 @@ private:
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
-/* ------------------------------------------------------------------ */
+ 
 namespace {
     //! Interrupt FPU context on the lower possible level
     void prepare_fpu_irq_tests() {
@@ -143,7 +143,7 @@ namespace {
         }
     }
 }}
-/* ------------------------------------------------------------------ */
+ 
 class math_task: public isix::task_base
 {
 public:
@@ -183,10 +183,10 @@ private:
 };
 
 
-/* ------------------------------------------------------------------ */
+ 
 
 }	//namespace app end
-/* ------------------------------------------------------------------ */
+ 
 namespace {
 #ifdef PDEBUG
     isix::semaphore usem(1, 1);
@@ -198,7 +198,7 @@ namespace {
     }
 #endif
 }
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {

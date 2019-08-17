@@ -1,31 +1,31 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * example2.c
  *
  *  Created on: 19-09-2010
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include <isix.h>
 #include "nokia_lcd.h"
 #include <foundation/foundation.h>
 #include <stm32system.h>
-/* ------------------------------------------------------------------ */
+ 
 #define LED_PORT GPIOE				/* Led port def */
 #define LED_PIN 14					/* Blink led pin */
 #define BLINK_TIME 500				/* Blink time led */
-/* ------------------------------------------------------------------ */
+ 
 #define TASK_STK_SIZE 256			/* measure task stack size */
 #define TASK_PRIO_LED 3				/* led task prio */
 #define TASK_PRIO_KEY 3			    /* measure task prio */
 #define TASK_PRIO_DISP 2			/* Display task prio */
 #define KEY_SCAN_INTERVAL 9
-/* ------------------------------------------------------------------ */
+ 
 
 //Key definition
 typedef char hkey_t;
 
-/* ------------------------------------------------------------------ */
+ 
 #define KEYSCAN_PORT GPIOE				/* Keyboard port */
 #define KEYSCAN_ROW_PINS 0xf0			/* Row bitmask */
 #define KEYSCAN_COL_PINS 0x0f			/* Col bitmask */
@@ -52,7 +52,7 @@ static void keyscan_init(void)
 	gpio_clr_mask(KEYSCAN_PORT, KEYSCAN_ROW_PINS);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Translate row/col to key val
 static inline char hkey_translate(int row, int col)
 {
@@ -97,7 +97,7 @@ static inline char hkey_translate(int row, int col)
 	}
 	return 'x';	//Unknown key
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Temperature read task */
 ISIX_TASK_FUNC(kbd_task,entry_params)
 {
@@ -124,7 +124,7 @@ ISIX_TASK_FUNC(kbd_task,entry_params)
 		isix_wait_ms(KEY_SCAN_INTERVAL);
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Display server task */
 static ISIX_TASK_FUNC(display_srv_task, entry_params)
 {
@@ -144,7 +144,7 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 		}
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Blinking led task function */
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
@@ -163,7 +163,7 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 		isix_wait_ms( BLINK_TIME );
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Main func */
 int main(void)
 {
@@ -180,4 +180,4 @@ int main(void)
 	isix_start_scheduler();
 	//Start the sheduler
 }
-/* ------------------------------------------------------------------ */
+ 

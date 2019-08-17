@@ -1,4 +1,4 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * example1.c
  *
@@ -8,11 +8,11 @@
  *  Created on: 18-09-2010
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include <isix.h>
 #include <stm32lib.h>
 #include "nokia_lcd.h"
-/* ------------------------------------------------------------------ */
+ 
 //Led Port
 #define LED_PORT GPIOE
 #define LED_PIN 14
@@ -48,13 +48,13 @@
 #define KBD_DELAY_TIME  25
 
 typedef short hkey_t;
-/* ------------------------------------------------------------------ */
+ 
 //Get the key function
 static inline unsigned short get_key()
 {
 		return (~KEY_PORT->IDR >> KEY_OK_BIT) & KEY_MASK;
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Blinking led task function */
 static ISIX_TASK_FUNC(blinking_task, entry_param)
 {
@@ -74,7 +74,7 @@ static ISIX_TASK_FUNC(blinking_task, entry_param)
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 /** Display server task */
 static ISIX_TASK_FUNC(display_srv_task, entry_params)
 {
@@ -113,7 +113,7 @@ static ISIX_TASK_FUNC(display_srv_task, entry_params)
 		}
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /** Keyboyard server task */
 static ISIX_TASK_FUNC(keyboard_srv_task,entry_params)
 {
@@ -144,7 +144,7 @@ static ISIX_TASK_FUNC(keyboard_srv_task,entry_params)
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main(void)
 {
@@ -164,4 +164,4 @@ int main(void)
 	//Start the isix scheduler
 	isix_start_scheduler();
 }
-/* ------------------------------------------------------------------ */
+ 

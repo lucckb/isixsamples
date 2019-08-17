@@ -6,9 +6,9 @@
 #include <isix/arch/irq.h>
 #include "config.hpp"
 #include <stdexcept>
-/* ------------------------------------------------------------------ */
+ 
 namespace {
-/* ------------------------------------------------------------------ */
+ 
 //! Configure ADC prescaler to 8
 const unsigned long RCC_CFGR_ADCPRE_8 = (3<<14);
 
@@ -18,7 +18,7 @@ const unsigned long RCC_CR_HSI_ON = (1<<0);
 //HCLK system speed
 const unsigned HCLK_HZ = 75000000;
 
-/* ------------------------------------------------------------------ */
+ 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -65,11 +65,11 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 extern "C"
 {
 
-/* ------------------------------------------------------------------ */
+ 
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -84,16 +84,16 @@ void _external_startup(void)
 	isix::init(HCLK_HZ);
 
 }
-/* ------------------------------------------------------------------ */
+ 
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 class ledblink: public isix::task_base
 {
 public:
@@ -131,7 +131,7 @@ private:
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
-/* ------------------------------------------------------------------ */
+ 
 
 class ledkey: public isix::task_base
 {
@@ -219,10 +219,10 @@ private:
 		static const unsigned DELAY_TIME = 25;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 
 }
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {
@@ -241,5 +241,5 @@ int main()
 	isix::start_scheduler();
 }
 
-/* ------------------------------------------------------------------ */
+ 
 

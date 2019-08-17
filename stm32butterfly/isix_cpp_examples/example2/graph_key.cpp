@@ -1,21 +1,21 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * keyboard.cpp
  * Keyboyard send event thread class
  *  Created on: 2010-01-09
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include <stm32lib.h>
 #include "graph_key.hpp"
 #include "display_server.hpp"
 #include "images.hpp"
-/* ------------------------------------------------------------------ */
+ 
 //The application namespace
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 //Unnamed namespace
 namespace
 {
@@ -55,7 +55,7 @@ namespace
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Constructor
 graph_key::graph_key(display_server &_srv) 
 	: disp_srv(_srv)
@@ -70,7 +70,7 @@ graph_key::graph_key(display_server &_srv)
 	gpio_config(KEY_PORT,KEY_LEFT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
 	gpio_config(KEY_PORT,KEY_RIGHT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Task/thread method
 void graph_key::main() noexcept
 {
@@ -116,6 +116,6 @@ void graph_key::main() noexcept
 		isix::wait_ms( DELAY_TIME );
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 

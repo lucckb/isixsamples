@@ -1,24 +1,24 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * display_server.cpp
  * The display server class communicate implementation
  *  Created on: 2010-01-03
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "display_server.hpp"
 
-/* ------------------------------------------------------------------ */
+ 
 //Application namespace
 namespace app
 {
-/* ------------------------------------------------------------------ */
+ 
 //Constructor
 display_server::display_server():io_fifo(QUEUE_CAPACITY)
 {
 
 }
-/* ------------------------------------------------------------------ */
+ 
 //Main thread
 void display_server::main() noexcept 
 {
@@ -61,6 +61,6 @@ void display_server::main() noexcept
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 

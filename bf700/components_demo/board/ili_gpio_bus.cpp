@@ -4,16 +4,16 @@
  *  Created on: 21 lis 2013
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include <board/ili_gpio_bus.hpp>
 #include <stm32gpio.h>
 #include <stm32system.h>
 #include <stm32rcc.h>
 #include <stm32tim.h>
 #include <isix.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace drv {
-/* ------------------------------------------------------------------ */
+ 
 namespace {
 	uint8_t data_get()
 	{
@@ -31,7 +31,7 @@ namespace {
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 void ili_gpio_bus::bus_dir( ili_gpio_bus::dir_t dir )
 {
 	using namespace stm32;
@@ -47,7 +47,7 @@ void ili_gpio_bus::bus_dir( ili_gpio_bus::dir_t dir )
 	}
 	m_dir = dir;
 }
-/* ------------------------------------------------------------------ */
+ 
 //Constructor
 ili_gpio_bus::ili_gpio_bus()
 {
@@ -67,7 +67,7 @@ ili_gpio_bus::ili_gpio_bus()
 	gpio_set( GPIOE, 6 );
 }
 
-/* ------------------------------------------------------------------ */
+ 
 // Lock bus and set address
 void ili_gpio_bus::set_ctlbits( int bit, bool val )
 {
@@ -80,7 +80,7 @@ void ili_gpio_bus::set_ctlbits( int bit, bool val )
 	case RST_BIT_CMD: io_fn( GPIOF, 3 ); break;
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Read transfer */
 void ili_gpio_bus::read( void *buf, std::size_t len )
 {
@@ -94,7 +94,7 @@ void ili_gpio_bus::read( void *buf, std::size_t len )
 		gpio_set( GPIOD, 4 );
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Write transfer */
 void ili_gpio_bus::write( const void *buf, size_t len )
 {
@@ -108,7 +108,7 @@ void ili_gpio_bus::write( const void *buf, size_t len )
 		gpio_set( GPIOD, 5 );	//WR up
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Fill pattern */
 void ili_gpio_bus::fill( unsigned value, size_t nelms )
 {
@@ -125,7 +125,7 @@ void ili_gpio_bus::fill( unsigned value, size_t nelms )
 		gpio_set( GPIOD, 5 );	//WR up
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Set PWM  */
 void ili_gpio_bus::set_pwm( int percent )
 {
@@ -136,12 +136,12 @@ void ili_gpio_bus::set_pwm( int percent )
 	percent = (percent*c_scale2)/c_scale1;
 	stm32::tim_set_ccr( TIM3, stm32::tim_cc_chn3, percent );
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Wait ms long delay */
 void ili_gpio_bus::delay( unsigned tout )
 {
 	isix_wait_ms( tout );
 }
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 

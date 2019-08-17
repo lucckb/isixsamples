@@ -21,16 +21,16 @@
 #include <foundation/fs_env.hpp>
 #include <isix.h>
 
-/* ------------------------------------------------------------------ */ 
+  
 namespace {
 	static constexpr auto I2CA_EEPROM = 0xA0;
 	std::unique_ptr<fnd::i2c_eeprom> m_eeprom;
 	std::unique_ptr<fnd::filesystem::fs_env> m_fsenv;
 	isix::semaphore m_lock { 1, 1 };
 }
-/* ------------------------------------------------------------------ */ 
+  
 namespace app {
-/* ------------------------------------------------------------------ */ 
+  
 //! Init env
 void initenv( fnd::bus::ibus& bus )
 {
@@ -39,7 +39,7 @@ void initenv( fnd::bus::ibus& bus )
 		m_fsenv.reset( new fnd::filesystem::fs_env( *m_eeprom ) );
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 //! Set env
 int setenv( unsigned env_id, const void* buf, size_t buf_len )
 {
@@ -50,7 +50,7 @@ int setenv( unsigned env_id, const void* buf, size_t buf_len )
 		return env::err_not_init;
 	}
 }
-/* ------------------------------------------------------------------ */ 
+  
 //! Get env
 int getenv(  unsigned env_id, void* buf, size_t buf_len )
 {
@@ -61,7 +61,7 @@ int getenv(  unsigned env_id, void* buf, size_t buf_len )
 		return env::err_not_init;
 	}
 }
-/* ------------------------------------------------------------------ */ 
+  
 //! Unset env
 int unsetenv( unsigned env_id )
 {
@@ -72,6 +72,6 @@ int unsetenv( unsigned env_id )
 		return env::err_not_init;
 	}
 }
-/* ------------------------------------------------------------------ */ 
+  
 }
 

@@ -1,18 +1,18 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * ledkey.cpp
  *
  *  Created on: 2010-01-02
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "ledkey.hpp"
 #include <isix.h>
 #include <stm32lib.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
-/* ------------------------------------------------------------------ */
+ 
 //Unnamed namespace
 namespace
 {
@@ -23,7 +23,7 @@ namespace
 	const unsigned DELAY_TIME = 25;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Default constructor initialize GPIO and var
 ledkey::ledkey()
 	:	is_enabled(false)
@@ -34,7 +34,7 @@ ledkey::ledkey()
 	gpio_config(LED_PORT,LED_PIN,GPIO_MODE_10MHZ,GPIO_CNF_GPIO_PP);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 void ledkey::main() noexcept
 {
 	//Last key state
@@ -57,5 +57,5 @@ void ledkey::main() noexcept
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 }

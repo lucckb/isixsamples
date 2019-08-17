@@ -12,16 +12,16 @@
  * SEL  - PA4 (Output)
  * RES -  PD1  (Output)
  * Device connected to the hardware pin SPI1 */
-/* ------------------------------------------------------------------ */
+ 
 #include "nokia_lcd.h"
 #include <stm32lib.h>
 #include <stm32system.h>
 #include <isix.h>
-/* ------------------------------------------------------------------ */
+ 
 //! Define if new uncompatible display will be used
 #define NEW_3310_INCOMPATIBILE_DISP
 
-/* ------------------------------------------------------------------ */
+ 
 //SPI port
 #define SPI_PORT GPIOA
 //SPI pin bits
@@ -172,12 +172,12 @@ static const char cg_rom[]=
 	    0x10,0x08,0x08,0x10,0x08,0x00,
 	    0x78,0x46,0x41,0x46,0x78,0x00,
 };
-/* ------------------------------------------------------------------ */
+ 
 #ifdef NEW_3310_INCOMPATIBILE_DISP
 unsigned char cx,cy;
 #endif
 
-/* ------------------------------------------------------------------ */
+ 
 //Set DC pin in state x
 static inline void dc_pin(bool en)
 {
@@ -185,14 +185,14 @@ static inline void dc_pin(bool en)
 	else   gpio_clr(CTRL_PORT,DC_BIT);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Set RES pin in state x
 static inline void res_pin(bool en)
 {
 	if(en) gpio_set(CTRL_PORT,RES_BIT);
 	else   gpio_clr(CTRL_PORT,RES_BIT);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Very short delay busy wait method
 static void busy_delay(unsigned delay)
 {
@@ -200,7 +200,7 @@ static void busy_delay(unsigned delay)
 		asm volatile("nop");
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Set SEL pin in state x
 static inline void sel_pin(bool en)
 {
@@ -209,7 +209,7 @@ static inline void sel_pin(bool en)
 	else   gpio_clr(SPI_PORT,SSEL_BIT);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Hardware initialization method
 static void hw_init(void)
 {
@@ -241,7 +241,7 @@ static void hw_init(void)
     SPI1->CR1 |= CR1_SPE_Set;
 
 }
-/* ------------------------------------------------------------------ */
+ 
 //Write to the SPI
 static void hw_spi_write(unsigned char byte)
 {
@@ -249,7 +249,7 @@ static void hw_spi_write(unsigned char byte)
 	 SPI1->DR = byte;
 	 while(SPI1->SR & SPI_I2S_FLAG_BSY); // Wait until sending is over
 }
-/* ------------------------------------------------------------------ */
+ 
 
 #ifdef NEW_3310_INCOMPATIBILE_DISP
 static void nlcd_data(unsigned char data)
@@ -280,7 +280,7 @@ static inline void nlcd_data(unsigned char data)
 	hw_spi_write(data);
 }
 #endif
-/* ------------------------------------------------------------------ */
+ 
 //Clear the display
 void nlcd_clear(void)
 {
@@ -295,7 +295,7 @@ void nlcd_clear(void)
 	//Deactivate select signal
 	sel_pin(1);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Initialize LCD display
 void nlcd_init(void)
 {
@@ -341,7 +341,7 @@ void nlcd_init(void)
 }
 
 
-/* ------------------------------------------------------------------ */
+ 
 //Write character at current position
 void nlcd_put_char(char code)
 {
@@ -361,7 +361,7 @@ void nlcd_put_char(char code)
     //Write end
     sel_pin(1);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Set cursor at selected pos (14 cols, 6 rows)
 void nlcd_set_position(unsigned x, unsigned y)
 {
@@ -381,7 +381,7 @@ void nlcd_set_position(unsigned x, unsigned y)
     sel_pin(1);
     dc_pin(1);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Display string at selected position
 void nlcd_put_string(const char *str, unsigned  x, unsigned y)
 {
@@ -390,4 +390,4 @@ void nlcd_put_string(const char *str, unsigned  x, unsigned y)
 	dc_pin(1);
     while(*str) nlcd_put_char(*str++);
 }
-/* ------------------------------------------------------------------ */
+ 

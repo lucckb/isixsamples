@@ -4,13 +4,13 @@
  *  Created on: 19-09-2010
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "config.h"
 #include "i2c_master.h"
 #include <stm32system.h>
 #include <isix.h>
 
-/* ------------------------------------------------------------------ */
+ 
 //I2C PINS
 #define I2C1_PORT  GPIOB
 #define  I2C1_SDA_PIN 7
@@ -75,7 +75,7 @@ enum {
 #define  CR1_PE_SET  0x0001
 //I2c master buffer
 #define i2c I2C1
-/* ------------------------------------------------------------------ */
+ 
 
 //Tx buffer pointer
 static const uint8_t *tx_buf;
@@ -96,7 +96,7 @@ static volatile short rx_bytes;
 //Position in the buffer
 static volatile short buf_pos;
 
-/* ------------------------------------------------------------------ */
+ 
 //Private funcs
 /***/
 //Get last i2c event
@@ -190,7 +190,7 @@ int get_hwerror(void)
 	return 0;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Initialize the library
 errno_t i2cm_init( unsigned clk_speed)
 {
@@ -251,7 +251,7 @@ errno_t i2cm_init( unsigned clk_speed)
 	 return ERR_OK;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 void i2cm_set_speed(unsigned speed)
 {
 	 /* Disable the selected I2C peripheral to configure TRISE */
@@ -304,7 +304,7 @@ void i2cm_set_speed(unsigned speed)
 	  i2c->CR1 |= CR1_PE_SET;
 
 }
-/* ------------------------------------------------------------------ */
+ 
 int i2cm_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
@@ -362,7 +362,7 @@ int i2cm_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbu
 	isix_sem_signal(sem_lock);
 	return ERR_OK;
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Irq handler */
 void i2c1_ev_isr_vector(void) __attribute__ ((interrupt));
 void i2c1_ev_isr_vector(void)
@@ -437,7 +437,7 @@ void i2c1_ev_isr_vector(void)
 	break;
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Irq handler */
 void i2c1_er_isr_vector(void) __attribute__ ((interrupt));
 void i2c1_er_isr_vector(void)
@@ -453,6 +453,6 @@ void i2c1_er_isr_vector(void)
 	isix_sem_signal_isr(sem_irq);
     }
 }
-/* ------------------------------------------------------------------ */
+ 
 
 

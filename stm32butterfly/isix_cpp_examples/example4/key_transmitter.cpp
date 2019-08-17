@@ -1,17 +1,17 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * key_transmitter.cpp
  * The serial key transmitter demo
  *  Created on: 2010-02-21
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "key_transmitter.hpp"
 #include "usart_buffered.hpp"
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
-/* ------------------------------------------------------------------ */
+ 
 //Unnamed namespace
 namespace
 {
@@ -50,7 +50,7 @@ namespace
 		return (~KEY_PORT->IDR >> KEY_OK_BIT) & KEY_MASK;
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 //Constructor
 key_transmitter::key_transmitter(stm32::dev::usart_buffered &_serial) :
 	serial(_serial)
@@ -66,7 +66,7 @@ key_transmitter::key_transmitter(stm32::dev::usart_buffered &_serial) :
 	 gpio_config(KEY_PORT,KEY_RIGHT_BIT,GPIO_MODE_INPUT,GPIO_CNF_IN_FLOAT);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Main task - read joy key and sent it to RS232
 void key_transmitter::main() noexcept
 {
@@ -110,8 +110,8 @@ void key_transmitter::main() noexcept
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 
 
-/* ------------------------------------------------------------------ */
+ 
 }

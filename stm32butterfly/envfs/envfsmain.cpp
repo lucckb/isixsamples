@@ -6,10 +6,10 @@
 #include <isixdrv/i2c_bus.hpp>
 #include "blinker.hpp"
 #include "app_env.hpp"
-/* ------------------------------------------------------------------ */ 
+  
 namespace app {
 namespace {
-/* ------------------------------------------------------------------ */ 
+  
 class env_tester : private isix::task_base {
 	static const unsigned STACK_SIZE = 512;
 	static const unsigned TASK_PRIO = 3;
@@ -34,9 +34,9 @@ protected:
 private:
 	stm32::drv::i2c_bus m_i2c { stm32::drv::i2c_bus::busid::i2c1 , 400000 };
 };
-/* ------------------------------------------------------------------ */ 
+  
 }}
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {
@@ -53,5 +53,5 @@ int main()
 	dbprintf("Scheduler exit");
 }
 
-/* ------------------------------------------------------------------ */
+ 
 

@@ -1,4 +1,4 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * nokia_display.cpp
  * Nokia N3310 display class
@@ -13,16 +13,16 @@
  * RES -  PD1  (Output)
  * Device connected to the hardware pin SPI1
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "nokia_display.hpp"
 #include "img_def.hpp"
 #include <stm32lib.h>
 #include <isix.h>
-/* ------------------------------------------------------------------ */
+ 
 //Application namespace
 namespace app
 {
-/* ------------------------------------------------------------------ */
+ 
 //Unnamed namespace
 namespace
 {
@@ -176,7 +176,7 @@ namespace
 	};
 
 }
-/* ------------------------------------------------------------------ */
+ 
 //Display constructor
 nokia_display::nokia_display()
 {
@@ -185,7 +185,7 @@ nokia_display::nokia_display()
 	//Initialize LCD
 	lcd_init();
 }
-/* ------------------------------------------------------------------ */
+ 
 //Set DC pin in state x
 inline void nokia_display::dc_pin(bool en)
 {
@@ -193,14 +193,14 @@ inline void nokia_display::dc_pin(bool en)
 	else    stm32::gpio_clr(CTRL_PORT,DC_BIT);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Set RES pin in state x
 inline void nokia_display::res_pin(bool en)
 {
     if(en) stm32::gpio_set(CTRL_PORT,RES_BIT);
 	else   stm32::gpio_clr(CTRL_PORT,RES_BIT);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Set SEL pin in state x
 inline void nokia_display::sel_pin(bool en)
 {
@@ -209,7 +209,7 @@ inline void nokia_display::sel_pin(bool en)
 	else   stm32::gpio_clr(SPI_PORT,SSEL_BIT);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Hardware initialization method
 void nokia_display::hw_init()
 {
@@ -242,7 +242,7 @@ void nokia_display::hw_init()
     SPI1->CR1 |= CR1_SPE_Set;
 
 }
-/* ------------------------------------------------------------------ */
+ 
 //Write to the SPI
 void nokia_display::hw_spi_write(unsigned char byte)
 {
@@ -250,7 +250,7 @@ void nokia_display::hw_spi_write(unsigned char byte)
 	 SPI1->DR = byte;
 	 while(SPI1->SR & SPI_I2S_FLAG_BSY); // Wait until sending is over
 }
-/* ------------------------------------------------------------------ */
+ 
 //Initialize LCD display
 void nokia_display::lcd_init()
 {
@@ -285,14 +285,14 @@ void nokia_display::lcd_init()
 	//Deactivate select signal
     sel_pin(1);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Very short delay busy wait method
 void nokia_display::busy_delay(unsigned delay)
 {
 	for(unsigned i=0;i<delay;i++)
 		asm volatile("nop");
 }
-/* ------------------------------------------------------------------ */
+ 
 //Write character at current position
 void nokia_display::put_char(char code)
 {
@@ -312,7 +312,7 @@ void nokia_display::put_char(char code)
     //Write end
     sel_pin(1);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Set cursor at selected pos (14 cols, 6 rows)
 void nokia_display::set_position(unsigned x, unsigned y)
 {
@@ -327,7 +327,7 @@ void nokia_display::set_position(unsigned x, unsigned y)
     sel_pin(1);
     dc_pin(1);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Display string at selected position
 void nokia_display::put_string(const char *str, unsigned  x, unsigned y)
 {
@@ -336,7 +336,7 @@ void nokia_display::put_string(const char *str, unsigned  x, unsigned y)
 	dc_pin(1);
     while(*str) put_char(*str++);
 }
-/* ------------------------------------------------------------------ */
+ 
 //Put bitmap on the screen
 void nokia_display::put_bitmap(const images::img_def &image)
 {
@@ -388,7 +388,7 @@ void nokia_display::put_bitmap(const images::img_def &image)
     sel_pin(1);
     dc_pin(1);              //Data mode
 }
-/* ------------------------------------------------------------------ */
+ 
 //Clear the display
 void nokia_display::clear()
 {
@@ -403,6 +403,6 @@ void nokia_display::clear()
 	//Deactivate select signal
 	sel_pin(1);
 }
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 

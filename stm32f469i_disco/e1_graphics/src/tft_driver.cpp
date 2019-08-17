@@ -12,21 +12,33 @@ namespace {
 	static void
 	sdram_memtest(void)
 	{
-		uint32_t *addr;
-		int i;
-		addr = (uint32_t *)0xc0000000;
-		for (i = 0; i < (4 * 1024 * 1024); i++) {
-			/* Test */
-			*(volatile uint32_t *)(addr + i) = i;
+		const auto addr = reinterpret_cast<volatile uint32_t*>(0xc0000000);
+		constexpr auto mem_siz = 4U * 1024U * 1024U;
+		bool fail {};
+		//! Index pattern
+		for (auto i=0U; i<mem_siz; i++) {
+			*(addr + i) = i;
 		}
-		for (i = 0; i < (4 * 1024 * 1024); i++) {
-			if (*(volatile uint32_t *)(addr + i) != uintptr_t(i)) {
-				dbprintf("sdram test failed %x",
-			    *(volatile uint32_t *)(addr + i), addr +i );
+		for (auto i=0U; i<mem_siz; i++) {
+			if(*(addr + i)!=i) {
+				dbprintf("sdram test1 failed <%08x>@%p ", *(addr + i), addr+i );
+				fail = true;
 				break;
 			}
 		}
-		dbprintf("sdram test completed");
+		//0x55 test
+		for (auto i=0U; i<mem_siz; i++) {
+			*(addr + i) = 0x5555'5555U;
+		}
+		for (auto i=0U; i<mem_siz; i++) {
+			if(*(addr + i)!=0x5555'5555U) {
+				dbprintf("sdram test2 failed <%08x>@%p ", *(addr + i), addr+i );
+				fail = true;
+				break;
+			}
+		}
+		if(!fail)
+			dbprintf("sdram test completed OK");
 	}
 
 }
@@ -71,7 +83,7 @@ auto main() -> int
         }
     );
 	isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
-    dbprintf("<<<< Hello STM32F411E-DISCO board >>>>");
+    dbprintf("<<<< Hello STM32F411E-DISCO TFT-DEMO >>>>");
 	isix::start_scheduler();
 	return 0;
 }

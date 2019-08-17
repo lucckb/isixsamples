@@ -1,32 +1,32 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * rtc_reader.cpp
  *
  *  Created on: 2010-02-07
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "rtc_reader.hpp"
 #include <stm32lib.h>
 #include "display_server.hpp"
 #include <cstring>
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 namespace
 {
 	const uint8_t I2C_RTC_ADDR = 208;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 rtc_reader::rtc_reader(display_server &disp_srv_):
 	    i2c_bus(I2C1), disp_srv(disp_srv_)
 {
 
 }
-/* ------------------------------------------------------------------ */
+ 
 //Main rtc reader core task
 void rtc_reader::main() noexcept
 {
@@ -72,6 +72,6 @@ void rtc_reader::main() noexcept
 	}
 }
 
-/* ------------------------------------------------------------------ */
+ 
 
 }

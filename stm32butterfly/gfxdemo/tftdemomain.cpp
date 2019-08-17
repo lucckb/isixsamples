@@ -18,21 +18,21 @@
 
 #include <string>
 #include <regex>
-/* ------------------------------------------------------------------ */
+ 
 namespace testimg {
 	extern const gfx::disp::cmem_bitmap_t isixlogo_png;
 	extern const gfx::disp::cmem_bitmap_t bat_png;
 }
-/* ------------------------------------------------------------------ */
+ 
 namespace {
-/* ------------------------------------------------------------------ */
+ 
 
 //Number of isix threads
 const unsigned ISIX_NUM_PRIORITIES = 4;
 //SysTimer values
 const unsigned MHZ = 1000000;
 
-/* ------------------------------------------------------------------ */
+ 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -46,11 +46,11 @@ uint32_t uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
     return freq;
 }
-/* ------------------------------------------------------------------ */
+ 
 extern "C"
 {
 
-/* ------------------------------------------------------------------ */
+ 
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -65,16 +65,16 @@ void _external_startup(void)
 	isix_init(freq);
 
 }
-/* ------------------------------------------------------------------ */
+ 
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 class ledblink: public isix::task_base
 {
 public:
@@ -112,7 +112,7 @@ private:
 };
 
 
-/* ------------------------------------------------------------------ */
+ 
 class ili_gpio_bus : public gfx::drv::disp_bus
 {
 	static constexpr auto CSL_BIT_CMD = 0;
@@ -245,7 +245,7 @@ public:
 private:
 	dir_t m_dir { dir_t::in };
 };
-/* ------------------------------------------------------------------ */
+ 
 
 
 class tft_tester: public isix::task_base
@@ -410,7 +410,7 @@ private:
 	gfx::gui::editbox* m_edit {};
 	bool m_edit_mode = false;
 };
-/* ------------------------------------------------------------------ */
+ 
 class gpio_keypad: public isix::task_base
 {
 	static constexpr unsigned _bv( unsigned x )
@@ -492,11 +492,11 @@ private:
 	static const unsigned TASK_PRIO = 3;
 	gfx::gui::frame& m_frm;
 };
-/* ------------------------------------------------------------------ */
+ 
 
 }	//namespace app end
 
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {
@@ -515,5 +515,5 @@ int main()
 	isix::start_scheduler();
 }
 
-/* ------------------------------------------------------------------ */
+ 
 

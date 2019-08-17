@@ -1,25 +1,25 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * nokia_display.hpp
  * Nokia N3310 display class header
  *  Created on: 2010-01-03
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #ifndef NOKIA_DISPLAY_HPP_
 #define NOKIA_DISPLAY_HPP_
-/* ------------------------------------------------------------------ */
+ 
 //Forward declaration
 namespace images
 {
 	struct img_def;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Application namespace
 namespace app
 {
-/* ------------------------------------------------------------------ */
+ 
 //Nokia display class
 class nokia_display
 {
@@ -46,7 +46,7 @@ private:
 	void busy_delay(unsigned delay);
 };
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 #endif /* NOKIA_DISPLAY_HPP_ */

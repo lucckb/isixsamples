@@ -4,18 +4,18 @@
  *  Created on: 18-09-2010
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include <isix.h>
 #include <stm32lib.h>
 #include <stm32system.h>
 #include <isix/arch/irq.h>
 #include "config.h"
-/* ------------------------------------------------------------------ */
+ 
 //! Configure ADC prescaler to 8
 #define RCC_CFGR_ADCPRE_8 (3<<14)
 //! HSE oscilator control
 #define RCC_CR_HSI_ON  (1<<0)
-/* ------------------------------------------------------------------ */
+ 
 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
@@ -61,7 +61,7 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -77,4 +77,4 @@ void _external_startup(void)
 
 }
 
-/* ------------------------------------------------------------------ */
+ 

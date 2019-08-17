@@ -1,19 +1,19 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * blinker.cpp
  * The blinker class (Blink LED1 on the STM32 butterfly)
  *  Created on: 2010-01-02
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "blinker.hpp"
 #include <stm32lib.h>
 #include <stm32gpio.h>
 #include <isix.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace app	//App namespace
 {
-/* ------------------------------------------------------------------ */
+ 
 //Unnamed namespace
 namespace
 {
@@ -22,7 +22,7 @@ namespace
 	const unsigned BLINK_TIME = 500;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Default constructor, construct base object
 ledblink::ledblink()
 {
@@ -34,7 +34,7 @@ ledblink::ledblink()
 }
 
 
-/* ------------------------------------------------------------------ */
+ 
 //Main task/thread function
 void ledblink::main() noexcept
 {
@@ -49,6 +49,6 @@ void ledblink::main() noexcept
 		isix::wait_ms( BLINK_TIME );
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 

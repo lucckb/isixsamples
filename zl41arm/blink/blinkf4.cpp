@@ -11,16 +11,16 @@
 #include <stm32dma.h>
 #include <stm32pwr.h>
 #include <isix/arch/irq.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace {
-/* ------------------------------------------------------------------ */
+ 
 
 //Number of isix threads
 const unsigned ISIX_NUM_PRIORITIES = 4;
 //SysTimer values
 const unsigned MHZ = 1000000;
 
-/* ------------------------------------------------------------------ */
+ 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -38,11 +38,11 @@ void uc_periph_setup()
 #endif
 }
 
-/* ------------------------------------------------------------------ */
+ 
 extern "C"
 {
 
-/* ------------------------------------------------------------------ */
+ 
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -58,16 +58,16 @@ void _external_startup(void)
 	isix::init(config::HCLK_HZ);
 
 }
-/* ------------------------------------------------------------------ */
+ 
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 class ledblink: public isix::task_base
 {
 public:
@@ -105,7 +105,7 @@ private:
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
-/* ------------------------------------------------------------------ */
+ 
 
 class ledkey: public isix::task_base
 {
@@ -132,10 +132,10 @@ private:
 		static const unsigned TASK_PRIO = 3;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 
 }	//namespace app end
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {
@@ -150,5 +150,5 @@ int main()
 	isix::start_scheduler();
 }
 
-/* ------------------------------------------------------------------ */
+ 
 

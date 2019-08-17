@@ -1,4 +1,4 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * i2c_host.cpp
  * This is the class provides i2c support into the isix environment
@@ -11,10 +11,10 @@
 #include <stm32system.h>
 #include <cstring>
 
-/* ------------------------------------------------------------------ */
+ 
 namespace dev
 {
-/* ------------------------------------------------------------------ */
+ 
 //Global private data. Irqs handlers are always global C linkage fun
 namespace
 {
@@ -77,7 +77,7 @@ namespace {
 }
 
 
-/* ------------------------------------------------------------------ */
+ 
 i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 		i2c(_i2c), sem_lock(1,1),sem_irq(0,1),err_flag(0)
 {
@@ -139,7 +139,7 @@ i2c_host::i2c_host(I2C_TypeDef * const _i2c, unsigned clk_speed):
 	 nvic_irq_enable(I2C1_ER_IRQn,true);
 }
 
-/* ------------------------------------------------------------------ */
+ 
 void i2c_host::set_speed(unsigned speed)
 {
 	 /* Disable the selected I2C peripheral to configure TRISE */
@@ -193,7 +193,7 @@ void i2c_host::set_speed(unsigned speed)
 
 }
 
-/* ------------------------------------------------------------------ */
+ 
 int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, void* rbuffer, short rsize)
 {
 	int ret;
@@ -253,7 +253,7 @@ int i2c_host::i2c_transfer_7bit(uint8_t addr, const void* wbuffer, short wsize, 
 }
 
 
-/* ------------------------------------------------------------------ */
+ 
 //I2c interrupt handler
 void i2c_host::isr()
 {
@@ -328,7 +328,7 @@ void i2c_host::isr()
 	break;
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 //I2c error interrupt handler
 void i2c_host::isr_er()
 {
@@ -343,7 +343,7 @@ void i2c_host::isr_er()
 	sem_irq.signal_isr();
     }	
 }
-/* ------------------------------------------------------------------ */
+ 
 //Translate hardware error to the error code
 int i2c_host::get_hwerror()
 {
@@ -367,7 +367,7 @@ int i2c_host::get_hwerror()
 	return 0;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 
 //Call to the global c function
 extern "C"
@@ -378,15 +378,15 @@ void i2c1_ev_isr_vector(void)
 {
 	if(i2c1_obj) i2c1_obj->isr();
 }
-/* ------------------------------------------------------------------ */
+ 
 /* Irq handler */
 void i2c1_er_isr_vector(void) __attribute__ ((interrupt));
 void i2c1_er_isr_vector(void)
 {
 	if(i2c1_obj) i2c1_obj->isr_er();
 }
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 

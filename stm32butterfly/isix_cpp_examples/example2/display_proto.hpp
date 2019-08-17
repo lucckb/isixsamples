@@ -1,25 +1,25 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * display_proto.hpp
  * The display protocol class implements the base msg classes
  *  Created on: 2010-01-09
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #ifndef DISPLAY_PROTO_HPP_
 #define DISPLAY_PROTO_HPP_
-/* ------------------------------------------------------------------ */
+ 
 //Forward declaration
 namespace images
 {
 	struct img_def;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //App namespace
 namespace app
 {
-/* ------------------------------------------------------------------ */
+ 
 //The base class display message
 class display_msg
 {
@@ -40,7 +40,7 @@ private:
 	msg_type msg;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 //Text message class
 class text_msg : public display_msg
 {
@@ -85,7 +85,7 @@ private:
 	short xpos;
 	short ypos;
 };
-/* ------------------------------------------------------------------ */
+ 
 //Graphics message class
 class graph_msg : public display_msg
 {
@@ -104,9 +104,9 @@ private:
 	const images::img_def *img;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 }
 
-/* ------------------------------------------------------------------ */
+ 
 #endif /* DISPLAY_PROTO_HPP_ */
-/* ------------------------------------------------------------------ */
+ 

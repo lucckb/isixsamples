@@ -1,24 +1,24 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * i2c_host.hpp
  *	This is the class provides i2c support into the isix environment
  *  Created on: 2010-01-20
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #ifndef I2C_HOST_HPP_
 #define I2C_HOST_HPP_
-/* ------------------------------------------------------------------ */
+ 
 #include <stm32system.h>
 #include <stm32lib.h>
 #include <stdint.h>
 #include <cstddef>
 #include <isix.h>
 
-/* ------------------------------------------------------------------ */
+ 
 namespace dev
 {
-/* ------------------------------------------------------------------ */
+ 
 
 //ISR funcs decls
 extern "C" {
@@ -26,7 +26,7 @@ void i2c1_ev_isr_vector(void) __attribute__ ((interrupt));
 void i2c1_er_isr_vector(void) __attribute__ ((interrupt));
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //I2c host class
 class i2c_host
 {
@@ -158,9 +158,9 @@ private:	//Noncopyable
 	i2c_host(i2c_host &);
 	i2c_host& operator=(const i2c_host&);
 };
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 #endif /* I2C_HOST_HPP_ */
 
-/* ------------------------------------------------------------------ */
+ 

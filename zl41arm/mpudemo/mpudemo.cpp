@@ -13,9 +13,9 @@
 #include <stm32pwr.h>
 #include <stm32crashinfo.h>
 #include <isix/arch/irq.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace {
-/* ------------------------------------------------------------------ */
+ 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -33,7 +33,7 @@ void uc_periph_setup()
 #endif
 }
 
-/* ------------------------------------------------------------------ */
+ 
 extern "C"
 {
 	//Crash info interrupt handler
@@ -47,7 +47,7 @@ extern "C"
 		fnd::tiny_printf("ISIX_PANIC %s:%i %s\r\n", file, line, msg );
 	}
 
-/* ------------------------------------------------------------------ */
+ 
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -63,16 +63,16 @@ void _external_startup(void)
 	isix::init(config::HCLK_HZ);
 
 }
-/* ------------------------------------------------------------------ */
+ 
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 class ledblink: public isix::task_base
 {
 public:
@@ -107,7 +107,7 @@ private:
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
-/* ------------------------------------------------------------------ */
+ 
 
 class mpu_demo: public isix::task_base
 {
@@ -168,10 +168,10 @@ protected:
 		bool p_stk { true };
 };
 
-/* ------------------------------------------------------------------ */
+ 
 
 }	//namespace app end
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {
@@ -186,5 +186,5 @@ int main()
 	isix::start_scheduler();
 }
 
-/* ------------------------------------------------------------------ */
+ 
 

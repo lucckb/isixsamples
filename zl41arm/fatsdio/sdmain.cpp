@@ -22,11 +22,11 @@
 #include <mmc/mmc_card.hpp>
 #include <foundation/tiny_printf.h>
 #include <isix/arch/irq.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace {
 
 
-/* ------------------------------------------------------------------ */
+ 
 /** Cortex stm32 System setup
  * Clock and flash configuration for selected rate
  */
@@ -40,11 +40,11 @@ void uc_periph_setup()
     SCB->VTOR = NVIC_VectTab_FLASH;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 extern "C"
 {
 
-/* ------------------------------------------------------------------ */
+ 
 //! This function is called just before call global constructors
 void _external_startup(void)
 {
@@ -60,16 +60,16 @@ void _external_startup(void)
 	isix::init(config::HCLK_HZ);
 
 }
-/* ------------------------------------------------------------------ */
+ 
 } /* extern C */
 
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 
 namespace app
 {
 
-/* ------------------------------------------------------------------ */
+ 
 class ledblink: public isix::task_base
 {
 public:
@@ -105,7 +105,7 @@ private:
 	static const unsigned BLINK_TIME = 500;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 class stm32_gpio : public drv::mmc::immc_det_pin
 {
 public:
@@ -121,7 +121,7 @@ public:
 	}
 };
 
-/* ------------------------------------------------------------------ */
+ 
 class fat_test: public isix::task_base
 {
 public:
@@ -197,7 +197,7 @@ private:
 		drv::mmc::mmc_slot m_slot;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 
 class mmc_host_tester : public isix::task_base
 {
@@ -299,10 +299,10 @@ private:
 		drv::mmc::mmc_slot m_slot;
 };
 
-/* ------------------------------------------------------------------ */
+ 
 
 }	//namespace app end
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {
@@ -319,5 +319,5 @@ int main()
 	isix::start_scheduler();
 }
 
-/* ------------------------------------------------------------------ */
+ 
 

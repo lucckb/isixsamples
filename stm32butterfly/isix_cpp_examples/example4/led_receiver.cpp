@@ -1,19 +1,19 @@
-/* ------------------------------------------------------------------ */
+ 
 /*
  * blinker.cpp
  * The Led receiver class (Blink LED1 on the STM32 butterfly)
  *  Created on: 2010-01-02
  *      Author: lucck
  */
-/* ------------------------------------------------------------------ */
+ 
 #include "led_receiver.hpp"
 #include <isixdrv/usart_buffered.hpp>
 #include <stm32lib.h>
 #include <isix.h>
-/* ------------------------------------------------------------------ */
+ 
 namespace app	//App namespace
 {
-/* ------------------------------------------------------------------ */
+ 
 //Unnamed namespace
 namespace
 {
@@ -23,7 +23,7 @@ namespace
 	const unsigned BLINK_TIME = 500;
 }
 
-/* ------------------------------------------------------------------ */
+ 
 //Default constructor, construct base object
 led_receiver::led_receiver(stm32::dev::usart_buffered &_serial)
 	: serial(_serial)
@@ -38,7 +38,7 @@ led_receiver::led_receiver(stm32::dev::usart_buffered &_serial)
 }
 
 
-/* ------------------------------------------------------------------ */
+ 
 //Main task/thread function
 void led_receiver::main() noexcept
 {
@@ -75,6 +75,6 @@ void led_receiver::main() noexcept
 		}
 	}
 }
-/* ------------------------------------------------------------------ */
+ 
 }
-/* ------------------------------------------------------------------ */
+ 

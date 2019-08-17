@@ -22,7 +22,7 @@
 #include <cmath>
 #include <climits>
 #include <cstring>
-/* ------------------------------------------------------------------ */
+ 
 namespace {
 //Generate sine wave
 void dac_gen( void* ) 
@@ -57,9 +57,9 @@ void dac_gen( void* )
 		}
 	}
 }
-/* ------------------------------------------------------------------ */ 
+  
 }
-/* ------------------------------------------------------------------ */
+ 
 //! Main core function tester
 int main() {
 

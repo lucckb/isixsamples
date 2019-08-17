@@ -15,7 +15,7 @@
 #include <usb/drivers/hostdev/hid_joystick.h>
 #include <algorithm>
 #include "blinker.hpp"
-/* ------------------------------------------------------------------ */
+ 
 //Anonymous namespace for special keyboard handler
 namespace {
 	void  kbd_connected( const usbh_keyb_hid_context_t* id ) {
@@ -42,7 +42,7 @@ namespace {
 		kbd_desc
 	};
 }
-/* ------------------------------------------------------------------ */ 
+  
 namespace {
 	void joy_connected( const usbh_hid_joy_context_t* id ) {
 		dbprintf("Joy ID %p, connected, " , id);
@@ -90,7 +90,7 @@ namespace {
 		joy_desc,
 	};
 }
-/* ------------------------------------------------------------------ */
+ 
 //App main entry point
 int main()
 {
@@ -110,5 +110,5 @@ int main()
 	dbprintf("Scheduler exit");
 }
 
-/* ------------------------------------------------------------------ */
+ 
 
