@@ -1,16 +1,18 @@
 #include <config/conf.h>
+#include <isix.h>
 #include <foundation/sys/dbglog.h>
 #include <periph/drivers/serial/uart_early.hpp>
 #include <periph/gpio/gpio.hpp>
-#include <isix.h>
+#include <gfx/gui/label.hpp>
+
+
 
 namespace {
     constexpr auto led_0 = periph::gpio::num::PD5;
 }
 
 namespace {
-	static void
-	sdram_memtest(void)
+	void sdram_memtest(void)
 	{
 		const auto addr = reinterpret_cast<volatile uint32_t*>(0xc0000000);
 		constexpr auto mem_siz = 4U * 1024U * 1024U;

@@ -10,6 +10,7 @@ _prjs = [
 
 #Additional extra libraries
 _libs = [
+     './isixrtos/libgfx',
     'stm32f469i_disco/board'
 ]
 

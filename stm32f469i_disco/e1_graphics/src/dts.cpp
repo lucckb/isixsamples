@@ -1,8 +1,8 @@
-#include <cmath>
 #include <periph/dt/dts.hpp>
 #include <periph/gpio/gpio_numbers.hpp>
 #include <periph/dt/dts_config.hpp>
 #include <periph/memory/sdram_dtypes.hpp>
+#include <periph/drivers/display/rgb/display_config.hpp>
 #include <isix/arch/irq.h>
 #include <stm32_ll_usart.h>
 #include <stm32_ll_gpio.h>
@@ -127,21 +127,55 @@ namespace {
 		.bank2 = {},
 	};
 
+	//! LCD pins
+	constexpr pin lcd_pins[] {
+		{ pinfunc::dsi_te, gpio::num::PJ2 },
+		{ pinfunc::dsi_reset, gpio::num::PH7 },
+		{}
+	};
+	
+	constexpr display::layer_info disp_layer0 {
+		.width = 480,
+		.height = 800,
+		.hsync = 120,
+		.vsync = 12,
+		.vfp = 12,
+		.hfp = 120,
+		.vbp = 12,
+		.hbp = 120,
+		.bpp = 24,
+		.base = 0xc000'0000,
+	};
+
+
+	constexpr display::fb_info fb_info {
+		{},
+		 &disp_layer0, 1
+	};
+
+
 	constexpr device devices[]
 	{
 		{
-			"serial0", reinterpret_cast<uintptr_t>(USART3),
+			"serial0", USART3_BASE,
 			bus::apb1, LL_GPIO_AF_7,
-			unsigned(std::log2(LL_APB1_GRP1_PERIPH_USART3)),
+			RCC_APB1ENR_USART3EN_Pos,
 			ser0_pins,
 			nullptr
 		},
 		{
 			"sdram", 0,
 			bus::ahb3, LL_GPIO_AF_12,
-			unsigned(std::log2(LL_AHB3_GRP1_PERIPH_FMC)),
+			RCC_AHB3ENR_FMCEN_Pos,
 			sdram_pins,
 			&sdram_conf
+		},
+		{
+			"dsi", DSI_BASE,
+			bus::apb2, LL_GPIO_AF_13,
+			RCC_APB2ENR_DSIEN_Pos,
+			lcd_pins,
+			&fb_info
 		},
 		{}
 	};

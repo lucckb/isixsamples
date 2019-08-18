@@ -45,7 +45,53 @@
 			"tuple": "cpp",
 			"typeinfo": "cpp",
 			"utility": "cpp",
-			"variant": "cpp"
-		}
+			"variant": "cpp",
+			"*.ipp": "cpp",
+			"regex": "cpp",
+			"csignal": "cpp",
+			"cstdarg": "cpp",
+			"ctime": "cpp",
+			"hash_map": "cpp",
+			"hash_set": "cpp",
+			"strstream": "cpp",
+			"bitset": "cpp",
+			"chrono": "cpp",
+			"cinttypes": "cpp",
+			"codecvt": "cpp",
+			"condition_variable": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"map": "cpp",
+			"set": "cpp",
+			"unordered_set": "cpp",
+			"algorithm": "cpp",
+			"iterator": "cpp",
+			"memory_resource": "cpp",
+			"netfwd": "cpp",
+			"numeric": "cpp",
+			"random": "cpp",
+			"ratio": "cpp",
+			"future": "cpp",
+			"iomanip": "cpp",
+			"iostream": "cpp",
+			"mutex": "cpp",
+			"thread": "cpp",
+			"cfenv": "cpp",
+			"typeindex": "cpp",
+			"valarray": "cpp"
+		},
+		"C_Cpp.default.cppStandard": "c++17",
+		"C_Cpp.default.cStandard": "c11",
+		"C_Cpp.default.intelliSenseMode": "gcc-x86",
+		"C_Cpp.loggingLevel": "Error",
+		"clang.cxxflags": [
+			"-std=c++17",
+			"-Wno-pragma-once-outside-header",
+			"-m32"
+		],
+		"clang.cflags": [
+			"-std=c11",
+			"-m32"
+		]
 	}
 }
