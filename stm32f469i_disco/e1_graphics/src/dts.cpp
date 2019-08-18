@@ -177,6 +177,13 @@ namespace {
 			lcd_pins,
 			&fb_info
 		},
+		{
+			"ltdc", LTDC_BASE,
+			bus::apb2, 0,
+			RCC_APB2ENR_LTDCEN_Pos,
+			{},
+			&fb_info
+		},
 		{}
 	};
 }
