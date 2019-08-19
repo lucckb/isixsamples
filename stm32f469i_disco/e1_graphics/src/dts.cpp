@@ -184,6 +184,12 @@ namespace {
 			{},
 			&fb_info
 		},
+		{
+			"display", 0,
+			bus::unspec, 0, 0,
+			{},
+			nullptr
+		},
 		{}
 	};
 }

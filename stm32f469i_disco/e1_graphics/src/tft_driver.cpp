@@ -3,7 +3,7 @@
 #include <foundation/sys/dbglog.h>
 #include <periph/drivers/serial/uart_early.hpp>
 #include <periph/gpio/gpio.hpp>
-#include <gfx/gui/label.hpp>
+#include <gfx/drivers/disp/dsi_fb.hpp>
 
 
 
@@ -43,11 +43,18 @@ namespace {
 			dbprintf("sdram test completed OK");
 	}
 
+	void gdi_tester() {
+		//gfx::drv::dsi_fb disp { 0 };
+		//disp.power_ctl( gfx::drv::power_ctl_t::on);
+		//disp.clear(gfx::color::White);
+	}
+
 }
 
 namespace app {
     void test_thread(void*) {
 		sdram_memtest();
+		gdi_tester();
         for(int i=0;;++i) {
             isix::wait_ms(500);
             if(i%2==0) {
