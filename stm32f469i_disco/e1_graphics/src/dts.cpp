@@ -128,9 +128,15 @@ namespace {
 	};
 
 	//! LCD pins
-	constexpr pin lcd_pins[] {
+	constexpr pin dsi_pins[] {
 		{ pinfunc::dsi_te, gpio::num::PJ2 },
-		{ pinfunc::dsi_reset, gpio::num::PH7 },
+		{}
+	};
+
+	//! LCD pins
+	constexpr pin lcd_pins[] {
+		{ pinfunc::lcd_reset, gpio::num::PH7 },
+		{ pinfunc::lcd_backlight, gpio::num::PA3 },
 		{}
 	};
 	
@@ -174,7 +180,7 @@ namespace {
 			"dsi", DSI_BASE,
 			bus::apb2, LL_GPIO_AF_13,
 			RCC_APB2ENR_DSIEN_Pos,
-			lcd_pins,
+			dsi_pins,
 			&fb_info
 		},
 		{
@@ -187,7 +193,7 @@ namespace {
 		{
 			"display", 0,
 			bus::unspec, 0, 0,
-			{},
+			lcd_pins,
 			nullptr
 		},
 		{}

@@ -31,5 +31,5 @@
 #define CONFIG_ISIX_TASK_STACK_CHECK 1
 //! Define log level for application
 #define CONFIG_FOUNDATION_LOGLEVEL FOUNDATION_DBGLOG_DEBUG
-
-
+//! Gui library configuration
+#define CONFIG_GFX_PIXEL_FORMAT CONFIG_GFX_PIXEL_FORMAT_RGB8

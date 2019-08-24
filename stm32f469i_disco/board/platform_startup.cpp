@@ -76,6 +76,7 @@ bool uc_periph_setup()
 	if(!LL_PWR_IsActiveFlag_ODSW()) {
 		return false;
 	}
+#if 1
 	//Configure PLL
 	LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 180, LL_RCC_PLLP_DIV_2);
 	LL_RCC_PLL_Enable();
@@ -93,8 +94,8 @@ bool uc_periph_setup()
 			break;
 		}
 	}
-	// SAI domain
-	LL_RCC_PLL_ConfigDomain_SAI(LL_RCC_PLLSOURCE_HSE,LL_RCC_PLLM_DIV_7, 192, LL_RCC_PLLR_DIV_4 );
+	// Config domain clock for LCD_TFT`
+    LL_RCC_PLLSAI_ConfigDomain_LTDC(LL_RCC_PLLSOURCE_HSE,LL_RCC_PLLSAIM_DIV_4, 192, LL_RCC_PLLSAIR_DIV_7, LL_RCC_PLLSAIDIVR_DIV_16);
 	LL_RCC_PLLSAI_Enable();
 	for( auto r=0; r<retries; ++r ) {
 		if( LL_RCC_PLLSAI_IsReady() ) {
@@ -106,6 +107,8 @@ bool uc_periph_setup()
 	}
 
 	return  LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_PLL;
+#endif
+	return true;
 }
 
 
