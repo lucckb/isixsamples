@@ -194,7 +194,7 @@ namespace {
 			"display", 0,
 			bus::unspec, 0, 0,
 			lcd_pins,
-			nullptr
+			&fb_info
 		},
 		{}
 	};
