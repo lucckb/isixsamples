@@ -29,7 +29,7 @@
 			"CONFIG_ISIX_USE_TIMERS=1",
 			"HAVE_ISIX_CONFIG_H=1"
              ],
-            "compilerPath": "/usr/bin/arm-none-eabi-g++",
+			"compilerPath": "arm-none-eabi-g++",
 			"compilerArgs": ["-mcpu=cortex-m4", "-mthumb", "-std=gnu++17",
 							  "-mfloat-abi=hard", "-mfpu=fpv4-sp-d16", "-ffast-math", 
 							  "-fsingle-precision-constant", "-Wno-variadic-macros", 

@@ -17,7 +17,7 @@
         {
             "label": "waf build",
             "type": "shell",
-            "command": "python",
+            "command": "python3",
             "args": [
                 "${workspaceFolder}/waf"
             ],
@@ -36,17 +36,18 @@
         {
             "label": "waf clean",
             "type": "shell",
-            "command": "python",
+            "command": "python3",
             "args": [
                 "${workspaceFolder}/waf",
                 "clean"
             ],
-            "group": "build"
+            "group": "build",
+            "problemMatcher": []
         },
         {
             "label": "waf distclean",
             "type": "shell",
-            "command": "python",
+            "command": "python3",
             "args": [
                 " ${workspaceFolder}/waf",
                 "distclean"
@@ -56,7 +57,7 @@
         {
             "label": "waf configure",
             "type": "shell",
-            "command": "python",
+            "command": "python3",
             "args": [
                 "${workspaceFolder}/waf",
                 "configure",
@@ -68,12 +69,13 @@
         {
             "label": "waf program",
             "type": "shell",
-            "command": "python",
+            "command": "python3",
             "args": [
                 "${workspaceFolder}/waf",
                 "program"
             ],
-            "group": "build"
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }
