@@ -3,12 +3,7 @@
 #include <foundation/sys/dbglog.h>
 #include <periph/drivers/serial/uart_early.hpp>
 #include <periph/gpio/gpio.hpp>
-#include <gfx/drivers/disp/dsi_fb.hpp>
-#include <periph/drivers/display/bus/dsi.hpp>
-#include <periph/drivers/display/rgb/fbdev.hpp>
-#include <periph/drivers/display/rgb/otm8009a.hpp>
-#include <stm32_ll_rcc.h>
-#include <stm32_ll_bus.h>
+#include "tft_livedemo.hpp"
 
 
 
@@ -54,27 +49,6 @@ namespace {
 			dbprintf("Write speed %i kb/s Read speed %i kb/s", wr_kbs,rd_kbs);
 		}
 	}
-
-	void gdi_tester() {
-		periph::display::bus::dsi dsi { "dsi" };
-		periph::display::fbdev fb { "ltdc" };
-		periph::display::otm8009a displl {dsi, "display"};
-		gfx::drv::dsi_fb disp { fb,displl };
-		disp.power_ctl( gfx::drv::power_ctl_t::on);
-		disp.backlight(100);
-		disp.clear(gfx::color::Black);
-		disp.set_pixel(100,100,gfx::color::Red);
-		auto cv = disp.get_pixel(100,100);
-		dbprintf("Col %x %x",cv,gfx::color::Red);
-		disp.set_pixel(101,100,gfx::color::Green);
-		cv = disp.get_pixel(101,100);
-		dbprintf("Col %x %x",cv,gfx::color::Green);
-		disp.set_pixel(102,100,gfx::color::Blue);
-		cv = disp.get_pixel(102,100);
-		dbprintf("Col %x %x",cv,gfx::color::Blue);
-		disp.fill(200,200,100,100, gfx::color::Yellow);
-	}
-
 }
 
 extern "C" {
@@ -84,15 +58,12 @@ extern "C" {
 namespace app {
     void test_thread(void*) {
 		sdram_memtest();
-		gdi_tester();
         for(int i=0;;++i) {
             isix::wait_ms(500);
             periph::gpio::set(led_0, i%2);
         }
     }
 }
-
-
 
 auto main() -> int
 {
