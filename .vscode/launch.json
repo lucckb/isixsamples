@@ -26,7 +26,7 @@
                 "filterStderr": true,
                 "filterStdout": false,
             },
-            "linux": {
+            "osx": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb",
                 "miDebuggerServerAddress": "localhost:3333",
