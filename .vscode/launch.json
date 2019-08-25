@@ -26,6 +26,17 @@
                 "filterStderr": true,
                 "filterStdout": false,
             },
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "arm-none-eabi-gdb",
+                "miDebuggerServerAddress": "localhost:3333",
+                "debugServerPath": "openocd",
+                "debugServerArgs": "-c \"set ISIX_INTERFACE stlink-v2-1; set ISIX_INTERFACE_TARGET stm32f4x; set ISIX_INTERFACE_SWD 1; set ISIX_INTERFACE_SPEED_KHZ 2000; \" -f ${workspaceFolder}/isixrtos/libperiph/scripts/openocd/jtag.cfg -c \"init; sleep 100; reset halt;\"",
+                "serverLaunchTimeout": 20000,
+                "serverStarted": "stm32f4x.cpu: hardware has 6 breakpoints, 4 watchpoints",
+                "filterStderr": true,
+                "filterStdout": false,
+            },
             "osx": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb",
@@ -37,7 +48,6 @@
                 "filterStderr": true,
                 "filterStdout": false,
             },
-
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
