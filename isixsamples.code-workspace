@@ -79,7 +79,8 @@
 			"cfenv": "cpp",
 			"typeindex": "cpp",
 			"valarray": "cpp",
-			"stm32f4.h": "c"
+			"stm32f4.h": "c",
+			"tlsf_config.h": "c"
 		},
 		
 	}
