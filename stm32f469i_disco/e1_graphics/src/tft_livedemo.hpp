@@ -15,16 +15,21 @@
 #include <periph/drivers/display/rgb/fbdev.hpp>
 #include <periph/drivers/display/rgb/otm8009a.hpp>
 #include <periph/drivers/display/bus/dsi.hpp>
+#include <isix/thread.hpp>
 
 namespace app {
 
 class tft_livedemo
-{
+{	
+    static const unsigned STACK_SIZE = 2048;
+	static const unsigned TASK_PRIO = 3;
 public:
     //Constructor
     tft_livedemo(tft_livedemo&)=delete;
     tft_livedemo& operator=(tft_livedemo&)=delete;
     tft_livedemo();
+    //Start the first task
+    void start() noexcept;
 private:
     //! Main thread
     void thread() noexcept;
@@ -45,9 +50,10 @@ private:
     periph::display::fbdev m_fb { "ltdc" };
     periph::display::otm8009a displl {m_dsi, "display"};
     gfx::drv::dsi_fb m_disp { m_fb,displl };
-    gfx::gui::frame frame;
+    gfx::gui::frame frame { m_disp };
 	gfx::gui::editbox* m_edit {};
 	bool m_edit_mode = false;
+    isix::thread m_thr;
 };
 
 }

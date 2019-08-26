@@ -51,9 +51,6 @@ namespace {
 	}
 }
 
-extern "C" {
-	void app_init();
-}
 
 namespace app {
     void test_thread(void*) {
@@ -91,6 +88,8 @@ auto main() -> int
         }
     );
 	isix::task_create( ::app::test_thread, nullptr, 1536, isix::get_min_priority() );
+	static app::tft_livedemo demo;
+	demo.start();
     dbprintf("<<<< Hello STM32F411E-DISCO TFT-DEMO >>>>");
 	isix::start_scheduler();
 	return 0;

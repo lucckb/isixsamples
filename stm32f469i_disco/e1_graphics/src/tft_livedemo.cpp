@@ -10,8 +10,24 @@
  */
 #include "tft_livedemo.hpp"
 #include <foundation/sys/dbglog.h>
+#include <functional>
+#include <isix.h>
 
 namespace app {
+
+
+// Main constructor
+tft_livedemo::tft_livedemo()
+    : m_thr(isix::thread_create(
+        std::bind(&tft_livedemo::thread,std::ref(*this))))
+{
+}
+
+//! Start the thread
+void tft_livedemo::start() noexcept
+{
+    m_thr.start_thread(STACK_SIZE,TASK_PRIO);
+}
 
 //A window calllback for select item
 bool tft_livedemo::window_callback(const gfx::gui::event &ev)
@@ -67,26 +83,7 @@ bool tft_livedemo::on_seek_change( const gfx::gui::event &ev )
 
 void tft_livedemo::thread() noexcept
 {
-	dbg_info("GDI test go");
-#if 0
-		//gdi_test();
-		gdisp.power_ctl( gfx::drv::power_ctl_t::on );
-		gdisp.clear( 0xAAA5 );
-		for(;;) {
-		for( int x=0;x<240;++x )
-		for( int y=0;y<320;++y )
-		{
-			uint16_t pv;
-			pv = gdisp.get_pixel(x,y);
-			if( pv != 0xAAA5 ) {
-				dbg_info("PIXEL VAL %04x", pv );
-			}
-		}
-			dbg_info("OK PIXEL VAL %04x", gdisp.get_pixel(0,0) );
-		}
-#else
-		windows_test();
-#endif
+    windows_test();
 }
 //Base buttons and windows demo
 void tft_livedemo::windows_test()
