@@ -54,7 +54,6 @@ namespace {
 
 namespace app {
     void test_thread(void*) {
-		sdram_memtest();
         for(int i=0;;++i) {
             isix::wait_ms(500);
             periph::gpio::set(led_0, i%2);
@@ -87,6 +86,7 @@ auto main() -> int
             periph::gpio::speed::low
         }
     );
+	sdram_memtest();
 	isix::task_create( ::app::test_thread, nullptr, 1536, isix::get_min_priority() );
 	static app::tft_livedemo demo;
 	demo.start();
