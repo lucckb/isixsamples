@@ -48,11 +48,16 @@ namespace {
 			const auto rd_kbs = ((t3-t2)*(mem_siz/1024))/1000000;
 			dbprintf("Write speed %i kb/s Read speed %i kb/s", wr_kbs,rd_kbs);
 		}
+		//Clear to zero at the end
+		for (auto i=0U; i<mem_siz; i++) {
+			*(addr + i) = 0;
+		}
 	}
 }
 
 
 namespace app {
+	//! Blinking task thread
     void test_thread(void*) {
         for(int i=0;;++i) {
             isix::wait_ms(500);

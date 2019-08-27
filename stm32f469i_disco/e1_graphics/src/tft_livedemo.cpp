@@ -84,6 +84,7 @@ bool tft_livedemo::on_seek_change( const gfx::gui::event &ev )
 void tft_livedemo::thread() noexcept
 {
     windows_test();
+    //gdi_test();
 }
 //Base buttons and windows demo
 void tft_livedemo::windows_test()
@@ -101,17 +102,27 @@ void tft_livedemo::windows_test()
             { 7, "linia 7" },
             { 8, "linia 8" },
             { 9, "linia 9" },
-            { 9, "linia 10" },
-            { 9, "linia 11" },
+            { 10, "linia 10" },
+            { 11, "linia 11" },
+            { 12, "linia 12" },
+            { 13, "linia 13" },
+            { 14, "linia 14" },
+            { 15, "linia 15" },
+            { 16, "linia 16" },
+            { 17, "linia 17" },
+            { 18, "linia 18" },
+            { 19, "linia 19" },
+            { 20, "linia 20" },
             choice_menu::end	//Termination
     };
 
     m_disp.power_ctl( power_ctl_t::on );
-    window win( rectangle( 10, 10, 200, 300), frame, window::flags::border |window::flags::selectborder );
-    button btn( rectangle(20, 20, 100 , 40), layout(), win );
-    choice_menu choice1( rectangle(20, 147, 178, 120), layout(), win, choice_menu::style::normal );
-    seekbar seek( rectangle(20, 65, 160 , 20), layout(), win );
-    editbox edit( rectangle(20, 110, 160 , 30), layout(), win );
+    window win( rectangle( 10, 10, m_disp.get_width()-20, m_disp.get_height()-20),
+            frame, window::flags::border |window::flags::selectborder );
+    button btn( rectangle(80, 20, 300 , 40), layout(), win );
+    choice_menu choice1( rectangle(80, 147, 300, 250), layout(), win, choice_menu::style::normal );
+    seekbar seek( rectangle(80, 65, 300 , 20), layout(), win );
+    editbox edit( rectangle(80, 110, 300 , 30), layout(), win );
     edit.readonly(true);
     m_edit = &edit;
     seek.value( 50 );
