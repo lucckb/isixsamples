@@ -16,11 +16,13 @@
 #include <periph/drivers/display/rgb/otm8009a.hpp>
 #include <periph/drivers/display/bus/dsi.hpp>
 #include <isix/thread.hpp>
+#include <gfx/drivers/input/ft6x06_touch.hpp>
+#include <periph/drivers/i2c/i2c_master.hpp>
 
 namespace app {
 
 class tft_livedemo
-{	
+{
     static const unsigned STACK_SIZE = 2048;
 	static const unsigned TASK_PRIO = 3;
 public:
@@ -45,6 +47,8 @@ private:
 	bool on_select_item( const gfx::gui::event &ev );
     //On seek change
 	bool on_seek_change( const gfx::gui::event &ev );
+    //! Setup i2c bus
+    int setup_i2c_bus() noexcept;
 private:
     periph::display::bus::dsi m_dsi { "dsi" };
     periph::display::fbdev m_fb { "ltdc" };
@@ -53,6 +57,8 @@ private:
     gfx::gui::frame frame { m_disp };
 	gfx::gui::editbox* m_edit {};
 	bool m_edit_mode = false;
+    periph::drivers::i2c_master m_i2c { "i2c1" };
+    gfx::drv::ft6x06_touch m_touch { m_i2c, frame };
     isix::thread m_thr;
 };
 

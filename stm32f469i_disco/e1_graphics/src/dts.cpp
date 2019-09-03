@@ -159,6 +159,21 @@ namespace {
 		 &disp_layer0, 1
 	};
 
+	//SPI controller
+	constexpr pin i2c1_pins[] {
+		{ pinfunc::scl, gpio::num::PB8 },	//SCK pin
+		{ pinfunc::sda, gpio::num::PB9 },	//SCL pin
+		{}
+	};
+
+	constexpr device_conf i2c1_conf {
+		{},
+		I2C1_EV_IRQn,
+		1,7,					//! IRQ prio subprio
+		//device_conf::fl_dma		//! Use DMA transfer
+		0
+	};
+
 
 	constexpr device devices[]
 	{
@@ -195,6 +210,13 @@ namespace {
 			bus::unspec, 0, 0,
 			lcd_pins,
 			&fb_info
+		},
+		{
+			"i2c1", reinterpret_cast<uintptr_t>(I2C1),
+			bus::apb1, LL_GPIO_AF_4,
+			RCC_APB1ENR_I2C1EN_Pos,
+			i2c1_pins,
+			&i2c1_conf
 		},
 		{}
 	};

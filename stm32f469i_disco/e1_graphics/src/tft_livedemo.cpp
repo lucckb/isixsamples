@@ -18,8 +18,7 @@ namespace app {
 
 // Main constructor
 tft_livedemo::tft_livedemo()
-    : m_thr(isix::thread_create(
-        std::bind(&tft_livedemo::thread,std::ref(*this))))
+    : m_thr(isix::thread_create( std::bind(&tft_livedemo::thread,std::ref(*this))))
 {
 }
 
@@ -27,6 +26,26 @@ tft_livedemo::tft_livedemo()
 void tft_livedemo::start() noexcept
 {
     m_thr.start_thread(STACK_SIZE,TASK_PRIO);
+}
+
+//! Setup i2c bus
+int tft_livedemo::setup_i2c_bus() noexcept
+{
+    int ret {};
+    do {
+        //Open with timeout
+        ret = m_i2c.open(1000);
+        if(ret) {
+            dbg_err("Unable to open i2cdev %i", ret);
+            break;
+        }
+        ret = m_i2c.set_option(periph::option::speed(400'000));
+        if(ret) {
+            dbg_err("Unbable to set speed option");
+            break;
+        }
+    } while(0);
+    return ret;
 }
 
 //A window calllback for select item
@@ -83,6 +102,12 @@ bool tft_livedemo::on_seek_change( const gfx::gui::event &ev )
 
 void tft_livedemo::thread() noexcept
 {
+    if(setup_i2c_bus()) {
+        return;
+    }
+    //Start touch screen only when init is ok
+    m_touch.start();
+    // Start the demo
     windows_test();
     //gdi_test();
 }
