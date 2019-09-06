@@ -58,7 +58,7 @@ private:
 	gfx::gui::editbox* m_edit {};
 	bool m_edit_mode = false;
     periph::drivers::i2c_master m_i2c { "i2c1" };
-    gfx::drv::ft6x06_touch m_touch { m_i2c, frame };
+    gfx::drv::ft6x06_touch m_touch { "display", m_i2c, frame };
     isix::thread m_thr;
 };
 

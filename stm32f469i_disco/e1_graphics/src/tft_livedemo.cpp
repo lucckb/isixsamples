@@ -39,7 +39,7 @@ int tft_livedemo::setup_i2c_bus() noexcept
             dbg_err("Unable to open i2cdev %i", ret);
             break;
         }
-        ret = m_i2c.set_option(periph::option::speed(400'000));
+        ret = m_i2c.set_option(periph::option::speed(350'000));
         if(ret) {
             dbg_err("Unbable to set speed option");
             break;
