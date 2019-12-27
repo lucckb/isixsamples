@@ -52,10 +52,11 @@ int tft_livedemo::setup_i2c_bus() noexcept
 bool tft_livedemo::window_callback(const gfx::gui::event &ev)
 {
     using namespace gfx::input;
+    using namespace gfx::gui;
     bool ret{};
-    if (ev.keyb.stat == detail::keyboard_tag::status::DOWN)
+    auto win = static_cast<gfx::gui::window *>(ev.sender);
+    if (ev.type==event::evtype::EV_KEY && ev.keyb.stat == gfx::input::detail::keyboard_tag::status::DOWN)
     {
-        auto win = static_cast<gfx::gui::window *>(ev.sender);
         if (ev.keyb.key == kbdcodes::os_arrow_left && !m_edit_mode)
         {
             win->select_prev();
@@ -72,6 +73,10 @@ bool tft_livedemo::window_callback(const gfx::gui::event &ev)
             m_edit->readonly(!m_edit_mode);
             dbg_info("Toggle edit mode %i", m_edit_mode);
         }
+    }
+    //Handle touch screen by selection
+    if(ev.type==event::evtype::EV_TOUCH && ev.touch.eventid==touchevents::press_down) {
+        win->select({ev.touch.x, ev.touch.y});
     }
     return ret; //	Need redraw
 }
@@ -156,6 +161,7 @@ void tft_livedemo::windows_test()
     choice1.items( menu1 );
     //Connect windows callback to the main window
     win.connect(std::bind(&tft_livedemo::window_callback,this,std::placeholders::_1), event::evtype::EV_KEY);
+    win.connect(std::bind(&tft_livedemo::window_callback,this,std::placeholders::_1), event::evtype::EV_TOUCH);
     btn.connect(std::bind(&tft_livedemo::on_click,this,std::placeholders::_1),event::evtype::EV_CLICK);
     btn.pushkey( gfx::input::kbdcodes::enter);
     choice1.connect(std::bind(&tft_livedemo::on_select_item,this,std::placeholders::_1),event::evtype::EV_CLICK);
