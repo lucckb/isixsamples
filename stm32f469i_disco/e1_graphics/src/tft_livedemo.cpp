@@ -149,10 +149,10 @@ void tft_livedemo::windows_test()
     m_disp.power_ctl( power_ctl_t::on );
     window win( rectangle( 10, 10, m_disp.get_width()-20, m_disp.get_height()-20),
             frame, window::flags::border |window::flags::selectborder );
-    button btn( rectangle(80, 20, 300 , 40), layout(), win );
-    choice_menu choice1( rectangle(80, 147, 300, 250), layout(), win, choice_menu::style::normal );
-    seekbar seek( rectangle(80, 65, 300 , 20), layout(), win );
-    editbox edit( rectangle(80, 110, 300 , 30), layout(), win );
+    button btn( rectangle(40, 20, 400 , 40), layout(), win );
+    seekbar seek( rectangle(40, 75, 400 , 40), layout(), win );
+    editbox edit( rectangle(40, 150, 400 , 30), layout(), win );
+    choice_menu choice1( rectangle(40, 220, 400, 250), layout(), win, choice_menu::style::normal );
     edit.readonly(true);
     m_edit = &edit;
     seek.value( 50 );
