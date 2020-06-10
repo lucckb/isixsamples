@@ -1,6 +1,6 @@
 #include <isix.h>
 #include <stm32lib.h>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
 #include "config.hpp"
 #include <stm32system.h>
@@ -20,7 +20,7 @@
 #include <mmc/immc_det_pin.hpp>
 #include <mmc/mmc_slot.hpp>
 #include <mmc/mmc_card.hpp>
-#include <foundation/tiny_printf.h>
+#include <foundation/sys/tiny_printf.h>
 #include <isix/arch/irq.h>
  
 namespace {
@@ -83,7 +83,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		while(true)
 		{
@@ -134,7 +134,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		isix::wait_ms( 1000 );
 		static char buf[513];
@@ -251,7 +251,7 @@ private:
 		}
 	}
 protected:
-	virtual void main()
+	virtual void main() noexcept
 	{
 		for(;;)
 		{

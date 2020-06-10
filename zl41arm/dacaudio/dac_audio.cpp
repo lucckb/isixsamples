@@ -26,7 +26,7 @@
 #include <stm32dac.h>
 #include <stm32dma.h>
 #include <stm32system.h>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 
 namespace drv {
 

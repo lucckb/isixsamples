@@ -9,8 +9,9 @@
 #include <isix.h>
 #include "nokia_lcd.h"
 #include "i2c_master.h"
-#include <foundation/foundation.h>
 #include <stm32system.h>
+#include <foundation/sys/dbglog.h>
+#include <foundation/sys/tiny_printf.h>
  
 #define I2C_SPEED 100000			/*I2c speed on the bus */
 #define TEMPSENSOR_I2CADDR 0x90		/*I2c temp sensor addr */

@@ -4,7 +4,7 @@
 #define SI5351_H_
 
 #include <stdint.h>
-#include <foundation/ibus.hpp>
+#include <foundation/drv/bus/ibus.hpp>
 
 /* Define definitions */
 
@@ -243,7 +243,7 @@ struct Si5351IntStatus
 class Si5351
 {
 public:
-	explicit Si5351( fnd::bus::ibus &bus );
+	explicit Si5351( fnd::drv::bus::ibus &bus );
 	void init(uint8_t, uint32_t);
 	uint8_t set_freq(uint64_t, uint64_t, enum si5351_clock);
 	void set_pll(uint64_t, enum si5351_pll);
@@ -284,7 +284,7 @@ private:
 	int32_t ref_correction;
 	uint8_t lock_plla, lock_pllb;
 	uint32_t xtal_freq;
-	fnd::bus::ibus& m_bus;			//! Bus controller
+	fnd::drv::bus::ibus& m_bus;			//! Bus controller
 };
 
 #endif /* SI5351_H_ */

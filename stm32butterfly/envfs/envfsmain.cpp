@@ -1,6 +1,6 @@
 #include <isix.h>
 #include <config.h>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
 #include <stm32system.h>
 #include <isixdrv/i2c_bus.hpp>

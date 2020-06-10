@@ -20,7 +20,7 @@
 #include <stm32gpio.h>
 #include <stm32fsmc.h>
 #include <stm32rcc.h>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 
 
 /** TODO: DMA transfer support 

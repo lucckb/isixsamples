@@ -1,12 +1,12 @@
 
 #include <stdint.h>
 #include <board/si5351.hpp>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 
 
 
 
-Si5351::Si5351( fnd::bus::ibus &bus  )
+Si5351::Si5351( fnd::drv::bus::ibus &bus  )
 	: m_bus( bus )
 {
 	lock_plla = SI5351_CLKNONE;

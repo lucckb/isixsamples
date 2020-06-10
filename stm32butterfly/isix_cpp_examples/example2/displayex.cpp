@@ -11,7 +11,7 @@
 #include <stm32system.h>
 #include "the_application.hpp"
 #include <usart_simple.h>
-#include <foundation/tiny_printf.h>
+#include <foundation/sys/tiny_printf.h>
 #include <isix/arch/irq.h>
 
 namespace {

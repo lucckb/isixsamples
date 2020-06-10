@@ -1,7 +1,7 @@
 #include <isix.h>
 #include <stm32lib.h>
-#include <foundation/dbglog.h>
-#include <foundation/tiny_printf.h>
+#include <foundation/sys/dbglog.h>
+#include <foundation/sys/tiny_printf.h>
 #include <usart_simple.h>
 #include "config.hpp"
 #include <stm32system.h>
@@ -86,7 +86,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		while(true)
 		{
@@ -127,7 +127,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		for(;;)
 		{

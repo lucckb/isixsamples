@@ -1,7 +1,7 @@
 #include <isix.h>
 #include <stm32lib.h>
-#include <foundation/dbglog.h>
-#include <foundation/tiny_printf.h>
+#include <foundation/sys/dbglog.h>
+#include <foundation/sys/tiny_printf.h>
 #include <usart_simple.h>
 #include <config/conf.h>
 #include <stm32system.h>

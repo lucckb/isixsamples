@@ -24,7 +24,7 @@
 #include <mmc/immc_det_pin.hpp>
 #include <mmc/mmc_slot.hpp>
 #include <mmc/mmc_card.hpp>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 
 namespace drv {
 namespace disk {

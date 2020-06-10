@@ -21,12 +21,13 @@
 #include <cstddef>
  
 namespace fnd {
+namespace drv {
 namespace bus {
 	class ibus;
-} }
- 
+} }}
+
 namespace app {
-  
+ 
 struct env {
 	enum _err {
 		err_not_init = -1
@@ -37,7 +38,7 @@ struct env {
  * @param[in] Internal bus
  * @return error code
  */
-void initenv( fnd::bus::ibus& bus );
+void initenv( fnd::drv::bus::ibus& bus );
 
   
 /** Get environment variable

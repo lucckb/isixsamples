@@ -17,10 +17,10 @@
  */
 
 #include <config/conf.h>
-#include <foundation/dbglog.h>
+#include <isix.h>
+#include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
 #include <stm32gpio.h>
-#include <isix.h>
 #include <isixdrv/i2c_bus.hpp>
 #include "tftdemo.hpp"
 #include "app_env.hpp"
@@ -28,7 +28,7 @@
 
 static const auto LED_PORT = GPIOG;
 namespace app {
-	void codec_task( fnd::bus::ibus& bus );
+	void codec_task( fnd::drv::bus::ibus& bus );
 	void stdio_test_task(  );
 namespace tcp {
 	void init();

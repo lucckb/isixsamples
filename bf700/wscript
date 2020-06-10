@@ -19,6 +19,9 @@ import os
 
 # Configure
 def configure( cfg ):
+    # TODO: Migrate to periphlib
+    cfg.define( 'CONFIG_ISIX_USE_OLDPERIPHLIB', 1 )
+    cfg.define('CONFIG_GFX_PIXEL_FORMAT', 1 )
     for lib in _libs:
         cfg.recurse( os.path.join(os.getcwd(),lib) )
     cfg.recurse( _prjs )

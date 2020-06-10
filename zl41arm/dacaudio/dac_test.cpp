@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 #include <isix.h>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
 #include <dac_audio.hpp>
 #include <cmath>

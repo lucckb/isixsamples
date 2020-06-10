@@ -17,8 +17,8 @@
  */
 #include "app_env.hpp"
 #include <memory>
-#include <foundation/i2c_eeprom.hpp>
-#include <foundation/fs_env.hpp>
+#include <foundation/drv/storage/i2c_eeprom.hpp>
+#include <foundation/drv/storage/fs_env.hpp>
 #include <isix.h>
 
   
@@ -32,7 +32,7 @@ namespace {
 namespace app {
   
 //! Init env
-void initenv( fnd::bus::ibus& bus )
+void initenv( fnd::drv::bus::ibus& bus )
 {
 	if( !m_eeprom ) {
 		m_eeprom.reset( new fnd::i2c_eeprom( bus, I2CA_EEPROM , fnd::i2c_eeprom::type::m24c16 ) );

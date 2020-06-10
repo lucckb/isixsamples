@@ -1,6 +1,6 @@
 #include <isix.h>
 #include <stm32lib.h>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 #include <usart_simple.h>
 #include "config.hpp"
 #include <stm32system.h>
@@ -85,7 +85,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
 		volatile float ala_z = 1.0;
 		while(true)
@@ -158,7 +158,7 @@ public:
 	}
 protected:
 	//Main function
-	virtual void main()
+	virtual void main() noexcept
 	{
         fputest_fill_and_add(m_begin);
         for(unsigned it=0;;++it)

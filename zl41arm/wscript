@@ -21,6 +21,7 @@ import os
 
 # Configure
 def configure( cfg ):
+    cfg.define( 'CONFIG_ISIX_USE_OLDPERIPHLIB', 1 )
     for lib in _libs:
         cfg.recurse( os.path.join(os.getcwd(),lib) )
     cfg.recurse( _prjs )

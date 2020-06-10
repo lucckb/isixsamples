@@ -17,7 +17,7 @@
  */
 
 #include "tftdemo.hpp"
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 
 namespace app {
 

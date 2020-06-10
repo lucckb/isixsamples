@@ -17,7 +17,7 @@
  */
 #pragma once
 
-#include <foundation/noncopyable.hpp>
+#include <foundation/algo/noncopyable.hpp>
 #include <mmc/immc_det_pin.hpp>
 #include <mmc/mmc_slot.hpp>
 #include <functional>

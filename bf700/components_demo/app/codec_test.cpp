@@ -17,7 +17,7 @@
  */
 #include <isixdrv/i2c_bus.hpp>
 #include <cstdint>
-#include <foundation/dbglog.h>
+#include <foundation/sys/dbglog.h>
 #include <stm32rcc.h>
 #include <stm32spi.h>
 #include <stm32dma.h>
@@ -79,7 +79,7 @@ namespace {
 		0x001			// Reg 09: Active Control
 	};
 
-	int codec_write_register( fnd::bus::ibus& bus, uint8_t addr, uint16_t val )
+	int codec_write_register( fnd::drv::bus::ibus& bus, uint8_t addr, uint16_t val )
 	{
 		/* Assemble 2-byte data in WM8731 format */
 		const uint8_t arr[2] {
@@ -91,7 +91,7 @@ namespace {
 }
 
 
-int codec_reset(  fnd::bus::ibus& bus  )
+int codec_reset(  fnd::drv::bus::ibus& bus  )
 {
 	auto ret = codec_write_register( bus, 0x0f, 0 );
 	if( ret ) {
@@ -255,7 +255,7 @@ void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_ve
 #endif
 
 
-void codec_task( fnd::bus::ibus& bus )
+void codec_task( fnd::drv::bus::ibus& bus )
 {
 	//Generate sine table
 	for( size_t i=0; i<sin_size; ++i) {
