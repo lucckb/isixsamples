@@ -81,7 +81,10 @@
             "valarray": "cpp",
             "stm32f4.h": "c",
             "tlsf_config.h": "c",
-            "__config": "cpp"
+            "__config": "cpp",
+            "mutex.h": "c",
+            "lock.h": "c",
+            "newlib.h": "c"
         },
 		
 	}
