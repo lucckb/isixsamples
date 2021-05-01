@@ -52,6 +52,7 @@ def configure(cfg):
     cfg.recurse( 'isixrtos' )
     cfg.env.BOARD_TYPE = cfg.options.board
     cfg.recurse( cfg.env.BOARD_TYPE )
+    cfg.load('clang_compilation_database')
 
 #On  build
 def build(bld):
