@@ -116,15 +116,15 @@ namespace {
 	};
 
 	constexpr memory::sdram sdram_conf {
-		{},
-		.sdrtr = 1385,
-		.nrfs = 7,
-		.bank1 = {
+		dt::device_conf_base{},
+		/*.sdrtr =*/ 1385,
+		/*.nrfs =*/ 7,
+		/*.bank1 =*/ {
 			.sdcr = { 1, 1, 2, 0, 3, 1, 2, 1, 0 },
 			.sdtr = { 2, 2, 2, 7, 4, 7, 2 },
 			.sdcmr = { 0 },
 		},
-		.bank2 = {},
+		/*.bank2 =*/ {},
 	};
 
 	//! LCD pins
