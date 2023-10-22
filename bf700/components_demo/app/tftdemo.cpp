@@ -71,11 +71,8 @@ namespace app {
 		dbprintf("Seek event pos %i", b->value());
 		return false;
 	}
-	tft_tester::tft_tester()
-		: gdisp( gbus ), frame(gdisp)
-	{
-		start_thread( STACK_SIZE, TASK_PRIO );
-	}
+	tft_tester::tft_tester() : gdisp( gbus ), frame(gdisp) {}
+
 	void tft_tester::main() noexcept
 	{
 		dbprintf("GDI test go");

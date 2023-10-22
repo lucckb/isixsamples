@@ -117,6 +117,8 @@ int main() {
 			USART1,115200, false, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
 	//The ledkey class
 	static app::tft_tester ft;
+	static isix::thread tester_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::tft_tester::main, &ft);
 	static dev::keypad kp( ft.get_frame() );
 	//I2c bus  temporary for tests
 	//static stm32::drv::i2c_bus m_i2c { stm32::drv::i2c_bus::busid::i2c1_alt , 400000 };
