@@ -56,7 +56,7 @@ void initenv( fnd::bus::ibus& bus );
 int setenv( unsigned env_id, const void* buf, size_t buf_len );
 
 template <typename T> inline int setenv( unsigned env_id, const T& value ) {
-	static_assert( std::is_pod<T>::value, "Only POD type is allowed" );
+	static_assert( std::is_trivial<T>::value, "Only POD type is allowed" );
 	return setenv( env_id, &value, sizeof( T ) );
 }
  
@@ -82,7 +82,7 @@ inline int setenv( unsigned env_id, const std::string& str, size_t max_len ) {
 int getenv( unsigned env_id, void* buf, size_t buf_len );
 
 template <typename T> inline int getenv( unsigned env_id, T& value ) {
-	static_assert( std::is_pod<T>::value, "Only POD type is allowed" );
+	static_assert( std::is_trivial<T>::value, "Only POD type is allowed" );
 	return getenv( env_id, &value, sizeof( T ) );
 }
  
