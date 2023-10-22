@@ -130,10 +130,12 @@ void _external_exit(void)
 
 #ifdef PDEBUG
 //Crash info interrupt handler
-void __attribute__((__interrupt__,naked)) hard_fault_exception_vector(void)
+[[gnu::naked]]
+void hard_fault_exception_vector(void)
 {
 	cm3_hard_hault_regs_dump();
 }
+
 #endif
 
 } /* extern C */

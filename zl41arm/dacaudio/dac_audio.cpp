@@ -238,42 +238,38 @@ int dac_audio::commit_buffer( uint16_t* buf, ostick_t tout )
 	return m_error;
 }
 
-extern "C" {
 	//! Interrupt stream TC
-	__attribute__((interrupt)) void dma1_stream5_isr_vector() 
+extern "C" void dma1_stream5_isr_vector()
+{
+	using namespace stm32;
+	if( g_dac_audio )
 	{
-		using namespace stm32;
-		if( g_dac_audio ) 
+		if( dma_get_flag_status( DAC_DMA_STREAM, DMA_FLAG_TEIF5 ) )
 		{
-			if( dma_get_flag_status( DAC_DMA_STREAM, DMA_FLAG_TEIF5 ) )
-			{
+			g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_0 ) );
+			g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_1 ) );
+			g_dac_audio->transfer_error( dac_audio::err_dma );
+		}
+		else if( dma_get_flag_status( DAC_DMA_STREAM, DMA_FLAG_TCIF5 ) )
+		{
+			auto ptr = g_dac_audio->get_buffer();
+			if( ptr ) {
+				if( dma_get_current_memory_target( DAC_DMA_STREAM ) == 0 ) {
+					//Update DMAR1
+					g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_1 ) );
+					dma_memory_target_config( DAC_DMA_STREAM, ptr, DMA_Memory_1 );
+				} else {
+					//Update DMAR0
+					g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_0 ) );
+					dma_memory_target_config( DAC_DMA_STREAM, ptr, DMA_Memory_0 );
+				}
+			} else {
 				g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_0 ) );
 				g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_1 ) );
-				g_dac_audio->transfer_error( dac_audio::err_dma );
-			}
-			else if( dma_get_flag_status( DAC_DMA_STREAM, DMA_FLAG_TCIF5 ) )
-			{
-				auto ptr = g_dac_audio->get_buffer();
-				if( ptr ) {
-					if( dma_get_current_memory_target( DAC_DMA_STREAM ) == 0 ) {
-						//Update DMAR1
-						g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_1 ) );
-						dma_memory_target_config( DAC_DMA_STREAM, ptr, DMA_Memory_1 );
-					} else {
-						//Update DMAR0
-						g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_0 ) );
-						dma_memory_target_config( DAC_DMA_STREAM, ptr, DMA_Memory_0 );
-					}
-				} else {
-					g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_0 ) );
-					g_dac_audio->free_buffer( dma_get_memory_target( DAC_DMA_STREAM, DMA_Memory_1 ) );
-					g_dac_audio->transfer_error( dac_audio::err_underrun );
-				}
+				g_dac_audio->transfer_error( dac_audio::err_underrun );
 			}
 		}
-		dma_clear_flag( DAC_DMA_STREAM, DMA_FLAG_TCIF5|DMA_FLAG_TEIF5 );
 	}
+	dma_clear_flag( DAC_DMA_STREAM, DMA_FLAG_TCIF5|DMA_FLAG_TEIF5 );
 }
-
 }
-

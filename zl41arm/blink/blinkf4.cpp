@@ -67,21 +67,15 @@ void _external_startup(void)
 namespace app
 {
 
- 
-class ledblink: public isix::task_base
+struct ledblink
 {
-public:
-	//Constructor
 	ledblink() :  LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		gpio_clock_enable( LED_PORT, true);
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
-		start_thread( STACK_SIZE, TASK_PRIO);
 	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	void main() noexcept
 	{
 		volatile float ala_z = 1.2;
 		while(true)
@@ -98,26 +92,15 @@ protected:
 			dbprintf("VAR1=%d", (int)ala_z);
 		}
 	}
-private:
-	static const unsigned STACK_SIZE = 2048;
-	static const unsigned TASK_PRIO = 3;
 	GPIO_TypeDef * const LED_PORT;
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
  
 
-class ledkey: public isix::task_base
+struct ledkey
 {
-public:
-	//Constructor
-	ledkey()
-	{
-		start_thread( STACK_SIZE, TASK_PRIO );
-	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	void main() noexcept
 	{
 		volatile float ala_j = 1.2;
 		for(;;)
@@ -127,9 +110,6 @@ protected:
 			dbprintf("VAR2=%d", (int)ala_j);
 		}
 	}
-private:
-		static const unsigned STACK_SIZE = 2048;
-		static const unsigned TASK_PRIO = 3;
 };
 
  
@@ -139,16 +119,22 @@ private:
 //App main entry point
 int main()
 {
-	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
-	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
-	 dbprintf(" Exception presentation app using ISIXRTOS ");
-	//The blinker class
+	dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
+		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
+	dbprintf(" Exception presentation app using ISIXRTOS ");
+
 	static app::ledblink led_blinker;
-	//The ledkey class
+	static isix::thread blinker_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::ledblink::main, &led_blinker);
+
 	static app::ledkey led_key;
-	//Start the isix scheduler
+	static isix::thread key_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::ledkey::main, &led_key);
+
 	isix::start_scheduler();
 }
 
- 
-
+int _write (int /*file*/, const void * /*ptr*/, size_t /*len*/)  { return -1; }
+int _read (int /*file*/, void * /*ptr*/, size_t /*len*/)  { return -1; }
+off_t _lseek (int /*file*/, off_t /*ptr*/, int /*dir*/)  { return -1; }
+int _close (int /*file*/)  { return -1; }

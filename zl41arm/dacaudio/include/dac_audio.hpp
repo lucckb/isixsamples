@@ -21,10 +21,8 @@
   
 namespace drv {
  
-extern "C" {
-	__attribute__((interrupt)) void dma1_stream5_isr_vector();
-}
-  
+extern "C" void dma1_stream5_isr_vector();
+
 //DAC audio converter class
 class dac_audio : public fnd::noncopyable {
 	static const auto IRQ_PRIO = 0;			//! IRQ priority

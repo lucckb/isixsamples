@@ -29,7 +29,7 @@
 namespace app {
 
 
-class tft_tester: public isix::task_base
+class tft_tester
 {
 private:
 	//A window calllback for select item
@@ -45,16 +45,13 @@ public:
 	gfx::gui::frame& get_frame() {
 		return frame;
 	}
-
-protected:
 	virtual void main() noexcept;
+
 private:
 	//Base buttons and windows demo
 	void windows_test();
 	void gdi_test();
-private:
-	static const unsigned STACK_SIZE = 2048;
-	static const unsigned TASK_PRIO = 3;
+
 	//ili_bus ibus;
 	drv::ili_fsmc_bus gbus;
 	//drv::ili_gpio_bus gbus;

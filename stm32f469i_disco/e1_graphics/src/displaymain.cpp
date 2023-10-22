@@ -18,11 +18,11 @@ namespace {
 		constexpr auto mem_siz = 4U * 1024U * 1024U;
 		bool fail {};
 		//! Index pattern
-		const auto t1 = isix::get_ujiffies();
+		dbonly(const auto t1 = isix::get_ujiffies();)
 		for (auto i=0U; i<mem_siz; i++) {
 			*(addr + i) = i;
 		}
-		const auto t2 = isix::get_ujiffies();
+		dbonly(const auto t2 = isix::get_ujiffies();)
 		for (auto i=0U; i<mem_siz; i++) {
 			if(*(addr + i)!=i) {
 				dbprintf("sdram test1 failed <%08x>@%p ", *(addr + i), addr+i );
@@ -30,7 +30,7 @@ namespace {
 				break;
 			}
 		}
-		const auto t3 = isix::get_ujiffies();
+		dbonly(const auto t3 = isix::get_ujiffies();)
 		//0x55 test
 		for (auto i=0U; i<mem_siz; i++) {
 			*(addr + i) = 0x5555'5555U;
@@ -44,9 +44,9 @@ namespace {
 		}
 		if(!fail) {
 			dbprintf("sdram test completed OK");
-			const auto wr_kbs = ((t2-t1)*(mem_siz/1024))/1000000;
-			const auto rd_kbs = ((t3-t2)*(mem_siz/1024))/1000000;
-			dbprintf("Write speed %i kb/s Read speed %i kb/s", wr_kbs,rd_kbs);
+			dbprintf("Write speed %i kb/s Read speed %i kb/s",
+				((t2-t1)*(mem_siz/1024))/1000000,
+				((t3-t2)*(mem_siz/1024))/1000000);
 		}
 		//Clear to zero at the end
 		for (auto i=0U; i<mem_siz; i++) {

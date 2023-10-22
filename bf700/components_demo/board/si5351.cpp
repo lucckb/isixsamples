@@ -359,7 +359,7 @@ void Si5351::set_pll(uint64_t pll_freq, enum si5351_pll target_pll)
     si5351_write_bulk(SI5351_PLLB_PARAMETERS, i, params);
   }
 
-  delete params;
+  delete[] params;
 }
 
 /*
@@ -992,7 +992,7 @@ uint64_t Si5351::pll_calc(uint64_t freq, struct Si5351RegSet *reg, int32_t corre
 {
 	uint64_t ref_freq = xtal_freq * SI5351_FREQ_MULT;
 	uint32_t a, b, c, p1, p2, p3;
-	uint64_t lltmp, rfrac, denom;
+	uint64_t lltmp, denom;
 	//int64_t ref_temp;
 
 	// Factor calibration value into nominal crystal frequency
@@ -1027,7 +1027,6 @@ uint64_t Si5351::pll_calc(uint64_t freq, struct Si5351RegSet *reg, int32_t corre
 	lltmp = freq % ref_freq;
 	lltmp *= denom;
 	do_div(lltmp, ref_freq);
-	rfrac = lltmp;
 
 	b = (((uint64_t)(freq % ref_freq)) * RFRAC_DENOM) / ref_freq;
 	c = b ? RFRAC_DENOM : 1;
@@ -1194,8 +1193,8 @@ void Si5351::ms_div(enum si5351_clock clk, uint8_t r_div, uint8_t div_by_4)
 			reg_addr = SI5351_CLK5_PARAMETERS + 2;
 			break;
 		case SI5351_CLK6:
-			return;
 		case SI5351_CLK7:
+		default:
 			return;
 	}
 

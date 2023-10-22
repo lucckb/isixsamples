@@ -71,21 +71,15 @@ void _external_startup(void)
 namespace app
 {
 
- 
-class ledblink: public isix::task_base
+struct ledblink
 {
-public:
-	//Constructor
-	ledblink() :  LED_PORT(GPIOE)
+	ledblink() : LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		gpio_clock_enable( LED_PORT, true);
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
-		start_thread( STACK_SIZE, TASK_PRIO );
 	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	void main() noexcept
 	{
 		volatile float ala_z = 1.0;
 		while(true)
@@ -103,8 +97,6 @@ protected:
 		}
 	}
 private:
-	static const unsigned STACK_SIZE = 2048;
-	static const unsigned TASK_PRIO = 3;
 	GPIO_TypeDef * const LED_PORT;
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
@@ -127,7 +119,7 @@ namespace {
 
  //Interrrupt handlers
  extern "C" {
-    void __attribute__((interrupt)) tim3_isr_vector() {
+    void tim3_isr_vector() {
        stm32::tim_clear_it_pending_bit( TIM3, TIM_IT_Update );
        fpuirq_base_regs_fill( 55 );
        stm32::nvic_irq_set_pending(  TIM2_IRQn );
@@ -136,7 +128,7 @@ namespace {
             check_irq_failed = irqcr;
        }
     }
-    void __attribute__((interrupt)) tim2_isr_vector() {
+    void tim2_isr_vector() {
          fpuirq_base_regs_fill( 100 );
             if( fpuirq_base_regs_check( 100 ) ) {
             	check_irq_failed = true;
@@ -144,21 +136,12 @@ namespace {
     }
 }}
  
-class math_task: public isix::task_base
+struct math_task
 {
-public:
-	//Constructor
-	math_task(int begin )
-		: m_begin( begin )
-	{
-		start_thread( STACK_SIZE, TASK_PRIO );
-    }
-	~math_task() {
-		dbprintf("Math task finished");
-	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	math_task(int begin ) : m_begin( begin ) {}
+	~math_task() { dbprintf("Math task finished"); }
+
+	void main() noexcept
 	{
         fputest_fill_and_add(m_begin);
         for(unsigned it=0;;++it)
@@ -177,9 +160,7 @@ protected:
 		}
 	}
 private:
-		static const unsigned STACK_SIZE = 512;
-		static const unsigned TASK_PRIO = 3;
-        int m_begin {};
+	int m_begin;
 };
 
 
@@ -207,20 +188,38 @@ int main()
 #endif
     dblog_init_putc_locked( stm32::usartsimple_putc, NULL, usart_lock, usart_unlock );
 	 dbprintf("FPU context save and restore test ISIXRTOS ");
-	//The blinker class
+
 	static app::ledblink led_blinker;
-	//The ledkey class
+	static isix::thread blinker_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::ledblink::main, &led_blinker);
+
 	static app::math_task t1(10);
+	static isix::thread math1_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::math_task::main, &t1);
+
 	static app::math_task t2(20);
+	static isix::thread math2_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::math_task::main, &t2);
+
     static app::math_task t3(30);
+	static isix::thread math3_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::math_task::main, &t3);
+
     static app::math_task t4(40);
+	static isix::thread math4_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::math_task::main, &t4);
+
     static app::math_task t5(50);
+	static isix::thread math5_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::math_task::main, &t5);
+
     static app::math_task t6(60);
+	static isix::thread math6_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::math_task::main, &t6);
+
     //Simulate failure disable stack preserve
     //FPU->FPCCR &= ~( (1<<31U)|(1<<30));
 	//Start the isix scheduler
     app::prepare_fpu_irq_tests();
 	isix::start_scheduler();
 }
-
-

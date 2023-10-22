@@ -37,7 +37,8 @@ void uc_periph_setup()
 extern "C"
 {
 	//Crash info interrupt handler
-	void __attribute__((__interrupt__,naked)) hard_fault_exception_vector(void)
+	[[gnu::naked]]
+	void hard_fault_exception_vector(void)
 	{
 		cm3_hard_hault_regs_dump();
 	}
@@ -72,21 +73,15 @@ void _external_startup(void)
 namespace app
 {
 
- 
-class ledblink: public isix::task_base
+struct ledblink
 {
-public:
-	//Constructor
 	ledblink() :  LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		gpio_clock_enable( LED_PORT, true);
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
-		start_thread( STACK_SIZE, TASK_PRIO);
 	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	void main() noexcept
 	{
 		while(true)
 		{
@@ -101,33 +96,26 @@ protected:
 		}
 	}
 private:
-	static const unsigned STACK_SIZE = 2048;
-	static const unsigned TASK_PRIO = 3;
 	GPIO_TypeDef * const LED_PORT;
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
 };
  
 
-class mpu_demo: public isix::task_base
+struct mpu_demo
 {
 	static inline auto key_port() {
 		return GPIOC;
 	}
-public:
-	//Constructor
 	mpu_demo()
 	{
 		using namespace stm32;
-		start_thread( STACK_SIZE, TASK_PRIO );
 		gpio_clock_enable( key_port(), true );
 		gpio_abstract_config(key_port(), NULL_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
 		gpio_abstract_config(key_port(), EXEC_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
 		gpio_abstract_config(key_port(), STK_PIN, AGPIO_MODE_INPUT_PULLUP, AGPIO_SPEED_HALF );
 	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	void main() noexcept
 	{
 		for(;;)
 		{
@@ -136,7 +124,7 @@ protected:
 			bool kstk = stm32::gpio_get( key_port(),  STK_PIN );
 			if( !knull && p_null ) {
 				dbprintf( "Trying to read from null pointer" );
-				mpu_demo* nptr = nullptr;
+				dbonly(mpu_demo* nptr = nullptr;)
 				dbprintf( "Test %i", nptr->p_null );
 			}
 			if( !kexec && p_exec ) {
@@ -156,35 +144,31 @@ protected:
 			isix::wait_ms( 25 );
 		}
 	}
-	private:
-	private:
-		static const unsigned STACK_SIZE = 2048;
-		static const unsigned TASK_PRIO = 3;
-		static constexpr auto NULL_PIN = 12;
-		static constexpr auto EXEC_PIN = 13;
-		static constexpr auto STK_PIN = 14;
-		bool p_null { true };
-		bool p_exec { true };
-		bool p_stk { true };
+private:
+	static constexpr auto NULL_PIN = 12;
+	static constexpr auto EXEC_PIN = 13;
+	static constexpr auto STK_PIN = 14;
+	bool p_null { true };
+	bool p_exec { true };
+	bool p_stk { true };
 };
-
- 
 
 }	//namespace app end
  
 //App main entry point
 int main()
 {
-	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
+	dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
 	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
-	 dbprintf("MPU demo");
-	//The blinker class
+	dbprintf("MPU demo");
+
 	static app::ledblink led_blinker;
-	//The ledkey class
+	static isix::thread blinker_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::ledblink::main, &led_blinker);
+
 	static app::mpu_demo mpu_demo;
-	//Start the isix scheduler
+	static isix::thread mpu_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::mpu_demo::main, &mpu_demo);
+
 	isix::start_scheduler();
 }
-
- 
-

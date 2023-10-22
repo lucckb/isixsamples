@@ -69,21 +69,15 @@ void _external_startup(void)
 namespace app
 {
 
- 
-class ledblink: public isix::task_base
+struct ledblink
 {
-public:
-	//Constructor
 	ledblink() :  LED_PORT(GPIOE)
 	{
 		using namespace stm32;
 		gpio_clock_enable( LED_PORT, true);
 		gpio_abstract_config(LED_PORT, LED_PIN, AGPIO_MODE_OUTPUT_PP, AGPIO_SPEED_HALF );
-		start_thread( STACK_SIZE, TASK_PRIO );
 	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	void main() noexcept
 	{
 		while(true)
 		{
@@ -98,8 +92,6 @@ protected:
 		}
 	}
 private:
-	static const unsigned STACK_SIZE = 2048;
-	static const unsigned TASK_PRIO = 3;
 	GPIO_TypeDef * const LED_PORT;
 	static const unsigned LED_PIN = 14;
 	static const unsigned BLINK_TIME = 500;
@@ -122,19 +114,11 @@ public:
 };
 
  
-class fat_test: public isix::task_base
+struct fat_test
 {
-public:
-	//Constructor
-	fat_test()
-		: 
-		  m_mmc_host(config::PCLK2_HZ, 6000), m_slot( m_mmc_host, m_pin )
-	{
-		start_thread( STACK_SIZE, TASK_PRIO );
-	}
-protected:
-	//Main function
-	virtual void main() noexcept
+	fat_test() : m_mmc_host(config::PCLK2_HZ, 6000), m_slot( m_mmc_host, m_pin ) {}
+
+	void main() noexcept
 	{
 		isix::wait_ms( 1000 );
 		static char buf[513];
@@ -190,23 +174,16 @@ protected:
 		}
 	}
 private:
-		static const unsigned STACK_SIZE = 2048;
-		static const unsigned TASK_PRIO = 3;
-		stm32::drv::mmc_host_sdio m_mmc_host;
-		stm32_gpio m_pin;
-		drv::mmc::mmc_slot m_slot;
+	stm32::drv::mmc_host_sdio m_mmc_host;
+	stm32_gpio m_pin;
+	drv::mmc::mmc_slot m_slot;
 };
 
  
 
-class mmc_host_tester : public isix::task_base
+struct mmc_host_tester
 {
-public:
-	mmc_host_tester()
-		: m_mmc_host(config::PCLK2_HZ, 6000), m_slot( m_mmc_host, m_pin )
-	{
-		start_thread( STACK_SIZE, TASK_PRIO );
-	}
+	mmc_host_tester() : m_mmc_host(config::PCLK2_HZ, 6000), m_slot( m_mmc_host, m_pin ) {}
 private:
 	void transfer_read_test( drv::mmc::mmc_card *card, char *buf, size_t size )
 	{
@@ -215,7 +192,7 @@ private:
 		for(size_t bs=512; bs<=size; bs+=512 )
 		{
 			dbprintf("Read test block size %u", bs );
-			ostick_t begin = isix::get_jiffies();
+			dbonly(ostick_t begin = isix::get_jiffies();)
 			for(size_t c=0; c<N_sects; c+=(bs/512) )
 			{
 				ret = card->read( buf, c, bs/512 );
@@ -225,7 +202,7 @@ private:
 					return;
 				}
 			}
-			ostick_t time = isix::get_jiffies() - begin;
+			dbonly(ostick_t time = isix::get_jiffies() - begin;)
 			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
 		}
 	}
@@ -236,7 +213,7 @@ private:
 		for(size_t bs=512; bs<=size; bs+=512 )
 		{
 			dbprintf("Write test block size %u", bs );
-			ostick_t begin = isix::get_jiffies();
+			dbonly(ostick_t begin = isix::get_jiffies();)
 			for(size_t c=0; c<N_sects; c+=(bs/512) )
 			{
 				ret = card->write( buf, c, bs/512 );
@@ -246,12 +223,12 @@ private:
 					return;
 				}
 			}
-			ostick_t time = isix::get_jiffies() - begin;
+			dbonly(ostick_t time = isix::get_jiffies() - begin;)
 			dbprintf("Speed %u kb/s", (1000*(N_sects/2)) / time);
 		}
 	}
-protected:
-	virtual void main() noexcept
+public:
+	void main() noexcept
 	{
 		for(;;)
 		{
@@ -260,8 +237,8 @@ protected:
 			{
 				static char buf[4096] = "Internal buffer test";
 				drv::mmc::mmc_card *c;
-				int ret;
-				static drv::mmc::cid cid;
+				int ret = 0;
+				dbonly(static drv::mmc::cid cid;)
 				dbprintf("Open %i %p", (ret=m_slot.get_card(c)), (void*)c);
 				if( ret ) break;
 				dbprintf("Write ret=%i",(ret=c->write("TAKI MALY TEST", 7777, 3 )));
@@ -273,7 +250,7 @@ protected:
 				if( ret ) break;
 				dbprintf("CIDS M=%s Y=%hi M=%hi" , cid.prod_name, cid.year, cid.month );
 				//Get sector count
-				uint32_t sectors;
+				dbonly(uint32_t sectors;)
 				dbprintf("SECTORS=%lu", c->get_sectors_count() );
 				dbprintf("ERASESIZ=%li %lu", (ret=c->get_erase_size(sectors)), sectors );
 				if( ret ) break;
@@ -299,25 +276,27 @@ private:
 		drv::mmc::mmc_slot m_slot;
 };
 
- 
-
 }	//namespace app end
- 
+
 //App main entry point
 int main()
 {
 	 dblog_init( stm32::usartsimple_putc, NULL, stm32::usartsimple_init,
 	    		USART2,115200,true, config::PCLK1_HZ, config::PCLK2_HZ );
 	 dbprintf(" SDIO test ");
-	//The blinker class
+
 	static app::ledblink led_blinker;
+	static isix::thread blinker_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::ledblink::main, &led_blinker);
+
 	//static app::mmc_host_tester mmc_tester;
-	//The ledkey class
+	//static isix::thread mmc_thr = isix::thread_create_and_run(
+	// 	2048, 3, isix_task_flag_newlib, &app::mmc_host_tester::main, &mmc_tester);
+
 	static app::fat_test fat_tester;
+	static isix::thread fat_thr = isix::thread_create_and_run(
+		2048, 3, isix_task_flag_newlib, &app::fat_test::main, &fat_tester);
+
 	isix::wait_ms(1000);
-	//Start the isix scheduler
 	isix::start_scheduler();
 }
-
- 
-
