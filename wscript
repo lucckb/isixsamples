@@ -15,8 +15,9 @@ _def_board = 'stm32f469i_disco'
 
 # Boards list
 _boards = [
-    'bf700',
-    'zl41arm',
+    # TODO: rewrite these boards not to used removed libstm32, libfsfat, and libstmdrv32
+    # 'bf700',
+    # 'zl41arm',
     'stm32f411e_disco',
     'stm32f469i_disco'
 ]
