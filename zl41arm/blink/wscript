@@ -16,5 +16,5 @@ def build(bld):
             source=src,
             install_path=False,
             includes=[ '.' ],
-            use=[ 'foundation', 'isix', 'stm32' ]
-            )
+            use=[ 'foundation', 'isix', 'periph', 'stm32f411ed_boot' ]
+    )

@@ -9,6 +9,7 @@ def configure(conf):
     conf.env.append_value('INCLUDES', stdinc )
     conf.check_cxx( header_name='isix_config.h', features='cxx',
             define_name='HAVE_ISIX_CONFIG_H' )
+    conf.define('USE_FULL_LL_DRIVER',1)
 
 def build(bld):
     src = bld.path.ant_glob( '*.cpp' )
@@ -18,5 +19,5 @@ def build(bld):
             source=src,
             install_path=False,
             includes=[ 'include' ],
-            use=[ 'foundation', 'isix', 'stm32' ]
-            )
+            use=[ 'foundation', 'isix', 'periph', 'stm32f411ed_boot' ]
+    )
