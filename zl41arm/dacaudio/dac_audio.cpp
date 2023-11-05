@@ -139,7 +139,7 @@ int dac_audio::play( unsigned short fs )
         .ClockDivision = LL_TIM_CLOCKDIVISION_DIV1,
         .RepetitionCounter =  0
     };
-LL_TIM_Init( AUDIO_TIMER, &timcfg );
+    LL_TIM_Init( AUDIO_TIMER, &timcfg );
     LL_TIM_SetTriggerOutput( AUDIO_TIMER, LL_TIM_TRGO_UPDATE );
 	m_state = state::start_wait;
 	return m_error;
