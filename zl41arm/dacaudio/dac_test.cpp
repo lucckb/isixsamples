@@ -63,8 +63,8 @@ void dac_gen( void* )
 //! Main core function tester
 int main()
 {
-    static isix::semaphore m_ulock_sem { 1, 1 };
-    isix::wait_ms( 500 );
+	static isix::semaphore m_ulock_sem { 1, 1 };
+	isix::wait_ms( 500 );
 	dblog_init_locked(
 		[](int ch, void*) {
 			return periph::drivers::uart_early::putc(ch);
