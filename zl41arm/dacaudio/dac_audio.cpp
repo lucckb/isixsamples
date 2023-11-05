@@ -91,7 +91,7 @@ dac_audio::~dac_audio()
 //! Setup the hardware
 int dac_audio::hardware_setup()
 {
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA|DAC_DMA_RCC);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA|DAC_DMA_RCC);
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC1|AUDIO_TIMER_RCC);
 	/* Configure GPIO */
     LL_GPIO_InitTypeDef dac_out {
