@@ -141,8 +141,8 @@ int dac_audio::play( unsigned short fs )
     };
     LL_TIM_Init( AUDIO_TIMER, &timcfg );
     LL_TIM_SetTriggerOutput( AUDIO_TIMER, LL_TIM_TRGO_UPDATE );
-	m_state = state::start_wait;
-	return m_error;
+    m_state = state::start_wait;
+    return m_error;
 }
 
 //! Underflow error
