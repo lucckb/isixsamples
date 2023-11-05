@@ -26,20 +26,20 @@ int main()
 {
     static isix::semaphore m_ulock_sem { 1, 1 };
     isix::wait_ms( 500 );
-	dblog_init_locked(
-		[](int ch, void*) {
-			return periph::drivers::uart_early::putc(ch);
-		},
-		nullptr,
-		[]() {
-			m_ulock_sem.wait(ISIX_TIME_INFINITE);
-		},
-		[]() {
-			m_ulock_sem.signal();
-		},
-		periph::drivers::uart_early::open,
-		"serial0", 115200
-	);
+    dblog_init_locked(
+        [](int ch, void*) {
+            return periph::drivers::uart_early::putc(ch);
+        },
+        nullptr,
+        []() {
+            m_ulock_sem.wait(ISIX_TIME_INFINITE);
+        },
+        []() {
+            m_ulock_sem.signal();
+        },
+        periph::drivers::uart_early::open,
+        "serial0", 115200
+    );
     // Configure PD13 pin LED as an output
     periph::gpio::setup( led_0,
         periph::gpio::mode::out{
@@ -47,10 +47,10 @@ int main()
             periph::gpio::speed::low
         }
     );
-	isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
+    isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
     dbprintf("<<<< Hello ZL41ARM board >>>>");
-	isix::start_scheduler();
-	return 0;
+    isix::start_scheduler();
+    return 0;
 
 }
 
