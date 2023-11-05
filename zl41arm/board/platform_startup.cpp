@@ -63,7 +63,7 @@ bool uc_periph_setup()
 	if( !LL_RCC_PLL_IsReady() ) {
 		return false;
 	}
-    LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+	LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 	for( auto r=0; r<retries; ++r ) {
 		if( LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_PLL ) {
 			break;
