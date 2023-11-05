@@ -81,8 +81,8 @@ dac_audio::dac_audio( size_t audio_buf_len, size_t num_buffers )
 dac_audio::~dac_audio()
 {
 	do_stop();
-isix::free_irq( DAC_DMA_STREAM_IRQN);
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_DAC1|AUDIO_TIMER_RCC);
+	isix::free_irq( DAC_DMA_STREAM_IRQN);
+	LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_DAC1|AUDIO_TIMER_RCC);
 	flush_buffers();
 	isix::mempool_destroy( m_mempool );
 	g_dac_audio = nullptr;
