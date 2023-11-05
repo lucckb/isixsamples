@@ -29,8 +29,8 @@ bool uc_periph_setup()
 
 	isix_set_irq_vectors_base( &_exceptions_vectors );
 
-    //! Deinitialize RCC
-    LL_RCC_DeInit();
+	//! Deinitialize RCC
+	LL_RCC_DeInit();
 	LL_FLASH_SetLatency(LL_FLASH_LATENCY_5);
 	LL_FLASH_EnablePrefetch();
 	//! Set MCU Prescallers
