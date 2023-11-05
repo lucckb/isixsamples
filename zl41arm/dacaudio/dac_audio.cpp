@@ -262,7 +262,7 @@ int dac_audio::commit_buffer( uint16_t* buf, ostick_t tout )
 		m_error = err_not_playing;
 		return m_error;
     }
-	if( m_error == ISIX_EOK ) {
+    if( m_error == ISIX_EOK ) {
 		if( m_state == state::start_wait  && m_fifo.size() >= 2 ) {
 			dbprintf("Start playing audio");
 			do_play();
