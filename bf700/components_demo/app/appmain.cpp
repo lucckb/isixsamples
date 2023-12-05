@@ -19,40 +19,43 @@
 #include <config/conf.h>
 #include <isix.h>
 #include <foundation/sys/dbglog.h>
-#include <usart_simple.h>
-#include <stm32gpio.h>
-#include <isixdrv/i2c_bus.hpp>
+#include <periph/drivers/serial/uart_early.hpp>
+#include <stm32_ll_gpio.h>
 #include "tftdemo.hpp"
 #include "app_env.hpp"
 #include <board/si5351.hpp>
+#include <periph/drivers/i2c/i2c_master.hpp>
 
 static const auto LED_PORT = GPIOG;
 namespace app {
-	void codec_task( fnd::drv::bus::ibus& bus );
+	void codec_task( periph::drivers::i2c_master& bus );
 	void stdio_test_task(  );
 namespace tcp {
 	void init();
 
 }}
 
-#ifdef PDEBUG
 namespace {
-namespace usart_debug {
-	isix::semaphore m_ulock_sem { 1, 1 };
-	void lock() 
-	{
-		m_ulock_sem.wait( ISIX_TIME_INFINITE );
+
+/* Initialize the debug USART */
+	auto usart_protected_init() -> void {
+		static isix::mutex m_mtx;
+		dblog_init_locked(
+				[](int ch, void*) {
+					return periph::drivers::uart_early::putc(ch);
+				},
+				nullptr,
+				[]() { m_mtx.lock();  },
+				[]() { m_mtx.unlock(); },
+				periph::drivers::uart_early::open, "serial0", 115200
+		);
 	}
-	void unlock() 
-	{
-		m_ulock_sem.signal();
-	}
-}}
-#endif
+
+}
 
 
-void i2c1bus_test( void*  arg ) {
-
+void i2c1bus_test( void*  arg )
+{
 
 	//Test for environment dupa
 	int res;
@@ -77,11 +80,32 @@ void i2c1bus_test( void*  arg ) {
 
 }
 
+static inline void gpio_set_clr_mask(GPIO_TypeDef* port , uint16_t enflags, uint16_t mask)
+{
+	port->BSRR = (uint32_t)(enflags & mask) | ((uint32_t)( ~enflags & mask)<<16);
+}
 
+static inline uint16_t gpio_get_mask(GPIO_TypeDef* port , uint16_t bitmask)
+{
+	return port->IDR & bitmask;
+}
 
-void pulse_test(void* ) {
-	using namespace stm32;
-	gpio_config_ext( LED_PORT, 0xf0, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
+static inline bool gpio_get(GPIO_TypeDef* port , unsigned bit)
+{
+	return (port->IDR >> (bit))&1;
+}
+
+void pulse_test(void*) 
+{
+	LL_GPIO_InitTypeDef io_cfg {
+		.Pin = 0xf0,
+		.Mode = LL_GPIO_MODE_OUTPUT,
+		.Speed = LL_GPIO_SPEED_FREQ_MEDIUM,
+		.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+		.Pull = LL_GPIO_PULL_NO,
+		.Alternate = 0
+	};
+	LL_GPIO_Init( LED_PORT, &io_cfg);
 	// Test the APP environment
 	 for(int r=0;;r++) {
 		gpio_set_clr_mask( LED_PORT, r, 0x20 );
@@ -92,17 +116,10 @@ void pulse_test(void* ) {
 }
 
 
-void sdio_test_setup()
-{
-	static isix::thread m_thr {
-		isix::thread_create_and_run( 2048, 3, isix_task_flag_newlib, &app::stdio_test_task )
-	};
-}
-
 void codec_test_setup()
 {
 	///Isix thread for I2c bus
-	static stm32::drv::i2c_bus m_i2c2 { stm32::drv::i2c_bus::busid::i2c2_alt, 400000 };
+	static periph::drivers::i2c_master m_i2c2("i2c2");
 	static isix::thread m_thr { isix::thread_create_and_run(
 			2048, 3, isix_task_flag_newlib,
 			std::bind( &app::codec_task, std::ref(m_i2c2) )
@@ -110,11 +127,10 @@ void codec_test_setup()
 	};
 }
 
-int main() {
+int main()
+{
 	isix::wait_ms( 500 );
-	dblog_init_locked( stm32::usartsimple_putc, nullptr, usart_debug::lock,
-			usart_debug::unlock, stm32::usartsimple_init,
-			USART1,115200, false, CONFIG_PCLK1_HZ, CONFIG_PCLK2_HZ );
+	usart_protected_init();
 	//The ledkey class
 	static app::tft_tester ft;
 	static isix::thread tester_thr = isix::thread_create_and_run(
@@ -127,15 +143,21 @@ int main() {
 	//static  Si5351 si5351( m_i2c );
 	app::tcp::init();
 	codec_test_setup();
-	sdio_test_setup();
 	//Blink task create
 	//isix::task_create( i2c1bus_test, &si5351, 2048, isix::get_min_priority() );
 	isix::task_create( pulse_test, nullptr, 512, isix::get_min_priority() );
 	//Enable 5V USB
 	{
-		using namespace stm32;
-		gpio_config( GPIOE, 3, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
-		gpio_set( GPIOE, 3 );
+		LL_GPIO_InitTypeDef io_cfg {
+		.Pin = LL_GPIO_PIN_3,
+		.Mode = LL_GPIO_MODE_OUTPUT,
+		.Speed = LL_GPIO_SPEED_FREQ_MEDIUM,
+		.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+		.Pull = LL_GPIO_PULL_NO,
+		.Alternate = 0
+		};
+		LL_GPIO_Init( GPIOE, &io_cfg);
+		LL_GPIO_SetOutputPin(GPIOE, LL_GPIO_PIN_3);
 	}
 	isix::start_scheduler();
 	return 0;

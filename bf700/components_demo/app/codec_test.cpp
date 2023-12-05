@@ -15,13 +15,18 @@
  *
  * =====================================================================================
  */
-#include <isixdrv/i2c_bus.hpp>
+
 #include <cstdint>
 #include <foundation/sys/dbglog.h>
-#include <stm32rcc.h>
-#include <stm32spi.h>
-#include <stm32dma.h>
-#include <stm32system.h>
+#include <periph/drivers/i2c/i2c_master.hpp>
+#include <isix.h>
+#include <isix/arch/irq.h>
+#include <stm32_ll_rcc.h>
+#include <stm32_ll_spi.h>
+#include <stm32_ll_dma.h>
+#include <stm32_ll_bus.h>
+#include <stm32_ll_system.h>
+#include <stm32_ll_gpio.h>
 #include <cmath>
 
 
@@ -79,19 +84,20 @@ namespace {
 		0x001			// Reg 09: Active Control
 	};
 
-	int codec_write_register( fnd::drv::bus::ibus& bus, uint8_t addr, uint16_t val )
+	int codec_write_register(periph::drivers::i2c_master& bus, uint8_t addr, uint16_t val)
 	{
 		/* Assemble 2-byte data in WM8731 format */
 		const uint8_t arr[2] {
 			uint8_t(((addr<<1)&0xFE) | ((val>>8)&0x01)),
 				uint8_t(val&0xFF)
 		};
-		return bus.write( codec_addr, arr, sizeof arr, nullptr, 0 );
+		periph::blk::tx_transfer tran(arr, sizeof arr);
+		return bus.transaction(codec_addr, tran);
 	}
 }
 
 
-int codec_reset(  fnd::drv::bus::ibus& bus  )
+int codec_reset(periph::drivers::i2c_master& bus)
 {
 	auto ret = codec_write_register( bus, 0x0f, 0 );
 	if( ret ) {
@@ -107,70 +113,122 @@ int codec_reset(  fnd::drv::bus::ibus& bus  )
 	}
 	return ret;
 }
- 
 
 void i2s_init()
 {
-
-	using namespace stm32;
 	//I2S PLL Config
-	rcc_i2s_clk_config(RCC_I2S2CLKSource_PLLI2S);
-	rcc_pll_i2s_config(192, 2);
-	rcc_pll_i2s_cmd(ENABLE);
-	while(!rcc_get_flag_status(RCC_FLAG_PLLI2SRDY));
+	LL_RCC_SetI2SClockSource(LL_RCC_I2S1_CLKSOURCE_PLLI2S);
+	//TODO check me exactly
+	LL_RCC_PLLI2S_ConfigDomain_I2S(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLI2SM_DIV_2, 192, LL_RCC_PLLI2SR_DIV_2);
+	LL_RCC_PLLI2S_Enable();
+	while(!LL_RCC_PLLI2S_IsReady());
 
 	//DMA1 Clock Enable
-	rcc_ahb1_periph_clock_cmd(RCC_AHB1Periph_DMA1, ENABLE);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
 
 	//SPI2 Clock Enable
-	rcc_apb1_periph_clock_cmd(RCC_APB1Periph_SPI3, ENABLE);
-
+	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI3);
 	dbg_info("PLL is ok\n");
 
 	//AF Config
-	gpio_pin_AF_config(I2S3_SDTI_PORT, I2S3_SDTI_PIN, GPIO_AF_I2S3ext);		//SDTI1
-	gpio_pin_AF_config(I2S3_SDTO_PORT, I2S3_SDTO_PIN, GPIO_AF_SPI3);		//SDTO1
-	gpio_pin_AF_config(I2S3_BICK_PORT, I2S3_BICK_PIN, GPIO_AF_SPI3);		//BICK1
-	gpio_pin_AF_config(I2S3_LRCK_PORT, I2S3_LRCK_PIN, GPIO_AF_SPI3);		//LRCK1
-	gpio_pin_AF_config(I2S3_MCLK_PORT, I2S3_MCLK_PIN, GPIO_AF_SPI3);		//LRCK1
-
-	//I2S2 Port Config
-	gpio_config(I2S3_SDTI_PORT, I2S3_SDTI_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE, GPIO_SPEED_25MHZ, GPIO_OTYPE_PP);		//SDTI1
-	gpio_config(I2S3_SDTO_PORT, I2S3_SDTO_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE, GPIO_SPEED_25MHZ, GPIO_OTYPE_PP);		//SDTO1
-	gpio_config(I2S3_BICK_PORT, I2S3_BICK_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE, GPIO_SPEED_25MHZ, GPIO_OTYPE_PP);		//BICK1
-	gpio_config(I2S3_LRCK_PORT, I2S3_LRCK_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE, GPIO_SPEED_25MHZ, GPIO_OTYPE_PP);		//LRCK1
-	gpio_config(I2S3_MCLK_PORT, I2S3_MCLK_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE, GPIO_SPEED_25MHZ, GPIO_OTYPE_PP);		//MCLK1
+	LL_GPIO_InitTypeDef io_cfg {
+		.Pin = LL_GPIO_PIN_0,
+		.Mode = LL_GPIO_MODE_ALTERNATE,
+		.Speed = LL_GPIO_SPEED_FREQ_HIGH,
+		.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+		.Pull = LL_GPIO_PULL_NO,
+		.Alternate = LL_GPIO_AF_7
+	};
+	io_cfg.Pin = 1U << I2S3_SDTI_PIN;
+	LL_GPIO_Init(I2S3_SDTI_PORT, &io_cfg); // SDTI1
+	io_cfg.Alternate = LL_GPIO_AF_6;
+	io_cfg.Pin = 1U << I2S3_SDTO_PIN;
+	LL_GPIO_Init(I2S3_SDTO_PORT, &io_cfg); // SDTO1
+	io_cfg.Pin = 1U << I2S3_BICK_PIN;
+	LL_GPIO_Init(I2S3_BICK_PORT, &io_cfg); // BICK
+	io_cfg.Pin = 1U << I2S3_LRCK_PIN;
+	LL_GPIO_Init(I2S3_LRCK_PORT, &io_cfg); // LRCK1
+	io_cfg.Pin = 1U << I2S3_MCLK_PIN;
+	LL_GPIO_Init(I2S3_MCLK_PORT, &io_cfg); // LRCK1
+	
 	//NVIC Config
-	nvic_set_priority(DMA1_Stream0_IRQn, DMA1_S3_PRIORITY, DMA1_S3_SUBPRIORITY);
-	nvic_irq_enable(DMA1_Stream0_IRQn, ENABLE);
+	isix::set_irq_priority(DMA1_Stream0_IRQn, {DMA1_S3_PRIORITY, DMA1_S3_SUBPRIORITY});
+	isix::request_irq(DMA1_Stream0_IRQn);
 
 	//DMA1 Config (Circural Mode, Double Buffering, Packing)
-	dma_init(DMA1_Stream0, DMA_Channel_3 | DMA_DIR_PeripheralToMemory | DMA_MemoryInc_Enable | DMA_PeripheralDataSize_HalfWord | DMA_MemoryDataSize_Word | DMA_Mode_Circular | DMA_Priority_VeryHigh, DMA_FIFOMode_Disable, 2*BUFFER_SIZE, I2S3ext_DR_Address, &buf1);		//RX
-	dma_init(DMA1_Stream5, DMA_Channel_0 | DMA_DIR_MemoryToPeripheral | DMA_MemoryInc_Enable | DMA_PeripheralDataSize_HalfWord | DMA_MemoryDataSize_Word | DMA_Mode_Circular | DMA_Priority_VeryHigh, DMA_FIFOMode_Disable, 2*BUFFER_SIZE, I2S3_DR_Address, &buf1);		//TX
+	{	
+		// RX
+		LL_DMA_InitTypeDef dma_cfg {
+			.PeriphOrM2MSrcAddress = (uintptr_t)I2S3ext_DR_Address,
+			.MemoryOrM2MDstAddress = (uintptr_t)&buf1,
+			.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY,
+			.Mode = LL_DMA_MODE_CIRCULAR,
+			.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT,
+			.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT,
+			.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD,
+			.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD,
+			.NbData = 2 * BUFFER_SIZE,
+			.Channel = LL_DMA_CHANNEL_3,
+			.Priority = LL_DMA_PRIORITY_HIGH,
+			.FIFOMode = LL_DMA_FIFOMODE_DISABLE,
+			.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_1_2,
+			.MemBurst = LL_DMA_MBURST_INC4,
+			.PeriphBurst = LL_DMA_PBURST_INC4
+		};
+		LL_DMA_Init(DMA1, LL_DMA_STREAM_0, &dma_cfg); 
+	}
+	{	
+		// TX
+		LL_DMA_InitTypeDef dma_cfg {
+			.PeriphOrM2MSrcAddress = (uintptr_t)I2S3_DR_Address,
+			.MemoryOrM2MDstAddress = (uintptr_t)&buf1,
+			.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH,
+			.Mode = LL_DMA_MODE_CIRCULAR,
+			.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT,
+			.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT,
+			.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD,
+			.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD,
+			.NbData = 2 * BUFFER_SIZE,
+			.Channel = LL_DMA_CHANNEL_0,
+			.Priority = LL_DMA_PRIORITY_HIGH,
+			.FIFOMode = LL_DMA_FIFOMODE_DISABLE,
+			.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_1_2,
+			.MemBurst = LL_DMA_MBURST_INC4,
+			.PeriphBurst = LL_DMA_PBURST_INC4
+		};
+		LL_DMA_Init(DMA1, LL_DMA_STREAM_5, &dma_cfg); 
+	}
 
-	dma_periph_inc_offset_size_config(DMA1_Stream0, DMA_PINCOS_Psize);
-	dma_periph_inc_offset_size_config(DMA1_Stream5, DMA_PINCOS_Psize);
+	LL_DMA_SetIncOffsetSize(DMA1, LL_DMA_STREAM_0, LL_DMA_OFFSETSIZE_PSIZE);
+	LL_DMA_SetIncOffsetSize(DMA1, LL_DMA_STREAM_5, LL_DMA_OFFSETSIZE_PSIZE);
 
-	dma_double_buffer_mode_config(DMA1_Stream0, &buf2, DMA_Memory_0);
-	dma_double_buffer_mode_config(DMA1_Stream5, &buf2, DMA_Memory_0);
+	LL_DMA_SetMemory1Address(DMA1, LL_DMA_STREAM_0, (uintptr_t)buf2);
+	LL_DMA_SetMemory1Address(DMA1, LL_DMA_STREAM_5, (uintptr_t)buf2);
 
-	dma_double_buffer_mode_cmd(DMA1_Stream0, ENABLE);
-	dma_double_buffer_mode_cmd(DMA1_Stream5, ENABLE);
+	LL_DMA_EnableDoubleBufferMode(DMA1, LL_DMA_STREAM_0);
+	LL_DMA_EnableDoubleBufferMode(DMA1, LL_DMA_STREAM_5);
 
-	dma_it_config(DMA1_Stream0, DMA_IT_TC, ENABLE);
+	LL_DMA_EnableIT_TC(DMA1, LL_DMA_STREAM_0);
 
-	dma_cmd(DMA1_Stream0, ENABLE);
-	dma_cmd(DMA1_Stream5, ENABLE);
+	LL_DMA_EnableStream(DMA1, LL_DMA_STREAM_0);
+	LL_DMA_EnableStream(DMA1, LL_DMA_STREAM_5);
 
 	//I2S2 Config
-	stm32::i2s_init(SPI3, I2S_Mode_MasterTx, I2S_Standard_Phillips, I2S_DataFormat_24b, I2S_MCLKOutput_Enable, I2S_AudioFreq_48k, I2S_CPOL_Low);
-	i2s_full_duplex_config(I2S3ext, I2S_Mode_MasterTx, I2S_Standard_Phillips, I2S_DataFormat_24b, I2S_CPOL_Low);
+	LL_I2S_InitTypeDef spi_cfg {
+		.Mode = LL_I2S_MODE_MASTER_TX,
+		.Standard = LL_I2S_STANDARD_PHILIPS,
+		.DataFormat = LL_I2S_DATAFORMAT_24B,
+		.MCLKOutput = LL_I2S_MCLK_OUTPUT_ENABLE,
+		.AudioFreq = LL_I2S_AUDIOFREQ_48K,
+		.ClockPolarity = LL_I2S_POLARITY_LOW
+	};
+	LL_I2S_Init(SPI3, &spi_cfg);
+	LL_I2S_InitFullDuplex(I2S3ext, &spi_cfg);
+	LL_I2S_EnableDMAReq_TX(SPI3);
+	LL_I2S_EnableDMAReq_RX(I2S3ext);
 
-	spi_i2s_dma_cmd(SPI3, SPI_I2S_DMAReq_Tx, ENABLE);
-	spi_i2s_dma_cmd(I2S3ext, SPI_I2S_DMAReq_Rx, ENABLE);
-
-	i2s_cmd(I2S3ext, ENABLE);
-	i2s_cmd(SPI3, ENABLE);
+	LL_I2S_Enable(I2S2ext);
+	LL_I2S_Enable(SPI3);
 }
 
 
@@ -187,21 +245,16 @@ namespace {
 
 }
 
-
-
-
-
-
 #if 1
+// FIXME this interrupt
+// We need to merge with real dma driver
 extern "C"
-void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_vector(void)
+void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_vector_(void)
 {
-	using namespace stm32;
-	if(dma_get_flag_status(DMA1_Stream0, DMA_FLAG_TCIF0))
+	if(LL_DMA_IsActiveFlag_TC0(DMA1))
 	{
 		signed long *slBuf1, *slBuf2;
-
-		slBuf1 = slBuf2 = (dma_get_current_memory_target(DMA1_Stream0)) ? buf1 : buf2;
+		slBuf1 = slBuf2 = (LL_DMA_GetCurrentTargetMem(DMA1, LL_DMA_STREAM_0)) ? buf1 : buf2;
 
 		for(unsigned long i = 0; i < BUFFER_SIZE; i++)
 		{
@@ -242,8 +295,8 @@ void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_ve
 
 			*slBuf2++ = tmp;
 		}
-		dma_clear_flag(DMA1_Stream0, DMA_FLAG_TCIF0);
-	} else 	if(dma_get_flag_status(DMA1_Stream0, DMA_FLAG_TEIF0)) {
+		LL_DMA_ClearFlag_TC0(DMA1);
+	} else 	if( LL_DMA_IsActiveFlag_TE0(DMA1)) {
 		dbg_err("IS error abort");
 		abort();
 
@@ -255,7 +308,7 @@ void __attribute__ ((optimize(3), optimize("unroll-loops"))) dma1_stream0_isr_ve
 #endif
 
 
-void codec_task( fnd::drv::bus::ibus& bus )
+void codec_task( periph::drivers::i2c_master& bus )
 {
 	//Generate sine table
 	for( size_t i=0; i<sin_size; ++i) {

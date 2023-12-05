@@ -9,9 +9,8 @@ _prjs = [
 
 #Additional extra libraries
 _libs = [
-    'isixrtos/libisixdrvstm32',
+    'bf700/board',
     'isixrtos/libgfx',
-    'isixrtos/libfsfat',
     'isixrtos/libtcpip',
 ]
 
@@ -19,8 +18,6 @@ import os
 
 # Configure
 def configure( cfg ):
-    # TODO: Migrate to periphlib
-    cfg.define( 'CONFIG_ISIX_USE_OLDPERIPHLIB', 1 )
     cfg.define('CONFIG_GFX_PIXEL_FORMAT', 1 )
     for lib in _libs:
         cfg.recurse( os.path.join(os.getcwd(),lib) )
