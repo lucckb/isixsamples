@@ -19,6 +19,10 @@ def build(bld):
     bld.program(
             features='objcopy',
             target='brefboard',
+            defines=['ETH_DRV_USE_RMII=1', 
+                     'ETH_DRV_PHY_ADDR=0', 
+                     'ETH_PHY_DRIVER_NAME=_ethernetif_phy_ksz8081_drv_' 
+            ],
             source=src,
             install_path=False,
             includes=[ '.', 'board/include' ],

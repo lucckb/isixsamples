@@ -1,14 +1,18 @@
 #include <config/conf.h>
 #include <functional>
-#include <stm32rcc.h>
-#include <stm32pwr.h>
-#include <stm32adc.h>
+#include <stm32_ll_rcc.h>
+#include <stm32_ll_pwr.h>
+#include <stm32_ll_adc.h>
+#include <stm32_ll_gpio.h>
 #include <isix.h>
-#include <stm32crashinfo.h>
-#include <stm32syscfg.h>
-#include <stm32dma.h>
-#include <irq_vectors_symbol.h>
+#include <stm32_ll_system.h>
+#include <stm32_ll_dma.h>
 #include <isix/arch/irq.h>
+#include <stm32_ll_bus.h>
+#include <stm32_ll_rcc.h>
+#include <boot/arch/arm/cortexm/irq_vectors_table.h>
+#include <boot/arch/arm/cortexm/crashinfo.h>
+
 
 namespace drv {
 namespace board {
@@ -20,12 +24,6 @@ constexpr unsigned ISIX_NUM_PRIORITIES = 4;
 //SysTimer values
 constexpr unsigned MHZ = 1000000;
 
-constexpr auto PLL_M = 25;
-constexpr auto PLL_N = 336;
-constexpr auto PLL_P = 2;	//168MHZ master clock
-constexpr auto PLL_Q = 7;	//48MHz for USB clk
-
-
 const auto MCO1_PORT =  GPIOA;
 constexpr auto MCO1_PIN = 8;
 
@@ -35,60 +33,72 @@ constexpr auto MCO1_PIN = 8;
  */
 unsigned system_config()
 {
-	using namespace stm32;
-
-    rcc_flash_latency(CONFIG_HCLK_HZ);
-	rcc_hse_config( RCC_HSE_ON );
-	rcc_wait_for_hse_startup();
-	rcc_pll_config( RCC_PLLSource_HSE, PLL_M, PLL_N, PLL_P, PLL_Q );
-	rcc_pll_cmd( true );
-	for( auto r=0; r<100000; ++r ) {
-		if( !rcc_get_flag_status( RCC_FLAG_PLLRDY ) )
+	constexpr auto retries=100000;
+	LL_FLASH_SetLatency(LL_FLASH_LATENCY_7);
+	//! Enable HSE generator
+	LL_RCC_HSE_Enable();
+	for( int i=0; i<retries; ++i ) {
+		if(LL_RCC_HSE_IsReady()) {
 			break;
+		}
 	}
+	if( !LL_RCC_HSE_IsReady() ) {
+		for(;;) {};
+	}
+	LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_25, 336, LL_RCC_PLLP_DIV_2);
+	LL_RCC_PLL_ConfigDomain_48M(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_25, 336, LL_RCC_PLLQ_DIV_7);
+	LL_RCC_PLL_Enable();
+	for( auto r=0; r<retries; ++r ) {
+		if( LL_RCC_PLL_IsReady() ) {
+			break;
+		}
+	}
+	if( !LL_RCC_PLL_IsReady() ) {
+		for(;;) {}
+	}
+	LL_RCC_SetAHBPrescaler( LL_RCC_SYSCLK_DIV_1 );
+	LL_RCC_SetAPB2Prescaler( LL_RCC_APB2_DIV_2 );
+	LL_RCC_SetAPB1Prescaler( LL_RCC_APB1_DIV_4 );
 
-    rcc_pclk2_config( RCC_HCLK_Div2 );
-    rcc_pclk1_config( RCC_HCLK_Div4 );
-	rcc_hclk_config(  RCC_SYSCLK_Div1 );
 	//Enable GPIO system compensation cell block for gpio > 50MHz
-    rcc_ahb2_periph_clock_cmd( RCC_APB2Periph_SYSCFG, true );
-    syscfg_compensation_cell_cmd( true );
-
+	LL_AHB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+	LL_SYSCFG_EnableCompensationCell();
 
 	isix_set_irq_vectors_base( &_exceptions_vectors );
 
     // Enable main PLL
-	rcc_sysclk_config( RCC_SYSCLKSource_PLLCLK );
-    constexpr auto PLL_SRC = 0x08;
-    for( auto r=0; r<100000; ++r ) {
-	if( rcc_get_sysclk_source() != PLL_SRC )
-		break;
-    }
+ 	LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+	for( auto r=0; r<retries; ++r ) {
+		if( LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_PLL ) {
+			break;
+		}
+	}
     return CONFIG_HCLK_HZ;
 }
 
 
 void periph_config()
 {
-	using namespace stm32;
 	//Configure common ADCS
-    rcc_apb2_periph_clock_cmd( RCC_APB2Periph_ADC, true );
-	adc_common_init( ADC_Mode_Independent, ADC_Prescaler_Div4,
-			ADC_DMAAccessMode_Disabled, ADC_TwoSamplingDelay_5Cycles );
-	//Setup DMA
-	rcc_ahb1_periph_clock_cmd( RCC_AHB1Periph_DMA1|RCC_AHB1Periph_DMA2, true );
-	rcc_ahb1_periph_clock_cmd( RCC_AHB1Periph_DMA1|RCC_AHB1Periph_DMA2, true );
-
-	//Configure used GPIOS
-	rcc_ahb1_periph_clock_cmd( RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB|
-		RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOE|
-		RCC_AHB1Periph_GPIOF|RCC_AHB1Periph_GPIOG|RCC_AHB1Periph_GPIOH, true );
+	LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_ADC);
+	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1|LL_AHB1_GRP1_PERIPH_DMA2);
+	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_GPIOA| LL_AHB1_GRP1_PERIPH_GPIOB|
+		LL_AHB1_GRP1_PERIPH_GPIOC|LL_AHB1_GRP1_PERIPH_GPIOD|
+		LL_AHB1_GRP1_PERIPH_GPIOE|LL_AHB1_GRP1_PERIPH_GPIOF|
+		LL_AHB1_GRP1_PERIPH_GPIOG|LL_AHB1_GRP1_PERIPH_GPIOH
+	);
 
 	//Configure MCO1 as master clock output for external devs
-	gpio_config( MCO1_PORT, MCO1_PIN, GPIO_MODE_ALTERNATE, GPIO_PUPD_PULLUP, GPIO_SPEED_100MHZ );
-	rcc_mco1_config( RCC_MCO1Source_HSE, RCC_MCO1Div_1 );
-
-
+	LL_GPIO_InitTypeDef port_cnf {
+		.Pin = 1U<<MCO1_PIN,
+		.Mode = LL_GPIO_MODE_ALTERNATE,
+		.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+		.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+		.Pull = LL_GPIO_PULL_NO,
+		.Alternate = LL_GPIO_AF_0
+	};
+	LL_GPIO_Init(MCO1_PORT, &port_cnf);
+	LL_RCC_ConfigMCO(LL_RCC_MCO1SOURCE_HSE, LL_RCC_MCO1SOURCE_HSE);
 }
 
 
@@ -139,6 +149,5 @@ off_t _lseek (int /*file*/, off_t /*ptr*/, int /*dir*/)  { return -1; }
 int _close (int /*file*/)  { return -1; }
 #endif // PDEBUG
 
-} /* extern C */
-
+}
 

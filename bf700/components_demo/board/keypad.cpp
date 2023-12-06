@@ -17,7 +17,7 @@
  */
 
 #include <board/keypad.hpp>
-#include <stm32gpio.h>
+#include <stm32_ll_gpio.h>
 
 
 namespace dev {
@@ -33,10 +33,10 @@ namespace {
 	static constexpr auto key_ok = 2;
 
 	bool io( unsigned pin ) {
-		return stm32::gpio_get( key_port, pin );
+		return LL_GPIO_IsInputPinSet(key_port, 1U<<pin);
 	}
 	bool io() {
-		return stm32::gpio_get( key_portok, key_ok );
+		return LL_GPIO_IsInputPinSet(key_portok, 1U<<key_ok);
 	}
 
 }
@@ -47,11 +47,17 @@ keypad::keypad( gfx::gui::frame& frm )
 		std::bind( &keypad::thread, this ) ) )
 	, m_frm( frm )
 {
-	stm32::gpio_config_ext( key_port,
-		_bv(key_left)|_bv(key_right)|_bv(key_up)|_bv(key_down),
-		stm32::GPIO_MODE_INPUT, stm32::GPIO_PUPD_PULLUP );
-	stm32::gpio_config( key_portok, key_ok, stm32::GPIO_MODE_INPUT, stm32::GPIO_PUPD_PULLUP );
-
+	LL_GPIO_InitTypeDef port_cnf {
+		.Pin = _bv(key_left)|_bv(key_right)|_bv(key_up)|_bv(key_down),
+		.Mode = LL_GPIO_MODE_INPUT,
+		.Speed = LL_GPIO_SPEED_FREQ_LOW,
+		.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+		.Pull = LL_GPIO_PULL_UP,
+		.Alternate = 0
+	};
+	LL_GPIO_Init(key_port, &port_cnf);
+	port_cnf.Pin = _bv(key_ok);
+	LL_GPIO_Init(key_portok, &port_cnf);
 }
 
 

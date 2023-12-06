@@ -19,7 +19,6 @@
 #include <isix.h>
 #include <foundation/sys/dbglog.h>
 #include <config/conf.h>
-#include <stm32_eth.h>
 #include <lwip/tcpip.h>
 #include <lwip/dhcp.h>
 #include <eth/ethernetif.h>
@@ -55,7 +54,6 @@ void tcp_eth_init(void)
   struct ip_addr netmask;
   struct ip_addr gw;
   uint8_t macaddress[6]={0x00,0xA4,0xA5,0x10,0x20,0x30};
-  using namespace stm32;
 
   netif_init();
   tcpip_init( NULL, NULL );

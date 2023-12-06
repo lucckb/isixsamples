@@ -17,9 +17,9 @@
  */
 #include <board/ili_fsmc_bus.hpp>
 #include <isix.h>
-#include <stm32gpio.h>
-#include <stm32fsmc.h>
-#include <stm32rcc.h>
+#include <stm32_ll_gpio.h>
+#include <stm32_ll_fsmc.h>
+#include <stm32_ll_rcc.h>
 #include <foundation/sys/dbglog.h>
 
 
@@ -58,72 +58,88 @@ namespace {
 
 void ili_fsmc_bus::fsmc_gpio_setup()
 {
-	using namespace stm32;
-	auto gpio_fsmc =
-	[]( GPIO_TypeDef* port, uint16_t pin ) {
-		using namespace stm32;
-		gpio_config( port, pin, GPIO_MODE_ALTERNATE, GPIO_PUPD_NONE,
-				GPIO_SPEED_25MHZ, GPIO_OTYPE_PP );
+	LL_GPIO_InitTypeDef port_cnf {
+		.Pin = LL_GPIO_PIN_0|LL_GPIO_PIN_1|LL_GPIO_PIN_4|LL_GPIO_PIN_5|
+			LL_GPIO_PIN_7|LL_GPIO_PIN_14|LL_GPIO_PIN_15,
+		.Mode = LL_GPIO_MODE_ALTERNATE,
+		.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH,
+		.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+		.Pull = LL_GPIO_PULL_NO,
+		.Alternate = LL_GPIO_AF_12
 	};
-	// PortD
-	gpio_pin_AF_config( GPIOD, GPIO_PinSource0, GPIO_AF_FSMC ); gpio_fsmc( GPIOD, 0 );
-	gpio_pin_AF_config( GPIOD, GPIO_PinSource1, GPIO_AF_FSMC ); gpio_fsmc( GPIOD, 1 );
-	gpio_pin_AF_config( GPIOD, GPIO_PinSource4, GPIO_AF_FSMC );	gpio_fsmc( GPIOD, 4 );
-	gpio_pin_AF_config( GPIOD, GPIO_PinSource5, GPIO_AF_FSMC ); gpio_fsmc( GPIOD, 5 );
-	gpio_pin_AF_config( GPIOD, GPIO_PinSource7, GPIO_AF_FSMC ); gpio_fsmc( GPIOD, 7 );
-	gpio_pin_AF_config( GPIOD, GPIO_PinSource14, GPIO_AF_FSMC ); gpio_fsmc( GPIOD, 14 );
-	gpio_pin_AF_config( GPIOD, GPIO_PinSource15, GPIO_AF_FSMC ); gpio_fsmc( GPIOD, 15 );
-	// PortE
-	gpio_pin_AF_config( GPIOE, GPIO_PinSource7, GPIO_AF_FSMC ); gpio_fsmc( GPIOE, 7 );
-	gpio_pin_AF_config( GPIOE, GPIO_PinSource8, GPIO_AF_FSMC ); gpio_fsmc( GPIOE, 8 );
-	gpio_pin_AF_config( GPIOE, GPIO_PinSource9, GPIO_AF_FSMC ); gpio_fsmc( GPIOE, 9 );
-	gpio_pin_AF_config( GPIOE, GPIO_PinSource10, GPIO_AF_FSMC ); gpio_fsmc( GPIOE, 10 );
-	// PortF
-	gpio_pin_AF_config( GPIOF, GPIO_PinSource2, GPIO_AF_FSMC ); gpio_fsmc( GPIOF, 2 );
+	// PORTD
+	LL_GPIO_Init(GPIOD, &port_cnf);
+	// PORTE
+	port_cnf.Pin = LL_GPIO_PIN_7|LL_GPIO_PIN_8|LL_GPIO_PIN_9|LL_GPIO_PIN_10;
+	LL_GPIO_Init(GPIOE, &port_cnf);
+	// PORTF
+	port_cnf.Pin = LL_GPIO_PIN_2;
+	LL_GPIO_Init(GPIOF, &port_cnf);
 
 }
 
 void ili_fsmc_bus::fsmc_setup()
 {
-	using namespace stm32;
-	const fsmc_timing rd_cfg {
-		.address_setup_time = 1,
-		.address_hold_time = 0,
-		.data_setup_time = 8,
-		.bus_turn_arround_duration = 1,
-		.clk_div = 0,
-		.data_latency = 0,
-		.access_mode = FSMC_AccessMode_A
+// TODO: FSMC bus do it later
+#if 0
+	FSMC_NORSRAM_TimingTypeDef rd_cfg {
+		.AddressSetupTime = 1,
+		.AddressHoldTime = 0,
+		.DataSetupTime = 8,
+		.BusTurnAroundDuration = 1,
+		.CLKDivision = 0,
+		.DataLatency = 0,
+		.AccessMode = FSMC_ACCESS_MODE_A
 	};
-	const fsmc_timing wr_cfg {
-		.address_setup_time = 1,
-		.address_hold_time = 0,
-		.data_setup_time = 3,
-		.bus_turn_arround_duration = 1,
-		.clk_div = 0,
-		.data_latency = 0,
-		.access_mode = FSMC_AccessMode_A
+	FSMC_NORSRAM_TimingTypeDef wr_cfg {
+		.AddressSetupTime = 1,
+		.AddressHoldTime = 0,
+		.DataSetupTime = 3,
+		.BusTurnAroundDuration = 1,
+		.CLKDivision = 0,
+		.DataLatency = 0,
+		.AccessMode = FSMC_ACCESS_MODE_A
 	};
-	rcc_ahb3_periph_clock_cmd( RCC_AHB3Periph_FSMC, true );
-	fsmc_nor_setup( FSMC_Bank1_NORSRAM1,
-			FSMC_DataAddressMux_Disable | FSMC_MemoryType_SRAM |
-			FSMC_MemoryDataWidth_8b | FSMC_BurstAccessMode_Disable |
-			FSMC_WaitSignalPolarity_Low |  FSMC_WrapMode_Disable |
-			FSMC_WaitSignalActive_BeforeWaitState | FSMC_WriteOperation_Enable |
-			FSMC_WaitSignal_Disable | FSMC_ExtendedMode_Enable |
-			FSMC_AsynchronousWait_Disable | FSMC_WriteBurst_Disable,
-			&rd_cfg, &wr_cfg );
-	fsmc_nor_cmd( FSMC_Bank1_NORSRAM1, true );
+	FSMC_NORSRAM_InitTypeDef cfg {
+		.NSBank = FSMC_NORSRAM_BANK1,
+		.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE,
+		.MemoryType = FSMC_MEMORY_TYPE_SRAM,
+		.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_8,
+		.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE,
+		.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW,
+		.WrapMode = FSMC_WRAP_MODE_DISABLE,
+		.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS,
+		.WriteOperation = FSMC_WRITE_OPERATION_ENABLE,
+		.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE,
+		.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE,
+		.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE,
+		.WriteBurst = FSMC_WRITE_BURST_DISABLE,
+		.ContinuousClock = FSMC_CONTINUOUS_CLOCK_SYNC_ONLY,
+		.WriteFifo = 0,
+		.PageSize = FSMC_PAGE_SIZE_NONE
+	};
+	FSMC_NORSRAM_Init(FSMC_NORSRAM_DEVICE, &cfg);
+	FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_DEVICE, &rd_cfg, cfg.NSBank);
+	FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_DEVICE, &wr_cfg, cfg.NSBank, cfg.ExtendedMode);
+#endif
 }
 
 //Constructor
 ili_fsmc_bus::ili_fsmc_bus()
 {
-	using namespace stm32;
 	//Normal GPIOS
-	gpio_config( LCD_BL_PORT, LCD_BL_PIN, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
-	gpio_set( LCD_BL_PORT, LCD_BL_PIN );
-	gpio_config( LCD_RST_PORT, LCD_RST_PIN, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_SPEED_2MHZ );
+	LL_GPIO_InitTypeDef port_cnf {
+		.Pin = bv(LCD_BL_PIN),
+		.Mode = LL_GPIO_MODE_OUTPUT,
+		.Speed = LL_GPIO_SPEED_FREQ_LOW,
+		.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+		.Pull = LL_GPIO_PULL_NO,
+		.Alternate = 0
+	};
+	LL_GPIO_Init(LCD_BL_PORT, &port_cnf);
+	LL_GPIO_SetOutputPin( LCD_BL_PORT, bv(LCD_BL_PIN));
+	port_cnf.Pin = bv(LCD_RST_PIN);
+	LL_GPIO_Init(LCD_RST_PORT, &port_cnf);
 	fsmc_gpio_setup();
 	fsmc_setup();
 }
@@ -140,8 +156,8 @@ void ili_fsmc_bus::set_ctlbits( int bit, bool val )
 		else m_bus_addr = reinterpret_cast<volatile uint8_t*>( FSMC_NOR_BANK1_BASE );
 		break;
 	case RST_BIT_CMD:
-		if( val ) stm32::gpio_set( LCD_RST_PORT, LCD_RST_PIN );
-		else stm32::gpio_set( LCD_RST_PORT, LCD_RST_PIN );
+		if( val ) LL_GPIO_SetOutputPin( LCD_RST_PORT, bv(LCD_RST_PIN));
+		else LL_GPIO_ResetOutputPin( LCD_RST_PORT, bv(LCD_RST_PIN));
 		break;
 	}
 }
@@ -177,9 +193,9 @@ void ili_fsmc_bus::delay( unsigned tout )
 void ili_fsmc_bus::set_pwm( int percent )
 {
 	if( percent > 0 ) {
-		stm32::gpio_set( LCD_BL_PORT, LCD_BL_PIN );
+		LL_GPIO_SetOutputPin( LCD_BL_PORT, bv(LCD_BL_PIN) );
 	} else {
-		stm32::gpio_clr( LCD_BL_PORT, LCD_BL_PIN );
+		LL_GPIO_ResetOutputPin( LCD_BL_PORT, bv(LCD_BL_PIN));
 	}
 }
 
