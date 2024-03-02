@@ -1,6 +1,11 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/e0_led_blink/411disco_blink",
+		"target": {
+            "timebase" : "stm32f411e_disco/l2_time_base/l2_time_base",
+            "square" : "stm32f411e_disco/l2_square/l2_square",
+            "pwm" : "stm32f411e_disco/l2_pwm/l2_pwm",
+            "fmeas" : "stm32f411e_disco/l2_fmeas/l2_fmeas"
+        },
 		"type": 	"stlink-v2",
 		"speed": 	4000,
 		"swd":      1
