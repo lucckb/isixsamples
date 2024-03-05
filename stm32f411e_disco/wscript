@@ -4,14 +4,8 @@
 
 # Projects list
 _prjs = [
-    'e0_led_blink',
-    'e1_mutex',
-    'e2_task_suspend',
-    'e3_semaphore',
-    'e4_fifo_from_irq',
-    'e5_events',
-    'e6_spi_mems',
-    'e7_i2c_mems'
+    'l1_clocks_and_periph',
+    'l1_gpio_with_exti'
 ]
 
 #Additional extra libraries

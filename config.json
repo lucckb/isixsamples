@@ -1,6 +1,9 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/e0_led_blink/411disco_blink",
+		"target": 	{
+            "clk" : "stm32f411e_disco/l1_clocks_and_periph/l1_clk",
+            "exti" : "stm32f411e_disco/l1_gpio_with_exti/l1_exti"
+        },
 		"type": 	"stlink-v2",
 		"speed": 	4000,
 		"swd":      1
