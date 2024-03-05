@@ -4,10 +4,7 @@
 
 # Projects list
 _prjs = [
-    'l2_time_base',
-    'l2_pwm',
-    'l2_square',
-    'l2_fmeas',
+    'l3_serial',
 ]
 
 #Additional extra libraries

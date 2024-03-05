@@ -1,11 +1,6 @@
 {
 	"jtag": {
-		"target": {
-            "timebase" : "stm32f411e_disco/l2_time_base/l2_time_base",
-            "square" : "stm32f411e_disco/l2_square/l2_square",
-            "pwm" : "stm32f411e_disco/l2_pwm/l2_pwm",
-            "fmeas" : "stm32f411e_disco/l2_fmeas/l2_fmeas"
-        },
+		"target": "stm32f411e_disco/l3_serial/l3_serial",
 		"type": 	"stlink-v2",
 		"speed": 	4000,
 		"swd":      1
