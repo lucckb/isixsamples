@@ -1,6 +1,9 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/e0_led_blink/411disco_blink",
+		"target": 	{
+            "i2c_mems": "stm32f411e_disco/l4_i2c_mems/l4_i2c_mems",
+            "spi_mems": "stm32f411e_disco/l4_spi_mems/l4_spi_mems"
+        },
 		"type": 	"stlink-v2",
 		"speed": 	4000,
 		"swd":      1
