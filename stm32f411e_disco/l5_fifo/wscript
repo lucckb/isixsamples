@@ -17,7 +17,7 @@ def build(bld):
     src += bld.path.ant_glob( '**/*.c' )
     bld.program(
             features='objcopy',
-            target='events',
+            target='l5_fifo',
             source=src,
             install_path=False,
             includes=[ '.', 'board/include' ],

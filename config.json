@@ -1,6 +1,11 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/e0_led_blink/411disco_blink",
+		"target": {
+            "events" : "stm32f411e_disco/l5_events/l5_events",
+            "fifo" : "stm32f411e_disco/l5_fifo/l5_fifo",
+            "semaphore" : "stm32f411e_disco/l5_semaphore/l5_semaphore",
+            "tasks" : "stm32f411e_disco/l5_tasks/l5_tasks"
+        },
 		"type": 	"stlink-v2",
 		"speed": 	4000,
 		"swd":      1
