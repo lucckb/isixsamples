@@ -1,6 +1,6 @@
 {
 	"jtag": {
-		"target": 	"stm32f411e_disco/e0_led_blink/411disco_blink",
+		"target": 	"stm32f411e_disco/l6_adc/l6_adc",
 		"type": 	"stlink-v2",
 		"speed": 	4000,
 		"swd":      1

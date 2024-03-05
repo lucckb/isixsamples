@@ -4,19 +4,9 @@
 #include <periph/gpio/gpio.hpp>
 #include <isix.h>
 
-namespace {
-    constexpr auto led_0 = periph::gpio::num::PD13;
-}
 
 namespace app {
     void test_thread(void*) {
-        for(int i=0;;++i) {
-            isix::wait_ms(500);
-            if(i%2==0) {
-                dbprintf("Loop %i",i>>1);
-            }
-            periph::gpio::set(led_0, i%2);
-        }
     }
 }
 
@@ -39,13 +29,6 @@ auto main() -> int
 		periph::drivers::uart_early::open,
 		"serial0", 115200
 	);
-    // Configure PD13 pin LED as an output
-    periph::gpio::setup( led_0,
-        periph::gpio::mode::out{
-            periph::gpio::outtype::pushpull,
-            periph::gpio::speed::low
-        }
-    );
 	isix::task_create( app::test_thread, nullptr, 1536, isix::get_min_priority() );
     dbprintf("<<<< Hello STM32F411E-DISCO board >>>>");
 	isix::start_scheduler();
