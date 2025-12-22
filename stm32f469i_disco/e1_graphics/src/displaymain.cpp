@@ -18,11 +18,11 @@ namespace {
 		constexpr auto mem_siz = 4U * 1024U * 1024U;
 		bool fail {};
 		//! Index pattern
-		dbonly(const auto t1 = isix::get_ujiffies();)
+		[[maybe_unused]] const auto t1 = isix::get_ujiffies();
 		for (auto i=0U; i<mem_siz; i++) {
 			*(addr + i) = i;
 		}
-		dbonly(const auto t2 = isix::get_ujiffies();)
+		[[maybe_unused]] const auto t2 = isix::get_ujiffies();
 		for (auto i=0U; i<mem_siz; i++) {
 			if(*(addr + i)!=i) {
 				dbprintf("sdram test1 failed <%08x>@%p ", *(addr + i), addr+i );
@@ -30,7 +30,7 @@ namespace {
 				break;
 			}
 		}
-		dbonly(const auto t3 = isix::get_ujiffies();)
+		[[maybe_unused]] const auto t3 = isix::get_ujiffies();
 		//0x55 test
 		for (auto i=0U; i<mem_siz; i++) {
 			*(addr + i) = 0x5555'5555U;

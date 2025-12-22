@@ -35,7 +35,7 @@ auto main() -> int
     dbprintf("<<<< Example 1. Mutexes >>>>");
 	// Create task as a lambda function
 	auto task_fn =
-		[]( int dbonly(tsk_no) ) {
+		[](int tsk_no) {
 			for(;;) {
 				dbprintf("Hello from task %i",tsk_no);
 				isix::wait_ms(500);

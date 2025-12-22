@@ -159,13 +159,6 @@ void hard_fault_exception_vector(void)
 	_cm3_hard_hault_entry_fn( application_crash );
 }
 
-#ifdef PDEBUG
-int _write (int /*file*/, const void * /*ptr*/, size_t /*len*/)  { return -1; }
-int _read (int /*file*/, void * /*ptr*/, size_t /*len*/)  { return -1; }
-off_t _lseek (int /*file*/, off_t /*ptr*/, int /*dir*/)  { return -1; }
-int _close (int /*file*/)  { return -1; }
-#endif // PDEBUG
-
 } /* extern C */
 
  

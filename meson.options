@@ -1,0 +1,7 @@
+option('crystal_hz', type : 'integer', value : 8000000,
+	description : 'HSE oscillator speed in Hz')
+
+option('board', type : 'combo', value : 'stm32f411e_disco',
+	choices : ['stm32f411e_disco', 'stm32f469i_disco', 'bf700', 'zl41arm'],
+	description : 'Board to build')
+
